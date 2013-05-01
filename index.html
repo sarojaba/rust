@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Rust-doc-korean : a safe, concurrent, practical language" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Rust-doc-korean</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/sarojaba/rust-doc-korean">View on GitHub</a>
+
+          <h1 id="project_title">Rust-doc-korean</h1>
+          <h2 id="project_tagline">a safe, concurrent, practical language</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/sarojaba/rust-doc-korean/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/sarojaba/rust-doc-korean/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>The Rust Programming Language</h1>
+
+<p>This is a compiler for Rust, including standard libraries, tools and
+documentation.</p>
+
+<h2>Installation</h2>
+
+<p>The Rust compiler currently must be built from a <a href="http://static.rust-lang.org/dist/rust-0.6.tar.gz">tarball</a>, unless you
+are on Windows, in which case using the <a href="http://static.rust-lang.org/dist/rust-0.6-install.exe">installer</a> is
+recommended.</p>
+
+<p>Since the Rust compiler is written in Rust, it must be built by
+a precompiled "snapshot" version of itself (made in an earlier state
+of development). As such, source builds require a connection to
+the Internet, to fetch snapshots, and an OS that can execute the
+available snapshot binaries.</p>
+
+<p>Snapshot binaries are currently built and tested on several platforms:</p>
+
+<ul>
+<li>Windows (7, Server 2008 R2), x86 only</li>
+<li>Linux (various distributions), x86 and x86-64</li>
+<li>OSX 10.6 ("Snow Leopard") or greater, x86 and x86-64</li>
+</ul><p>You may find that other platforms work, but these are our "tier 1"
+supported build environments that are most likely to work.</p>
+
+<blockquote>
+<p><strong><em>Note:</em></strong> Windows users should read the detailed
+<a href="https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust">getting started</a> notes on the wiki. Even when using
+the binary installer the Windows build requires a MinGW installation,
+the precise details of which are not discussed here.</p>
+</blockquote>
+
+<p>To build from source you will also need the following prerequisite
+packages:</p>
+
+<ul>
+<li>g++ 4.4 or clang++ 3.x</li>
+<li>python 2.6 or later (but not 3.x)</li>
+<li>perl 5.0 or later</li>
+<li>gnu make 3.81 or later</li>
+<li>curl</li>
+</ul><p>Assuming you're on a relatively modern *nix system and have met the
+prerequisites, something along these lines should work.</p>
+
+<pre><code>$ curl -O http://static.rust-lang.org/dist/rust-0.6.tar.gz
+$ tar -xzf rust-0.6.tar.gz
+$ cd rust-0.6
+$ ./configure
+$ make &amp;&amp; make install
+</code></pre>
+
+<p>You may need to use <code>sudo make install</code> if you do not normally have
+permission to modify the destination directory. The install locations
+can be adjusted by passing a <code>--prefix</code> argument to
+<code>configure</code>. Various other options are also supported, pass <code>--help</code>
+for more information on them.</p>
+
+<p>When complete, <code>make install</code> will place several programs into
+<code>/usr/local/bin</code>: <code>rustc</code>, the Rust compiler; <code>rustdoc</code>, the
+API-documentation tool, and <code>rustpkg</code>, the Rust package manager and build system.</p>
+
+<h2>License</h2>
+
+<p>Rust is primarily distributed under the terms of both the MIT license
+and the Apache License (Version 2.0), with portions covered by various
+BSD-like licenses.</p>
+
+<p>See LICENSE-APACHE, LICENSE-MIT, and COPYRIGHT for details.</p>
+
+<h2>More help</h2>
+
+<p>The <a href="http://static.rust-lang.org/doc/tutorial.html">tutorial</a> is a good starting point.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Rust-doc-korean maintained by <a href="https://github.com/sarojaba">sarojaba</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
