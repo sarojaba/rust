@@ -1,15 +1,8 @@
-% The Rust Language Tutorial
+% Rust 언어 튜토리얼
 
-# Introduction
+# 머리말
 
-Rust is a programming language with a focus on type safety, memory
-safety, concurrency and performance. It is intended for writing
-large-scale, high-performance software that is free from several
-classes of common errors. Rust has a sophisticated memory model that
-encourages efficient data structures and safe concurrency patterns,
-forbidding invalid memory accesses that would otherwise cause
-segmentation faults. It is statically typed and compiled ahead of
-time.
+Rust는 타입 안전성, 메모리 안전성, 동시성 그리고 성능에 초점을 맞춘 프로그래밍 언어이다. 몇 가지로 분류되는 일반적인 에러들로부터 자유로운 대규모, 고성능 소프트웨어를 작성하도록 계획되었다. Rust는 능률적인 데이터 구조를 장려하는 고수준의 메모리 모델과 세그멘테이션 오류를 일으키는 무효한 메모리 접근을 예방하는 안전한 동시성 패턴을 가지고 있다. 컴파일 시간에 타입이 정해진다.
 
 As a multi-paradigm language, Rust supports writing code in
 procedural, functional and object-oriented styles. Some of its
