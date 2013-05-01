@@ -75,4 +75,4 @@ See LICENSE-APACHE, LICENSE-MIT, and COPYRIGHT for details.
 
 The [tutorial] is a good starting point.
 
-[tutorial]: http://static.rust-lang.org/doc/tutorial.html
+[tutorial]: http://sarojaba.github.io/rust-doc-korean/doc/tutorial.html
