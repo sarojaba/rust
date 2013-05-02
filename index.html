@@ -31,41 +31,32 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>The Rust Programming Language</h1>
+        <h1>Rust 프로그래밍 언어</h1>
 
-<p>This is a compiler for Rust, including standard libraries, tools and
-documentation.</p>
+<p>이것은 표준 라이브러리, 도구 그리고 문서등이 포함된 Rust 컴파일러이다.</p>
 
-<h2>Installation</h2>
+<h2>설치하기</h2>
 
-<p>The Rust compiler currently must be built from a <a href="http://static.rust-lang.org/dist/rust-0.6.tar.gz">tarball</a>, unless you
-are on Windows, in which case using the <a href="http://static.rust-lang.org/dist/rust-0.6-install.exe">installer</a> is
-recommended.</p>
+<p>현재 Rust 컴파일러는 <a href="http://static.rust-lang.org/dist/rust-0.6.tar.gz">tarball</a>로 제작되고, Windows의 경우는 <a href="http://static.rust-lang.org/dist/rust-0.6-install.exe">installer</a> 사용을 추천한다.</p>
 
-<p>Since the Rust compiler is written in Rust, it must be built by
-a precompiled "snapshot" version of itself (made in an earlier state
-of development). As such, source builds require a connection to
-the Internet, to fetch snapshots, and an OS that can execute the
-available snapshot binaries.</p>
+<p>Rust 컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "snapshot" 버전으로 만들어진다(개발의 초기 단계에). 이처럼, 소스를 빌드하려면 snapshots을 받아오기 위해 인터넷 연결과, 유효한 스냅샷 바이너리를 실행할 수 있는 OS가 필요하다.</p>
 
-<p>Snapshot binaries are currently built and tested on several platforms:</p>
+<p>현재 스냅샷 바이너리는 아래의 플랫폼들에서 제작되고 테스트된다:</p>
 
 <ul>
 <li>Windows (7, Server 2008 R2), x86 only</li>
 <li>Linux (various distributions), x86 and x86-64</li>
 <li>OSX 10.6 ("Snow Leopard") or greater, x86 and x86-64</li>
-</ul><p>You may find that other platforms work, but these are our "tier 1"
-supported build environments that are most likely to work.</p>
+</ul><p>다른 플랫폼에서 작동하는 것을 찾을 수도 있지만, 선호되는 빌드 환경을 지원하는 것이 우선의 목표이다.</p>
 
 <blockquote>
-<p><strong><em>Note:</em></strong> Windows users should read the detailed
-<a href="https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust">getting started</a> notes on the wiki. Even when using
-the binary installer the Windows build requires a MinGW installation,
-the precise details of which are not discussed here.</p>
+<p><strong><em>Note:</em></strong> 윈도우즈 사용자들은 위키에서 세부적인
+<a href="https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust">getting started</a> 내용을 읽어야한다.
+바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다.
+정확한 내용은 여기서 논의하지 않는다.</p>
 </blockquote>
 
-<p>To build from source you will also need the following prerequisite
-packages:</p>
+<p>소스로부터 빌드하려면 사전에 필요한 패키지는 다음과 같다:</p>
 
 <ul>
 <li>g++ 4.4 or clang++ 3.x</li>
