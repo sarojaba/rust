@@ -1,4 +1,84 @@
-<meta charset="utf-8"><h1 id="머리말">머리말</h1>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>Rust 언어 튜토리얼</title>
+  <link rel="stylesheet" href="rust.css" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1 class="title">Rust 언어 튜토리얼</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#머리말"><span class="toc-section-number">1</span> 머리말</a><ul>
+<li><a href="#scope"><span class="toc-section-number">1.1</span> Scope</a></li>
+<li><a href="#conventions"><span class="toc-section-number">1.2</span> Conventions</a></li>
+</ul></li>
+<li><a href="#getting-started"><span class="toc-section-number">2</span> Getting started</a><ul>
+<li><a href="#compiling-your-first-program"><span class="toc-section-number">2.1</span> Compiling your first program</a></li>
+<li><a href="#using-the-rust-tool"><span class="toc-section-number">2.2</span> Using the rust tool</a></li>
+<li><a href="#editing-rust-code"><span class="toc-section-number">2.3</span> Editing Rust code</a></li>
+</ul></li>
+<li><a href="#syntax-basics"><span class="toc-section-number">3</span> Syntax basics</a><ul>
+<li><a href="#expressions-and-semicolons"><span class="toc-section-number">3.1</span> Expressions and semicolons</a></li>
+<li><a href="#primitive-types-and-literals"><span class="toc-section-number">3.2</span> Primitive types and literals</a></li>
+<li><a href="#operators"><span class="toc-section-number">3.3</span> Operators</a></li>
+<li><a href="#syntax-extensions"><span class="toc-section-number">3.4</span> Syntax extensions</a></li>
+</ul></li>
+<li><a href="#control-structures"><span class="toc-section-number">4</span> Control structures</a><ul>
+<li><a href="#conditionals"><span class="toc-section-number">4.1</span> Conditionals</a></li>
+<li><a href="#pattern-matching"><span class="toc-section-number">4.2</span> Pattern matching</a></li>
+<li><a href="#loops"><span class="toc-section-number">4.3</span> Loops</a></li>
+</ul></li>
+<li><a href="#data-structures"><span class="toc-section-number">5</span> Data structures</a><ul>
+<li><a href="#structs"><span class="toc-section-number">5.1</span> Structs</a></li>
+<li><a href="#enums"><span class="toc-section-number">5.2</span> Enums</a></li>
+<li><a href="#tuples"><span class="toc-section-number">5.3</span> Tuples</a></li>
+<li><a href="#tuple-structs"><span class="toc-section-number">5.4</span> Tuple structs</a></li>
+</ul></li>
+<li><a href="#functions"><span class="toc-section-number">6</span> Functions</a></li>
+<li><a href="#destructors"><span class="toc-section-number">7</span> Destructors</a></li>
+<li><a href="#ownership"><span class="toc-section-number">8</span> Ownership</a></li>
+<li><a href="#boxes"><span class="toc-section-number">9</span> Boxes</a><ul>
+<li><a href="#owned-boxes"><span class="toc-section-number">9.1</span> Owned boxes</a></li>
+<li><a href="#managed-boxes"><span class="toc-section-number">9.2</span> Managed boxes</a></li>
+</ul></li>
+<li><a href="#move-semantics"><span class="toc-section-number">10</span> Move semantics</a></li>
+<li><a href="#borrowed-pointers"><span class="toc-section-number">11</span> Borrowed pointers</a><ul>
+<li><a href="#freezing"><span class="toc-section-number">11.1</span> Freezing</a></li>
+</ul></li>
+<li><a href="#dereferencing-pointers"><span class="toc-section-number">12</span> Dereferencing pointers</a></li>
+<li><a href="#vectors-and-strings"><span class="toc-section-number">13</span> Vectors and strings</a></li>
+<li><a href="#closures"><span class="toc-section-number">14</span> Closures</a><ul>
+<li><a href="#managed-closures"><span class="toc-section-number">14.1</span> Managed closures</a></li>
+<li><a href="#owned-closures"><span class="toc-section-number">14.2</span> Owned closures</a></li>
+<li><a href="#closure-compatibility"><span class="toc-section-number">14.3</span> Closure compatibility</a></li>
+<li><a href="#do-syntax"><span class="toc-section-number">14.4</span> Do syntax</a></li>
+<li><a href="#for-loops"><span class="toc-section-number">14.5</span> For loops</a></li>
+</ul></li>
+<li><a href="#methods"><span class="toc-section-number">15</span> Methods</a></li>
+<li><a href="#generics"><span class="toc-section-number">16</span> Generics</a><ul>
+<li><a href="#traits"><span class="toc-section-number">16.1</span> Traits</a></li>
+<li><a href="#declaring-and-implementing-traits"><span class="toc-section-number">16.2</span> Declaring and implementing traits</a></li>
+<li><a href="#bounded-type-parameters-and-static-method-dispatch"><span class="toc-section-number">16.3</span> Bounded type parameters and static method dispatch</a></li>
+<li><a href="#trait-objects-and-dynamic-method-dispatch"><span class="toc-section-number">16.4</span> Trait objects and dynamic method dispatch</a></li>
+<li><a href="#trait-inheritance"><span class="toc-section-number">16.5</span> Trait inheritance</a></li>
+</ul></li>
+<li><a href="#modules-and-crates"><span class="toc-section-number">17</span> Modules and crates</a><ul>
+<li><a href="#crates"><span class="toc-section-number">17.1</span> Crates</a></li>
+<li><a href="#using-other-crates"><span class="toc-section-number">17.2</span> Using other crates</a></li>
+<li><a href="#a-minimal-example"><span class="toc-section-number">17.3</span> A minimal example</a></li>
+<li><a href="#the-core-library"><span class="toc-section-number">17.4</span> The core library</a><ul>
+<li><a href="#core-injection-and-the-rust-prelude"><span class="toc-section-number">17.4.1</span> Core injection and the Rust prelude</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#what-next"><span class="toc-section-number">18</span> What next?</a></li>
+</ul>
+</div>
+<h1 id="머리말"><a href="#TOC"><span class="header-section-number">1</span> 머리말</a></h1>
 <p>Rust는 타입 안전성, 메모리 안전성, 동시성 그리고 성능에 초점을 맞춘 프로그래밍 언어이다. 몇 가지로 분류되는 일반적인 에러들로부터 자유로운 대규모, 고성능 소프트웨어를 작성하도록 계획되었다. Rust는 능률적인 데이터 구조를 장려하는 고수준의 메모리 모델과 세그멘테이션 오류를 일으키는 무효한 메모리 접근을 예방하는 안전한 동시성 패턴을 가지고 있다. 컴파일 시간에 타입이 정해진다.</p>
 <p>As a multi-paradigm language, Rust supports writing code in procedural, functional and object-oriented styles. Some of its pleasant high-level features include:</p>
 <ul>
@@ -8,16 +88,16 @@
 <li><strong>Pattern matching and algebraic data types.</strong> Pattern matching on Rust's enumeration types (a more powerful version of C's enums, similar to algebraic data types in functional languages) is a compact and expressive way to encode program logic.</li>
 <li><strong>Polymorphism.</strong> Rust has type-parametric functions and types, type classes and OO-style interfaces.</li>
 </ul>
-<h2 id="scope">Scope</h2>
+<h2 id="scope"><a href="#TOC"><span class="header-section-number">1.1</span> Scope</a></h2>
 <p>This is an introductory tutorial for the Rust programming language. It covers the fundamentals of the language, including the syntax, the type system and memory model, generics, and modules. <a href="#what-next">Additional tutorials</a> cover specific language features in greater depth.</p>
 <p>This tutorial assumes that the reader is already familiar with one or more languages in the C family. Understanding of pointers and general memory management techniques will help.</p>
-<h2 id="conventions">Conventions</h2>
+<h2 id="conventions"><a href="#TOC"><span class="header-section-number">1.2</span> Conventions</a></h2>
 <p>Throughout the tutorial, language keywords and identifiers defined in example code are displayed in <code>code font</code>.</p>
 <p>Code snippets are indented, and also shown in a monospaced font. Not all snippets constitute whole programs. For brevity, we'll often show fragments of programs that don't compile on their own. To try them out, you might have to wrap them in <code>fn main() { ... }</code>, and make sure they don't contain references to names that aren't actually defined.</p>
 <blockquote>
 <p><strong><em>Warning:</em></strong> Rust is a language under ongoing development. Notes about potential changes to the language, implementation deficiencies, and other caveats appear offset in blockquotes.</p>
 </blockquote>
-<h1 id="getting-started">Getting started</h1>
+<h1 id="getting-started"><a href="#TOC"><span class="header-section-number">2</span> Getting started</a></h1>
 <p>The Rust compiler currently must be built from a <a href="http://static.rust-lang.org/dist/rust-0.6.tar.gz">tarball</a>, unless you are on Windows, in which case using the <a href="http://static.rust-lang.org/dist/rust-0.6-install.exe">installer</a> is recommended.</p>
 <p>Since the Rust compiler is written in Rust, it must be built by a precompiled &quot;snapshot&quot; version of itself (made in an earlier state of development). As such, source builds require a connection to the Internet, to fetch snapshots, and an OS that can execute the available snapshot binaries.</p>
 <p>Snapshot binaries are currently built and tested on several platforms:</p>
@@ -46,7 +126,7 @@ $ ./configure
 $ make &amp;&amp; make install</code></pre>
 <p>You may need to use <code>sudo make install</code> if you do not normally have permission to modify the destination directory. The install locations can be adjusted by passing a <code>--prefix</code> argument to <code>configure</code>. Various other options are also supported: pass <code>--help</code> for more information on them.</p>
 <p>When complete, <code>make install</code> will place several programs into <code>/usr/local/bin</code>: <code>rustc</code>, the Rust compiler; <code>rustdoc</code>, the API-documentation tool; <code>rustpkg</code>, the Rust package manager; <code>rusti</code>, the Rust REPL; and <code>rust</code>, a tool which acts both as a unified interface for them, and for a few common command line scenarios.</p>
-<h2 id="compiling-your-first-program">Compiling your first program</h2>
+<h2 id="compiling-your-first-program"><a href="#TOC"><span class="header-section-number">2.1</span> Compiling your first program</a></h2>
 <p>Rust program files are, by convention, given the extension <code>.rs</code>. Say we have a file <code>hello.rs</code> containing this program:</p>
 <pre><code>fn main() {
     io::println(&quot;hello?&quot;);
@@ -57,14 +137,14 @@ $ make &amp;&amp; make install</code></pre>
 hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
                ^~~~~~~~~~~~~~~~~~~~~~~</code></pre>
 <p>In its simplest form, a Rust program is a <code>.rs</code> file with some types and functions defined in it. If it has a <code>main</code> function, it can be compiled to an executable. Rust does not allow code that's not a declaration to appear at the top level of the file: all statements must live inside a function. Rust programs can also be compiled as libraries, and included in other programs.</p>
-<h2 id="using-the-rust-tool">Using the rust tool</h2>
+<h2 id="using-the-rust-tool"><a href="#TOC"><span class="header-section-number">2.2</span> Using the rust tool</a></h2>
 <p>While using <code>rustc</code> directly to generate your executables, and then running them manually is a perfectly valid way to test your code, for smaller projects, prototypes, or if you're a beginner, it might be more convenient to use the <code>rust</code> tool.</p>
 <p>The <code>rust</code> tool provides central access to the other rust tools, as well as handy shortcuts for directly running source files. For example, if you have a file <code>foo.rs</code> in your current directory, <code>rust run foo.rs</code> would attempt to compile it and, if successful, directly run the resulting binary.</p>
 <p>To get a list of all available commands, simply call <code>rust</code> without any argument.</p>
-<h2 id="editing-rust-code">Editing Rust code</h2>
+<h2 id="editing-rust-code"><a href="#TOC"><span class="header-section-number">2.3</span> Editing Rust code</a></h2>
 <p>There are vim highlighting and indentation scripts in the Rust source distribution under <code>src/etc/vim/</code>. There is an emacs mode under <code>src/etc/emacs/</code> called <code>rust-mode</code>, but do read the instructions included in that directory. In particular, if you are running emacs 24, then using emacs's internal package manager to install <code>rust-mode</code> is the easiest way to keep it up to date. There is also a package for Sublime Text 2, available both <a href="http://github.com/dbp/sublime-rust">standalone</a> and through <a href="http://wbond.net/sublime_packages/package_control">Sublime Package Control</a>, and support for Kate under <code>src/etc/kate</code>.</p>
 <p>There is ctags support via <code>src/etc/ctags.rust</code>, but many other tools and editors are not yet supported. If you end up writing a Rust mode for your favorite editor, let us know so that we can link to it.</p>
-<h1 id="syntax-basics">Syntax basics</h1>
+<h1 id="syntax-basics"><a href="#TOC"><span class="header-section-number">3</span> Syntax basics</a></h1>
 <p>Assuming you've programmed in any C-family language (C++, Java, JavaScript, C#, or PHP), Rust will feel familiar. Code is arranged in blocks delineated by curly braces; there are control structures for branching and looping, like the familiar <code>if</code> and <code>while</code>; function calls are written <code>myfunc(arg1, arg2)</code>; operators are written the same and mostly have the same precedence as in C; comments are again like C; module names are separated with double-colon (<code>::</code>) as with C++.</p>
 <p>The main surface difference to be aware of is that the condition at the head of control structures like <code>if</code> and <code>while</code> does not require parentheses, while their bodies <em>must</em> be wrapped in braces. Single-statement, unbraced bodies are not allowed.</p>
 <pre><code># mod universe { pub fn recalibrate() -&gt; bool { true } }
@@ -93,7 +173,7 @@ let monster_size: int = 50;</code></pre>
 <p>Rust identifiers start with an alphabetic character or an underscore, and after that may contain any sequence of alphabetic characters, numbers, or underscores. The preferred style is to write function, variable, and module names with lowercase letters, using underscores where they help readability, while writing types in camel case.</p>
 <pre><code>let my_variable = 100;
 type MyType = int;     // primitive types are _not_ camel case</code></pre>
-<h2 id="expressions-and-semicolons">Expressions and semicolons</h2>
+<h2 id="expressions-and-semicolons"><a href="#TOC"><span class="header-section-number">3.1</span> Expressions and semicolons</a></h2>
 <p>Though it isn't apparent in all code, there is a fundamental difference between Rust's syntax and predecessors like C. Many constructs that are statements in C are expressions in Rust, allowing code to be more concise. For example, you might write a piece of code like this:</p>
 <pre><code># let item = &quot;salad&quot;;
 let price;
@@ -122,7 +202,7 @@ let price =
    // is used as the return value.
    x == 4
 }</code></pre>
-<h2 id="primitive-types-and-literals">Primitive types and literals</h2>
+<h2 id="primitive-types-and-literals"><a href="#TOC"><span class="header-section-number">3.2</span> Primitive types and literals</a></h2>
 <p>There are general signed and unsigned integer types, <code>int</code> and <code>uint</code>, as well as 8-, 16-, 32-, and 64-bit variants, <code>i8</code>, <code>u16</code>, etc. Integers can be written in decimal (<code>144</code>), hexadecimal (<code>0x90</code>), or binary (<code>0b10010000</code>) base. Each integral type has a corresponding literal suffix that can be used to indicate the type of a literal: <code>i</code> for <code>int</code>, <code>u</code> for <code>uint</code>, <code>i8</code> for the <code>i8</code> type.</p>
 <p>In the absence of an integer literal suffix, Rust will infer the integer type based on type annotations and function signatures in the surrounding program. In the absence of any type information at all, Rust will assume that an unsuffixed integer literal has type <code>int</code>.</p>
 <pre><code>let a = 1;       // a is an int
@@ -133,7 +213,7 @@ let d = 1000i32; // d is an i32</code></pre>
 <p>The keywords <code>true</code> and <code>false</code> produce literals of type <code>bool</code>.</p>
 <p>Characters, the <code>char</code> type, are four-byte Unicode codepoints, whose literals are written between single quotes, as in <code>'x'</code>. Just like C, Rust understands a number of character escapes, using the backslash character, such as <code>\n</code>, <code>\r</code>, and <code>\t</code>. String literals, written between double quotes, allow the same escape sequences. More on strings <a href="#vectors-and-strings">later</a>.</p>
 <p>The nil type, written <code>()</code>, has a single value, also written <code>()</code>.</p>
-<h2 id="operators">Operators</h2>
+<h2 id="operators"><a href="#TOC"><span class="header-section-number">3.3</span> Operators</a></h2>
 <p>Rust's set of operators contains very few surprises. Arithmetic is done with <code>*</code>, <code>/</code>, <code>%</code>, <code>+</code>, and <code>-</code> (multiply, quotient, remainder, add, and subtract). <code>-</code> is also a unary prefix operator that negates numbers. As in C, the bitwise operators <code>&gt;&gt;</code>, <code>&lt;&lt;</code>, <code>&amp;</code>, <code>|</code>, and <code>^</code> are also supported.</p>
 <p>Note that, if applied to an integer value, <code>!</code> flips all the bits (like <code>~</code> in C).</p>
 <p>The comparison operators are the traditional <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, and <code>&gt;=</code>. Short-circuiting (lazy) boolean operators are written <code>&amp;&amp;</code> (and) and <code>||</code> (or).</p>
@@ -141,7 +221,7 @@ let d = 1000i32; // d is an i32</code></pre>
 <pre><code>let x: float = 4.0;
 let y: uint = x as uint;
 assert!(y == 4u);</code></pre>
-<h2 id="syntax-extensions">Syntax extensions</h2>
+<h2 id="syntax-extensions"><a href="#TOC"><span class="header-section-number">3.4</span> Syntax extensions</a></h2>
 <p><em>Syntax extensions</em> are special forms that are not built into the language, but are instead provided by the libraries. To make it clear to the reader when a name refers to a syntax extension, the names of all syntax extensions end with <code>!</code>. The standard library defines a few syntax extensions, the most useful of which is <code>fmt!</code>, a <code>sprintf</code>-style text formatter that you will often see in examples.</p>
 <p><code>fmt!</code> supports most of the directives that <a href="http://en.cppreference.com/w/cpp/io/c/fprintf">printf</a> supports, but unlike printf, will give you a compile-time error when the types of the directives don't match the types of the arguments.</p>
 <pre><code># let mystery_object = ();
@@ -151,8 +231,8 @@ io::println(fmt!(&quot;%s is %d&quot;, &quot;the answer&quot;, 43));
 // %? will conveniently print any type
 io::println(fmt!(&quot;what is this thing: %?&quot;, mystery_object));</code></pre>
 <p>You can define your own syntax extensions with the macro system. For details, see the <a href="tutorial-macros.html">macro tutorial</a>.</p>
-<h1 id="control-structures">Control structures</h1>
-<h2 id="conditionals">Conditionals</h2>
+<h1 id="control-structures"><a href="#TOC"><span class="header-section-number">4</span> Control structures</a></h1>
+<h2 id="conditionals"><a href="#TOC"><span class="header-section-number">4.1</span> Conditionals</a></h2>
 <p>We've seen <code>if</code> expressions a few times already. To recap, braces are compulsory, an <code>if</code> can have an optional <code>else</code> clause, and multiple <code>if</code>/<code>else</code> constructs can be chained together:</p>
 <pre><code>if false {
     io::println(&quot;that&#39;s odd&quot;);
@@ -167,7 +247,7 @@ io::println(fmt!(&quot;what is this thing: %?&quot;, mystery_object));</code></p
     else if x &gt; 0 { 1 }
     else { return 0 }
 }</code></pre>
-<h2 id="pattern-matching">Pattern matching</h2>
+<h2 id="pattern-matching"><a href="#TOC"><span class="header-section-number">4.2</span> Pattern matching</a></h2>
 <p>Rust's <code>match</code> construct is a generalized, cleaned-up version of C's <code>switch</code> construct. You provide it with a value and a number of <em>arms</em>, each labelled with a pattern, and the code compares the value against each pattern in order until one matches. The matching pattern executes its corresponding arm.</p>
 <pre><code># let my_number = 1;
 match my_number {
@@ -203,7 +283,7 @@ match my_number {
 <pre><code># fn get_tuple_of_two_ints() -&gt; (int, int) { (1, 1) }
 let (a, b) = get_tuple_of_two_ints();</code></pre>
 <p>Let bindings only work with <em>irrefutable</em> patterns: that is, patterns that can never fail to match. This excludes <code>let</code> from matching literals and most <code>enum</code> variants.</p>
-<h2 id="loops">Loops</h2>
+<h2 id="loops"><a href="#TOC"><span class="header-section-number">4.3</span> Loops</a></h2>
 <p><code>while</code> denotes a loop that iterates as long as its given condition (which must have type <code>bool</code>) evaluates to <code>true</code>. Inside a loop, the keyword <code>break</code> aborts the loop, and <code>loop</code> aborts the current iteration and continues with the next.</p>
 <pre><code>let mut cake_amount = 8;
 while cake_amount &gt; 0 {
@@ -218,8 +298,8 @@ loop {
 }</code></pre>
 <p>This code prints out a weird sequence of numbers and stops as soon as it finds one that can be divided by five.</p>
 <p>For more involved iteration, such as enumerating the elements of a collection, Rust uses <a href="#closures">higher-order functions</a>.</p>
-<h1 id="data-structures">Data structures</h1>
-<h2 id="structs">Structs</h2>
+<h1 id="data-structures"><a href="#TOC"><span class="header-section-number">5</span> Data structures</a></h1>
+<h2 id="structs"><a href="#TOC"><span class="header-section-number">5.1</span> Structs</a></h2>
 <p>Rust struct types must be declared before they are used using the <code>struct</code> syntax: <code>struct Name { field1: T1, field2: T2 [, ...] }</code>, where <code>T1</code>, <code>T2</code>, ... denote types. To construct a struct, use the same syntax, but leave off the <code>struct</code>: for example: <code>Point { x: 1.0, y: 2.0 }</code>.</p>
 <p>Structs are quite similar to C structs and are even laid out the same way in memory (so you can read from a Rust struct in C, and vice-versa). Use the dot operator to access struct fields, as in <code>mypoint.x</code>.</p>
 <pre><code>struct Point {
@@ -247,7 +327,7 @@ match mypoint {
 match mypoint {
     Point { x, _ } =&gt; { io::println(x.to_str()) }
 }</code></pre>
-<h2 id="enums">Enums</h2>
+<h2 id="enums"><a href="#TOC"><span class="header-section-number">5.2</span> Enums</a></h2>
 <p>Enums are datatypes that have several alternate representations. For example, consider the type shown earlier:</p>
 <pre><code># struct Point { x: float, y: float }
 enum Shape {
@@ -308,13 +388,13 @@ fn area(sh: Shape) -&gt; float {
         }
     }
 }</code></pre>
-<h2 id="tuples">Tuples</h2>
+<h2 id="tuples"><a href="#TOC"><span class="header-section-number">5.3</span> Tuples</a></h2>
 <p>Tuples in Rust behave exactly like structs, except that their fields do not have names. Thus, you cannot access their fields with dot notation. Tuples can have any arity except for 0 (though you may consider unit, <code>()</code>, as the empty tuple if you like).</p>
 <pre><code>let mytup: (int, int, float) = (10, 20, 30.0);
 match mytup {
   (a, b, c) =&gt; info!(a + b + (c as int))
 }</code></pre>
-<h2 id="tuple-structs">Tuple structs</h2>
+<h2 id="tuple-structs"><a href="#TOC"><span class="header-section-number">5.4</span> Tuple structs</a></h2>
 <p>Rust also has <em>tuple structs</em>, which behave like both structs and tuples, except that, unlike tuples, tuple structs have names (so <code>Foo(1, 2)</code> has a different type from <code>Bar(1, 2)</code>), and tuple structs' <em>fields</em> do not have names.</p>
 <p>For example: ~~~~ struct MyTup(int, int, float); let mytup: MyTup = MyTup(10, 20, 30.0); match mytup { MyTup(a, b, c) =&gt; info!(a + b + (c as int)) } ~~~~</p>
 <a name="newtype"></a>
@@ -328,7 +408,7 @@ let id_int: int = *my_gizmo_id;</code></pre>
 <pre><code>struct Inches(int);
 struct Centimeters(int);</code></pre>
 <p>The above definitions allow for a simple way for programs to avoid confusing numbers that correspond to different units.</p>
-<h1 id="functions">Functions</h1>
+<h1 id="functions"><a href="#TOC"><span class="header-section-number">6</span> Functions</a></h1>
 <p>We've already seen several function definitions. Like all other static declarations, such as <code>type</code>, functions can be declared both at the top level and inside other functions (or in modules, which we'll come back to <a href="#modules-and-crates">later</a>). The <code>fn</code> keyword introduces a function. A function has an argument list, which is a parenthesized list of <code>expr: type</code> pairs separated by commas. An arrow <code>-&gt;</code> separates the argument list and the function's return type.</p>
 <pre><code>fn line(a: int, b: int, x: int) -&gt; int {
     return a * x + b;
@@ -349,7 +429,7 @@ assert!(8 == line(5, 3, 1));
 assert!(() == oops(5, 3, 1));</code></pre>
 <p>As with <code>match</code> expressions and <code>let</code> bindings, function arguments support pattern destructuring. Like <code>let</code>, argument patterns must be irrefutable, as in this example that unpacks the first value from a tuple and returns it.</p>
 <pre><code>fn first((value, _): (int, float)) -&gt; int { value }</code></pre>
-<h1 id="destructors">Destructors</h1>
+<h1 id="destructors"><a href="#TOC"><span class="header-section-number">7</span> Destructors</a></h1>
 <p>A <em>destructor</em> is a function responsible for cleaning up the resources used by an object when it is no longer accessible. Destructors can be defined to handle the release of resources like files, sockets and heap memory.</p>
 <p>Objects are never accessible after their destructor has been called, so there are no dynamic failures from accessing freed resources. When a task fails, the destructors of all objects in the task are called.</p>
 <p>The <code>~</code> sigil represents a unique handle for a memory allocation on the heap:</p>
@@ -359,7 +439,7 @@ assert!(() == oops(5, 3, 1));</code></pre>
 }
 // the destructor frees the heap memory as soon as `y` goes out of scope</code></pre>
 <p>Rust includes syntax for heap memory allocation in the language since it's commonly used, but the same semantics can be implemented by a type with a custom destructor.</p>
-<h1 id="ownership">Ownership</h1>
+<h1 id="ownership"><a href="#TOC"><span class="header-section-number">8</span> Ownership</a></h1>
 <p>Rust formalizes the concept of object ownership to delegate management of an object's lifetime to either a variable or a task-local garbage collector. An object's owner is responsible for managing the lifetime of the object by calling the destructor, and the owner determines whether the object is mutable.</p>
 <p>Ownership is recursive, so mutability is inherited recursively and a destructor destroys the contained tree of owned objects. Variables are top-level owners and destroy the contained object when they go out of scope. A box managed by the garbage collector starts a new ownership tree, and the destructor is called when it is collected.</p>
 <pre><code>// the struct owns the objects contained in the `x` and `y` fields
@@ -376,10 +456,10 @@ struct Foo { x: int, y: ~int }
 let mut b = Foo { x: 5, y: ~10 };
 b.x = 10;</code></pre>
 <p>If an object doesn't contain garbage-collected boxes, it consists of a single ownership tree and is given the <code>Owned</code> trait which allows it to be sent between tasks. Custom destructors can only be implemented directly on types that are <code>Owned</code>, but garbage-collected boxes can still <em>contain</em> types with custom destructors.</p>
-<h1 id="boxes">Boxes</h1>
+<h1 id="boxes"><a href="#TOC"><span class="header-section-number">9</span> Boxes</a></h1>
 <p>Many modern languages represent values as pointers to heap memory by default. In contrast, Rust, like C and C++, represents such types directly. Another way to say this is that aggregate data in Rust are <em>unboxed</em>. This means that if you <code>let x = Point { x: 1f, y: 1f };</code>, you are creating a struct on the stack. If you then copy it into a data structure, you copy the entire struct, not just a pointer.</p>
 <p>For small structs like <code>Point</code>, this is usually more efficient than allocating memory and indirecting through a pointer. But for big structs, or mutable state, it can be useful to have a single copy on the stack or on the heap, and refer to that through a pointer.</p>
-<h2 id="owned-boxes">Owned boxes</h2>
+<h2 id="owned-boxes"><a href="#TOC"><span class="header-section-number">9.1</span> Owned boxes</a></h2>
 <p>An owned box (<code>~</code>) is a uniquely owned allocation on the heap. It inherits the mutability and lifetime of the owner as it would if there was no box:</p>
 <pre><code>let x = 5; // immutable
 let mut y = 5; // mutable
@@ -400,7 +480,7 @@ let mut y = ~5; // mutable
 <pre><code>struct Foo {
     child: Option&lt;~Foo&gt;
 }</code></pre>
-<h2 id="managed-boxes">Managed boxes</h2>
+<h2 id="managed-boxes"><a href="#TOC"><span class="header-section-number">9.2</span> Managed boxes</a></h2>
 <p>A managed box (<code>@</code>) is a heap allocation with the lifetime managed by a task-local garbage collector. It will be destroyed at some point after there are no references left to the box, no later than the end of the task. Managed boxes lack an owner, so they start a new ownership tree and don't inherit mutability. They do own the contained object, and mutability is defined by the type of the shared box (<code>@</code> or <code>@mut</code>). An object containing a managed box is not <code>Owned</code>, and can't be sent between tasks.</p>
 <pre><code>let a = @5; // immutable
 
@@ -424,7 +504,7 @@ c = a;          // box type is the same, okay
 d = b;          // box type is the same, okay</code></pre>
 <pre class="xfail-test"><code>// but b cannot be assigned to c, or a to d
 c = b;          // error</code></pre>
-<h1 id="move-semantics">Move semantics</h1>
+<h1 id="move-semantics"><a href="#TOC"><span class="header-section-number">10</span> Move semantics</a></h1>
 <p>Rust uses a shallow copy for parameter passing, assignment and returning values from functions. A shallow copy is considered a move of ownership if the ownership tree of the copied value includes an owned box or a type with a custom destructor. After a value has been moved, it can no longer be used from the source location and will not be destroyed there.</p>
 <pre><code>let x = ~5;
 let y = x.clone(); // y is a newly allocated box
@@ -434,7 +514,7 @@ let z = x; // no new memory allocated, x can no longer be used</code></pre>
 let mut s = r; // box becomes mutable
 *s += 1;
 let t = s; // box becomes immutable</code></pre>
-<h1 id="borrowed-pointers">Borrowed pointers</h1>
+<h1 id="borrowed-pointers"><a href="#TOC"><span class="header-section-number">11</span> Borrowed pointers</a></h1>
 <p>Rust's borrowed pointers are a general purpose reference type. In contrast with owned boxes, where the holder of an owned box is the owner of the pointed-to memory, borrowed pointers never imply ownership. A pointer can be borrowed to any object, and the compiler verifies that it cannot outlive the lifetime of the object.</p>
 <p>As an example, consider a simple struct type, <code>Point</code>:</p>
 <pre><code>struct Point {
@@ -466,7 +546,7 @@ compute_distance(managed_box, owned_box);</code></pre>
 <p>In the case of the boxes <code>managed_box</code> and <code>owned_box</code>, however, no explicit action is necessary. The compiler will automatically convert a box like <code>@point</code> or <code>~point</code> to a borrowed pointer like <code>&amp;point</code>. This is another form of borrowing; in this case, the contents of the managed/owned box are being lent out.</p>
 <p>Whenever a value is borrowed, there are some limitations on what you can do with the original. For example, if the contents of a variable have been lent out, you cannot send that variable to another task, nor will you be permitted to take actions that might cause the borrowed value to be freed or to change its type. This rule should make intuitive sense: you must wait for a borrowed value to be returned (that is, for the borrowed pointer to go out of scope) before you can make full use of it again.</p>
 <p>For a more in-depth explanation of borrowed pointers, read the <a href="tutorial-borrowed-ptr.html">borrowed pointer tutorial</a>.</p>
-<h2 id="freezing">Freezing</h2>
+<h2 id="freezing"><a href="#TOC"><span class="header-section-number">11.1</span> Freezing</a></h2>
 <p>Borrowing an immutable pointer to an object freezes it and prevents mutation. <code>Owned</code> objects have freezing enforced statically at compile-time.</p>
 <pre><code>let mut x = 5;
 {
@@ -481,7 +561,7 @@ let y = x;
     // modifying it through x or y will cause a task failure
 }
 // the box is now unfrozen again</code></pre>
-<h1 id="dereferencing-pointers">Dereferencing pointers</h1>
+<h1 id="dereferencing-pointers"><a href="#TOC"><span class="header-section-number">12</span> Dereferencing pointers</a></h1>
 <p>Rust uses the unary star operator (<code>*</code>) to access the contents of a box or pointer, similarly to C.</p>
 <pre><code>let managed = @10;
 let owned = ~20;
@@ -519,7 +599,7 @@ let area = rect.area();</code></pre>
 let point = &amp;@~Point { x: 10f, y: 20f };
 io::println(fmt!(&quot;%f&quot;, point.x));</code></pre>
 <p>The indexing operator (<code>[]</code>) also auto-dereferences.</p>
-<h1 id="vectors-and-strings">Vectors and strings</h1>
+<h1 id="vectors-and-strings"><a href="#TOC"><span class="header-section-number">13</span> Vectors and strings</a></h1>
 <p>A vector is a contiguous section of memory containing zero or more values of the same type. Like other types in Rust, vectors can be stored on the stack, the local heap, or the exchange heap. Borrowed pointers to vectors are also called 'slices'.</p>
 <pre><code># enum Crayon {
 #     Almond, AntiqueBrass, Apricot,
@@ -639,7 +719,7 @@ if favorite_crayon_name.len() &gt; 5 {
    // Create a substring
    println(favorite_crayon_name.substr(0, 5));
 }</code></pre>
-<h1 id="closures">Closures</h1>
+<h1 id="closures"><a href="#TOC"><span class="header-section-number">14</span> Closures</a></h1>
 <p>Named functions, like those we've seen so far, may not refer to local variables declared outside the function: they do not close over their environment (sometimes referred to as &quot;capturing&quot; variables in their environment). For example, you couldn't write the following:</p>
 <pre class="ignore"><code>let foo = 10;
 
@@ -660,7 +740,7 @@ call_closure_with_ten(closure);</code></pre>
 <pre><code>let mut max = 0;
 [1, 2, 3].map(|x| if *x &gt; max { max = *x });</code></pre>
 <p>Stack closures are very efficient because their environment is allocated on the call stack and refers by pointer to captured locals. To ensure that stack closures never outlive the local variables to which they refer, stack closures are not first-class. That is, they can only be used in argument position; they cannot be stored in data structures or returned from functions. Despite these limitations, stack closures are used pervasively in Rust code.</p>
-<h2 id="managed-closures">Managed closures</h2>
+<h2 id="managed-closures"><a href="#TOC"><span class="header-section-number">14.1</span> Managed closures</a></h2>
 <p>When you need to store a closure in a data structure, a stack closure will not do, since the compiler will refuse to let you store it. For this purpose, Rust provides a type of closure that has an arbitrary lifetime, written <code>@fn</code> (boxed closure, analogous to the <code>@</code> pointer type described earlier). This type of closure <em>is</em> first-class.</p>
 <p>A managed closure does not directly access its environment, but merely copies out the values that it closes over into a private data structure. This means that it can not assign to these variables, and cannot observe updates to them.</p>
 <p>This code creates a closure that adds a given string to its argument, returns it from a function, and then calls it:</p>
@@ -674,9 +754,9 @@ fn main() {
     let shout = mk_appender(~&quot;!&quot;);
     io::println(shout(~&quot;hey ho, let&#39;s go&quot;));
 }</code></pre>
-<h2 id="owned-closures">Owned closures</h2>
+<h2 id="owned-closures"><a href="#TOC"><span class="header-section-number">14.2</span> Owned closures</a></h2>
 <p>Owned closures, written <code>~fn</code> in analogy to the <code>~</code> pointer type, hold on to things that can safely be sent between processes. They copy the values they close over, much like managed closures, but they also own them: that is, no other code can access them. Owned closures are used in concurrent code, particularly for spawning <a href="tutorial-tasks.html">tasks</a>.</p>
-<h2 id="closure-compatibility">Closure compatibility</h2>
+<h2 id="closure-compatibility"><a href="#TOC"><span class="header-section-number">14.3</span> Closure compatibility</a></h2>
 <p>Rust closures have a convenient subtyping property: you can pass any kind of closure (as long as the arguments and return types match) to functions that expect a <code>&amp;fn()</code>. Thus, when writing a higher-order function that only calls its function argument, and does nothing else with it, you should almost always declare the type of that argument as <code>&amp;fn()</code>. That way, callers may pass any kind of closure.</p>
 <pre><code>fn call_twice(f: &amp;fn()) { f(); f(); }
 let closure = || { &quot;I&#39;m a closure, and it doesn&#39;t matter what type I am&quot;; };
@@ -686,7 +766,7 @@ call_twice(function);</code></pre>
 <blockquote>
 <p><strong><em>Note:</em></strong> Both the syntax and the semantics will be changing in small ways. At the moment they can be unsound in some scenarios, particularly with non-copyable types.</p>
 </blockquote>
-<h2 id="do-syntax">Do syntax</h2>
+<h2 id="do-syntax"><a href="#TOC"><span class="header-section-number">14.4</span> Do syntax</a></h2>
 <p>The <code>do</code> expression provides a way to treat higher-order functions (functions that take closures as arguments) as control structures.</p>
 <p>Consider this function that iterates over a vector of integers, passing in a pointer to each integer in the vector:</p>
 <pre><code>fn each(v: &amp;[int], op: &amp;fn(v: &amp;int)) {
@@ -722,7 +802,7 @@ do spawn {
    debug!(&quot;Kablam!&quot;);
 }</code></pre>
 <p>If you want to see the output of <code>debug!</code> statements, you will need to turn on <code>debug!</code> logging. To enable <code>debug!</code> logging, set the RUST_LOG environment variable to the name of your crate, which, for a file named <code>foo.rs</code>, will be <code>foo</code> (e.g., with bash, <code>export RUST_LOG=foo</code>).</p>
-<h2 id="for-loops">For loops</h2>
+<h2 id="for-loops"><a href="#TOC"><span class="header-section-number">14.5</span> For loops</a></h2>
 <p>The most common way to express iteration in Rust is with a <code>for</code> loop. Like <code>do</code>, <code>for</code> is a nice syntax for describing control flow with closures. Additionally, within a <code>for</code> loop, <code>break</code>, <code>loop</code>, and <code>return</code> work just as they do with <code>while</code> and <code>loop</code>.</p>
 <p>Consider again our <code>each</code> function, this time improved to break early when the iteratee returns <code>false</code>:</p>
 <pre><code>fn each(v: &amp;[int], op: &amp;fn(v: &amp;int) -&gt; bool) {
@@ -772,7 +852,7 @@ fn contains(v: &amp;[int], elt: int) -&gt; bool {
 <blockquote>
 <p><strong><em>Note:</em></strong> This is, essentially, a special loop protocol: the keywords <code>break</code>, <code>loop</code>, and <code>return</code> work, in varying degree, with <code>while</code>, <code>loop</code>, <code>do</code>, and <code>for</code> constructs.</p>
 </blockquote>
-<h1 id="methods">Methods</h1>
+<h1 id="methods"><a href="#TOC"><span class="header-section-number">15</span> Methods</a></h1>
 <p>Methods are like functions except that they always begin with a special argument, called <code>self</code>, which has the type of the method's receiver. The <code>self</code> argument is like <code>this</code> in C++ and many other languages. Methods are called with dot notation, as in <code>my_vec.len()</code>.</p>
 <p><em>Implementations</em>, written with the <code>impl</code> keyword, can define methods on most Rust types, including structs and enums. As an example, let's define a <code>draw</code> method on our <code>Shape</code> enum.</p>
 <pre><code># fn draw_circle(p: Point, f: float) { }
@@ -863,7 +943,7 @@ impl Circle {
     fn new(area: float) -&gt; Circle { Circle { radius: sqrt(area / pi) } }
 }
 let c = Circle::new(42.5);</code></pre>
-<h1 id="generics">Generics</h1>
+<h1 id="generics"><a href="#TOC"><span class="header-section-number">16</span> Generics</a></h1>
 <p>Throughout this tutorial, we've been defining functions that act only on specific data types. With type parameters we can also define functions whose arguments have generic types, and which can be invoked with a variety of types. Consider a generic <code>map</code> function, which takes a function <code>function</code> and a vector <code>vector</code> and returns a new vector consisting of the result of applying <code>function</code> to each element of <code>vector</code>:</p>
 <pre><code>fn map&lt;T, U&gt;(vector: &amp;[T], function: &amp;fn(v: &amp;T) -&gt; U) -&gt; ~[U] {
     let mut accumulator = ~[];
@@ -897,7 +977,7 @@ fn radius(shape: Shape) -&gt; Option&lt;float&gt; {
     }
 }</code></pre>
 <p>The Rust compiler compiles generic functions very efficiently by <em>monomorphizing</em> them. <em>Monomorphization</em> is a fancy name for a simple idea: generate a separate copy of each generic function at each call site, a copy that is specialized to the argument types and can thus be optimized specifically for them. In this respect, Rust's generics have similar performance characteristics to C++ templates.</p>
-<h2 id="traits">Traits</h2>
+<h2 id="traits"><a href="#TOC"><span class="header-section-number">16.1</span> Traits</a></h2>
 <p>Within a generic function the operations available on generic types are very limited. After all, since the function doesn't know what types it is operating on, it can't safely modify or query their values. This is where <em>traits</em> come into play. Traits are Rust's most powerful tool for writing polymorphic code. Java developers will see them as similar to Java interfaces, and Haskellers will notice their similarities to type classes. Rust's traits are a form of <em>bounded polymorphism</em>: a trait is a way of limiting the set of possible types that a type parameter could refer to.</p>
 <p>As motivation, let us consider copying in Rust. The <code>copy</code> operation is not defined for all Rust types. One reason is user-defined destructors: copying a type that has a destructor could result in the destructor running multiple times. Therefore, types with user-defined destructors cannot be copied, either implicitly or explicitly, and neither can types that own other types containing destructors.</p>
 <p>This complicates handling of generic functions. If you have a type parameter <code>T</code>, can you copy values of that type? In Rust, you can't, and if you try to run the following code the compiler will complain.</p>
@@ -933,7 +1013,7 @@ impl Drop for TimeBomb {
     }
 }</code></pre>
 <p>It is illegal to call <code>finalize</code> directly. Only code inserted by the compiler may call it.</p>
-<h2 id="declaring-and-implementing-traits">Declaring and implementing traits</h2>
+<h2 id="declaring-and-implementing-traits"><a href="#TOC"><span class="header-section-number">16.2</span> Declaring and implementing traits</a></h2>
 <p>A trait consists of a set of methods, without bodies, or may be empty, as is the case with <code>Copy</code>, <code>Owned</code>, and <code>Const</code>. For example, we could declare the trait <code>Printable</code> for things that can be printed to the console, with a single method:</p>
 <pre><code>trait Printable {
     fn print(&amp;self);
@@ -993,7 +1073,7 @@ impl Shape for Square {
 let area = 42.5;
 let c: Circle = Shape::new(area);
 let s: Square = Shape::new(area);</code></pre>
-<h2 id="bounded-type-parameters-and-static-method-dispatch">Bounded type parameters and static method dispatch</h2>
+<h2 id="bounded-type-parameters-and-static-method-dispatch"><a href="#TOC"><span class="header-section-number">16.3</span> Bounded type parameters and static method dispatch</a></h2>
 <p>Traits give us a language for defining predicates on types, or abstract properties that types can have. We can use this language to define <em>bounds</em> on type parameters, so that we can then operate on generic types.</p>
 <pre><code># trait Printable { fn print(&amp;self); }
 fn print_all&lt;T: Printable&gt;(printable_things: ~[T]) {
@@ -1014,7 +1094,7 @@ fn print_all&lt;T: Printable + Copy&gt;(printable_things: ~[T]) {
 }</code></pre>
 <p>Method calls to bounded type parameters are <em>statically dispatched</em>, imposing no more overhead than normal function invocation, so are the preferred way to use traits polymorphically.</p>
 <p>This usage of traits is similar to Haskell type classes.</p>
-<h2 id="trait-objects-and-dynamic-method-dispatch">Trait objects and dynamic method dispatch</h2>
+<h2 id="trait-objects-and-dynamic-method-dispatch"><a href="#TOC"><span class="header-section-number">16.4</span> Trait objects and dynamic method dispatch</a></h2>
 <p>The above allows us to define functions that polymorphically act on values of a single unknown type that conforms to a given trait. However, consider this function:</p>
 <pre><code># type Circle = int; type Rectangle = int;
 # impl Drawable for int { fn draw(&amp;self) {} }
@@ -1058,7 +1138,7 @@ let owny: ~Drawable = ~new_circle() as ~Drawable;
 let stacky: &amp;Drawable = &amp;new_circle() as &amp;Drawable;</code></pre>
 <p>Method calls to trait types are <em>dynamically dispatched</em>. Since the compiler doesn't know specifically which functions to call at compile time, it uses a lookup table (also known as a vtable or dictionary) to select the method to call at runtime.</p>
 <p>This usage of traits is similar to Java interfaces.</p>
-<h2 id="trait-inheritance">Trait inheritance</h2>
+<h2 id="trait-inheritance"><a href="#TOC"><span class="header-section-number">16.5</span> Trait inheritance</a></h2>
 <p>We can write a trait declaration that <em>inherits</em> from other traits, called <em>supertraits</em>. Types that implement a trait must also implement its supertraits. For example, we can define a <code>Circle</code> trait that inherits from <code>Shape</code>.</p>
 <pre><code>trait Shape { fn area(&amp;self) -&gt; float; }
 trait Circle : Shape { fn radius(&amp;self) -&gt; float; }</code></pre>
@@ -1100,7 +1180,7 @@ let nonsense = mycircle.radius() * mycircle.area();</code></pre>
 <blockquote>
 <p><strong><em>Note:</em></strong> Trait inheritance does not actually work with objects yet</p>
 </blockquote>
-<h1 id="modules-and-crates">Modules and crates</h1>
+<h1 id="modules-and-crates"><a href="#TOC"><span class="header-section-number">17</span> Modules and crates</a></h1>
 <p>The Rust namespace is arranged in a hierarchy of modules. Each source (.rs) file represents a single module and may in turn contain additional modules.</p>
 <pre><code>mod farm {
     pub fn chicken() -&gt; &amp;str { &quot;cluck cluck&quot; }
@@ -1158,7 +1238,7 @@ fn main() {
 }
 # fn make_me_a_farm() -&gt; farm::Farm { farm::make_me_a_farm() }
 # fn make_me_a_chicken() -&gt; farm::Chicken { 0 }</code></pre>
-<h2 id="crates">Crates</h2>
+<h2 id="crates"><a href="#TOC"><span class="header-section-number">17.1</span> Crates</a></h2>
 <p>The unit of independent compilation in Rust is the crate: rustc compiles a single crate at a time, from which it produces either a library or an executable.</p>
 <p>When compiling a single <code>.rs</code> source file, the file acts as the whole crate. You can compile it with the <code>--lib</code> compiler switch to create a shared library, or without, provided that your file contains a <code>fn main</code> somewhere, to create an executable.</p>
 <p>Larger crates typically span multiple files and are, by convention, compiled from a source file with the <code>.rc</code> extension, called a <em>crate file</em>. The crate file extension distinguishes source files that represent crates from those that do not, but otherwise source files and crate files are identical.</p>
@@ -1191,7 +1271,7 @@ fn main() {
     mod turkey;
 }</code></pre>
 <p>The compiler will now look for <code>poultry/chicken.rs</code> and <code>poultry/turkey.rs</code>, and export their content in <code>poultry::chicken</code> and <code>poultry::turkey</code>. You can also provide a <code>poultry.rs</code> to add content to the <code>poultry</code> module itself.</p>
-<h2 id="using-other-crates">Using other crates</h2>
+<h2 id="using-other-crates"><a href="#TOC"><span class="header-section-number">17.2</span> Using other crates</a></h2>
 <p>The <code>extern mod</code> directive lets you use a crate (once it's been compiled into a library) from inside another crate. <code>extern mod</code> can appear at the top of a crate file or at the top of modules. It will cause the compiler to look in the library search path (which you can extend with the <code>-L</code> switch) for a compiled Rust library with the right name, then add a module with that crate's name into the local scope.</p>
 <p>For example, <code>extern mod std</code> links the <a href="std/index.html">standard library</a>.</p>
 <p>When a comma-separated list of name/value pairs appears after <code>extern mod</code>, the compiler front-end matches these pairs against the attributes provided in the <code>link</code> attribute of the crate file. The front-end will only select this crate for use if the actual pairs match the declared attributes. You can provide a <code>name</code> value to override the name used to search for the crate.</p>
@@ -1202,7 +1282,7 @@ fn main() {
 extern mod my_farm (name = &quot;farm&quot;, vers = &quot;2.5&quot;);
 extern mod my_auxiliary_farm (name = &quot;farm&quot;, author = &quot;mjh&quot;);</code></pre>
 <p>If any of the requested metadata do not match, then the crate will not be compiled successfully.</p>
-<h2 id="a-minimal-example">A minimal example</h2>
+<h2 id="a-minimal-example"><a href="#TOC"><span class="header-section-number">17.3</span> A minimal example</a></h2>
 <p>Now for something that you can actually compile yourself. We have these two files:</p>
 <pre><code>// world.rs
 #[link(name = &quot;world&quot;, vers = &quot;1.0&quot;)];
@@ -1216,16 +1296,16 @@ fn main() { io::println(~&quot;hello &quot; + world::explore()); }</code></pre>
 &gt; ./main
 &quot;hello world&quot;</code></pre>
 <p>Notice that the library produced contains the version in the filename as well as an inscrutable string of alphanumerics. These are both part of Rust's library versioning scheme. The alphanumerics are a hash representing the crate metadata.</p>
-<h2 id="the-core-library">The core library</h2>
+<h2 id="the-core-library"><a href="#TOC"><span class="header-section-number">17.4</span> The core library</a></h2>
 <p>The Rust core library provides runtime features required by the language, including the task scheduler and memory allocators, as well as library support for Rust built-in types, platform abstractions, and other commonly used features.</p>
 <p><a href="core/index.html"><code>core</code></a> includes modules corresponding to each of the integer types, each of the floating point types, the <a href="core/bool.html"><code>bool</code></a> type, <a href="core/tuple.html">tuples</a>, <a href="core/char.html">characters</a>, <a href="core/str.html">strings</a>, <a href="core/vec.html">vectors</a>, <a href="core/managed.html">managed boxes</a>, <a href="core/owned.html">owned boxes</a>, and unsafe and borrowed <a href="core/ptr.html">pointers</a>. Additionally, <code>core</code> provides some pervasive types (<a href="core/option.html"><code>option</code></a> and <a href="core/result.html"><code>result</code></a>), <a href="core/task.html">task</a> creation and <a href="core/comm.html">communication</a> primitives, platform abstractions (<a href="core/os.html"><code>os</code></a> and <a href="core/path.html"><code>path</code></a>), basic I/O abstractions (<a href="core/io.html"><code>io</code></a>), <a href="core/container.html">containers</a> like <a href="core/hashmap.html"><code>hashmap</code></a>, common traits (<a href="core/kinds.html"><code>kinds</code></a>, <a href="core/ops.html"><code>ops</code></a>, <a href="core/cmp.html"><code>cmp</code></a>, <a href="core/num.html"><code>num</code></a>, <a href="core/to_str.html"><code>to_str</code></a>, <a href="core/clone.html"><code>clone</code></a>), and complete bindings to the C standard library (<a href="core/libc.html"><code>libc</code></a>).</p>
-<h3 id="core-injection-and-the-rust-prelude">Core injection and the Rust prelude</h3>
+<h3 id="core-injection-and-the-rust-prelude"><a href="#TOC"><span class="header-section-number">17.4.1</span> Core injection and the Rust prelude</a></h3>
 <p><code>core</code> is imported at the topmost level of every crate by default, as if the first line of each crate was</p>
 <pre><code>extern mod core;</code></pre>
 <p>This means that the contents of core can be accessed from from any context with the <code>core::</code> path prefix, as in <code>use core::vec</code>, <code>use core::task::spawn</code>, etc.</p>
 <p>Additionally, <code>core</code> contains a <code>prelude</code> module that reexports many of the most common core modules, types and traits. The contents of the prelude are imported into every <em>module</em> by default. Implicitly, all modules behave as if they contained the following prologue:</p>
 <pre><code>use core::prelude::*;</code></pre>
-<h1 id="what-next">What next?</h1>
+<h1 id="what-next"><a href="#TOC"><span class="header-section-number">18</span> What next?</a></h1>
 <p>Now that you know the essentials, check out any of the additional tutorials on individual topics.</p>
 <ul>
 <li><a href="tutorial-borrowed-ptr.html">Borrowed pointers</a></li>
@@ -1234,3 +1314,5 @@ fn main() { io::println(~&quot;hello &quot; + world::explore()); }</code></pre>
 <li><a href="tutorial-ffi.html">The foreign function interface</a></li>
 </ul>
 <p>There is further documentation on the <a href="https://github.com/mozilla/rust/wiki/Docs">wiki</a>.</p>
+</body>
+</html>
