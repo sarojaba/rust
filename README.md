@@ -19,7 +19,7 @@ Rust 컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "
 > ***Note:*** 윈도우즈 사용자들은 위키에서 세부적인
 > [getting started][wiki-start] 내용을 읽어야한다.
 > 바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다.
-> 정확한 내용은 여기서 논의하지 않는다.
+> 자세한 내용은 여기서 논의하지 않는다.
 
 소스로부터 빌드하려면 사전에 필요한 패키지는 다음과 같다:
 
@@ -29,8 +29,7 @@ Rust 컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "
 * gnu make 3.81 or later
 * curl
 
-Assuming you're on a relatively modern *nix system and have met the
-prerequisites, something along these lines should work.
+비교적 현대적인 *nix 시스템을 사용하고 필요 조건을 만족한다고 가정하면, 다음의 명령들을 수행하면 된다.
 
     $ curl -O http://static.rust-lang.org/dist/rust-0.6.tar.gz
     $ tar -xzf rust-0.6.tar.gz
@@ -38,15 +37,10 @@ prerequisites, something along these lines should work.
     $ ./configure
     $ make && make install
 
-You may need to use `sudo make install` if you do not normally have
-permission to modify the destination directory. The install locations
-can be adjusted by passing a `--prefix` argument to
-`configure`. Various other options are also supported, pass `--help`
-for more information on them.
+만약 목표 디렉토리를 수정할 권한을 가지고 있지 않다면 `sudo make install`을 사용해야 할 수도 있다. `configure` 명령의 인자로 `--prefix`를 전달하여 설치 장소를 조정할 수 있다. 다양한 다른 옵션들도 지원되고 `--help` 명령을 통해 더 자세한 정보를 얻을 수 있다.
 
-When complete, `make install` will place several programs into
-`/usr/local/bin`: `rustc`, the Rust compiler; `rustdoc`, the
-API-documentation tool, and `rustpkg`, the Rust package manager and build system.
+`make install`이 성공적으로 완료되면 `/usr/local/bin` 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. `rustc`는 the Rust 컴파일러, `rustdoc`는
+API-문서 도구, 그리고 `rustpkg`는 Rust 패키지 관리자 및 빌드 시스템이다.
 
 [wiki-start]: https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
 [tarball]: http://static.rust-lang.org/dist/rust-0.6.tar.gz
