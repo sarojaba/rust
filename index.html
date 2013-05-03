@@ -53,7 +53,7 @@
 <p><strong><em>Note:</em></strong> 윈도우즈 사용자들은 위키에서 세부적인
 <a href="https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust">getting started</a> 내용을 읽어야한다.
 바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다.
-정확한 내용은 여기서 논의하지 않는다.</p>
+자세한 내용은 여기서 논의하지 않는다.</p>
 </blockquote>
 
 <p>소스로부터 빌드하려면 사전에 필요한 패키지는 다음과 같다:</p>
@@ -64,8 +64,7 @@
 <li>perl 5.0 or later</li>
 <li>gnu make 3.81 or later</li>
 <li>curl</li>
-</ul><p>Assuming you're on a relatively modern *nix system and have met the
-prerequisites, something along these lines should work.</p>
+</ul><p>비교적 현대적인 *nix 시스템을 사용하고 필요 조건을 만족한다고 가정하면, 다음의 명령들을 수행하면 된다.</p>
 
 <pre><code>$ curl -O http://static.rust-lang.org/dist/rust-0.6.tar.gz
 $ tar -xzf rust-0.6.tar.gz
@@ -74,15 +73,10 @@ $ ./configure
 $ make &amp;&amp; make install
 </code></pre>
 
-<p>You may need to use <code>sudo make install</code> if you do not normally have
-permission to modify the destination directory. The install locations
-can be adjusted by passing a <code>--prefix</code> argument to
-<code>configure</code>. Various other options are also supported, pass <code>--help</code>
-for more information on them.</p>
+<p>만약 목표 디렉토리를 수정할 권한을 가지고 있지 않다면 <code>sudo make install</code>을 사용해야 할 수도 있다. <code>configure</code> 명령의 인자로 <code>--prefix</code>를 전달하여 설치 장소를 조정할 수 있다. 다양한 다른 옵션들도 지원되고 <code>--help</code> 명령을 통해 더 자세한 정보를 얻을 수 있다.</p>
 
-<p>When complete, <code>make install</code> will place several programs into
-<code>/usr/local/bin</code>: <code>rustc</code>, the Rust compiler; <code>rustdoc</code>, the
-API-documentation tool, and <code>rustpkg</code>, the Rust package manager and build system.</p>
+<p><code>make install</code>이 성공적으로 완료되면 <code>/usr/local/bin</code> 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. <code>rustc</code>는 the Rust 컴파일러, <code>rustdoc</code>는
+API-문서 도구, 그리고 <code>rustpkg</code>는 Rust 패키지 관리자 및 빌드 시스템이다.</p>
 
 <h2>License</h2>
 
