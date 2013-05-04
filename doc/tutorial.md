@@ -73,10 +73,9 @@ $ make && make install
 [tarball]: http://static.rust-lang.org/dist/rust-0.6.tar.gz
 [win-exe]: http://static.rust-lang.org/dist/rust-0.6-install.exe
 
-## Compiling your first program
+## 자신의 첫 프로그램 컴파일하기
 
-Rust program files are, by convention, given the extension `.rs`. Say
-we have a file `hello.rs` containing this program:
+관습적으로 Rust 프로그램 파일은 `.rs`라는 확장자를 가진다. 아래의 프로그램을 가지는 `hello.rs` 파일을 만들어보자.
 
 ~~~~
 fn main() {
@@ -84,14 +83,9 @@ fn main() {
 }
 ~~~~
 
-If the Rust compiler was installed successfully, running `rustc
-hello.rs` will produce an executable called `hello` (or `hello.exe` on
-Windows) which, upon running, will likely do exactly what you expect.
+만약 Rust 컴파일러가 성공적으로 설치되었다면, `rustc hello.rs`라고 실행하면 `hello` 라는 실행파일이 생성되고(윈도우즈에서는 `hello.exe`), 실행하면 원하는 결과가 정확히 실행될 것이다.
 
-The Rust compiler tries to provide useful information when it encounters an
-error. If you introduce an error into the program (for example, by changing
-`io::println` to some nonexistent function), and then compile it, you'll see
-an error message like this:
+The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, `io:println` 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.
 
 ~~~~ {.notrust}
 hello.rs:2:4: 2:16 error: unresolved name: io::print_with_unicorns
@@ -99,12 +93,7 @@ hello.rs:2     io::print_with_unicorns("hello?");
                ^~~~~~~~~~~~~~~~~~~~~~~
 ~~~~
 
-In its simplest form, a Rust program is a `.rs` file with some types
-and functions defined in it. If it has a `main` function, it can be
-compiled to an executable. Rust does not allow code that's not a
-declaration to appear at the top level of the file: all statements must
-live inside a function.  Rust programs can also be compiled as
-libraries, and included in other programs.
+최대한 단순화하면, Rust 프로그램은 몇 개의 타입과 함수를 가지고 있는 `.rs` 파일이다. 만약 `main` 함수를 가지고 있으면, 실행되도록 컴파일 될 수 있다. Rust는 파일의 최상위 레벨에서 선언된 코드를 허용하지 않는다. 모든 구문은 함수 안에 존재해야 한다. Rust 프로그램은 다른 프로그램에 포함되는 라이브러리로서 컴파일 될 수 있다.
 
 ## Using the rust tool
 
