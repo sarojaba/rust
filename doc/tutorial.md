@@ -115,18 +115,9 @@ Rust 소스 배포판 `src/etc/vim/` 하위에 vim 하이라이트와 들여쓰�
 
 # Syntax basics
 
-Assuming you've programmed in any C-family language (C++, Java,
-JavaScript, C#, or PHP), Rust will feel familiar. Code is arranged
-in blocks delineated by curly braces; there are control structures
-for branching and looping, like the familiar `if` and `while`; function
-calls are written `myfunc(arg1, arg2)`; operators are written the same
-and mostly have the same precedence as in C; comments are again like C;
-module names are separated with double-colon (`::`) as with C++.
+당신이 C계열의 언어(C++, Java, JavaScript, C#, or PHP)로 프로그래밍을 했다고 가정하면, Rust는 비슷하다고 느낄 것이다. 코드는 중괄호로 구분되는 블록들의 나열이다. `if`와 `while`과 비슷한 분기나 반복을 위한 제어 구조도 있다. 함수는 `myfunc(arg1, args2);`라고 호출한다. 연산자도 C와 같고 거의 동일한 우선순위를 가진다. 주석 또한 C와 같다. 모듈 이름은 C++ 처럼 더블 콜론(::)으로 구분된다.
 
-The main surface difference to be aware of is that the condition at
-the head of control structures like `if` and `while` does not require
-parentheses, while their bodies *must* be wrapped in
-braces. Single-statement, unbraced bodies are not allowed.
+인지되는 주된 표면적 차이는 `if`와 `while`과 같은 제어 구조의 머리에 있는 조건이 괄호가 필요없고, 몸통은 *무조건* 중괄호로 둘러싸야한다. 몸통에 문장이 하나일때, 중괄호를 하지않는 것은 허용되지 않는다.
 
 ~~~~
 # mod universe { pub fn recalibrate() -> bool { true } }
@@ -141,9 +132,7 @@ fn main() {
 }
 ~~~~
 
-The `let` keyword introduces a local variable. Variables are immutable by
-default. To introduce a local variable that you can re-assign later, use `let
-mut` instead.
+`let` 키워드는 지역 변수를 나타낸다. 변수는 기본적으로 변하지 않는다. 나중에 재할당할 수 있는 지역 변수를 나타내기 위해, `let mut`를 사용한다.
 
 ~~~~
 let hi = "hi";
@@ -155,9 +144,7 @@ while count < 10 {
 }
 ~~~~
 
-Although Rust can almost always infer the types of local variables, you
-can specify a variable's type by following it with a colon, then the type
-name. Static items, on the other hand, always require a type annotation.
+Rust는 지역 변수의 타입을 거의 항상 추론할 수 있지만, 콜론 다음에 타입의 이름을 적어줌으로써 변수의 타입을 명시해줄 수 있다. 반대로, 정적 아이템은 타입 주석이 항상 필요하다.
 
 ~~~~
 static monster_factor: float = 57.8;
@@ -165,24 +152,14 @@ let monster_size = monster_factor * 10.0;
 let monster_size: int = 50;
 ~~~~
 
-Local variables may shadow earlier declarations, as in the previous example:
-`monster_size` was first declared as a `float`, and then a second
-`monster_size` was declared as an `int`. If you were to actually compile this
-example, though, the compiler would determine that the first `monster_size` is
-unused and issue a warning (because this situation is likely to indicate a
-programmer error). For occasions where unused variables are intentional, their
-names may be prefixed with an underscore to silence the warning, like `let
-_monster_size = 50;`.
+앞의 예제에서 지역 변수는 shadow earlier 선언이다:
+첫번째 `monster_size`는 `float`으로, 두번째 `monster_size`는 `int`로 선언되었다. 이 예제를 실제로 컴파일하더라도, 컴파일러는 첫번째 `monster_size`는 사용되지 않는다고 판단하고 경고를 표시할 것이다(이 상황은 프로그래머 오류를 발생시킬 가능성이 있기 때문이다). 사용되지 않는 변수가 의도적인 경우, 경고를 없애기 위해, `let _monster_size = 50;`처럼 이름을 밑줄로 시작하면 된다.
 
-Rust identifiers start with an alphabetic
-character or an underscore, and after that may contain any sequence of
-alphabetic characters, numbers, or underscores. The preferred style is to
-write function, variable, and module names with lowercase letters, using
-underscores where they help readability, while writing types in camel case.
+Rust 식별자는 알파벳 문자나 밑줄로 시작하고 그 이후로 알파벳 문자, 숫자, 밑줄의 나열된다. 선호되는 스타일은 함수, 변수, 그리고 모듈 이름은 가독성에 도움을 주기위해 밑줄이 포함된 소문자로 작성하고, 타입은 camel case로 작성한다.
 
 ~~~
 let my_variable = 100;
-type MyType = int;     // primitive types are _not_ camel case
+type MyType = int;     // 기본 타입은 camel case로 작성하지 않는다.
 ~~~
 
 ## Expressions and semicolons
