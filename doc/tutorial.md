@@ -95,21 +95,14 @@ hello.rs:2     io::print_with_unicorns("hello?");
 
 최대한 단순화하면, Rust 프로그램은 몇 개의 타입과 함수를 가지고 있는 `.rs` 파일이다. 만약 `main` 함수를 가지고 있으면, 실행되도록 컴파일 될 수 있다. Rust는 파일의 최상위 레벨에서 선언된 코드를 허용하지 않는다. 모든 구문은 함수 안에 존재해야 한다. Rust 프로그램은 다른 프로그램에 포함되는 라이브러리로서 컴파일 될 수 있다.
 
-## Using the rust tool
+## rust 도구 사용하기
 
-While using `rustc` directly to generate your executables, and then
-running them manually is a perfectly valid way to test your code,
-for smaller projects, prototypes, or if you're a beginner, it might be
-more convenient to use the `rust` tool.
+실행되는 것을 생성하기 위해 `rustc`를 직접적으로 사용하고, 수동으로 실행하는 것은 작은 프로젝트이거나 프로토타입이거나 당신이 초보자라면 당신의 코드를 테스트하는 완전하고 유효한 방법이지만, `rust` 도구를 사용하는 것이 더 편리할 것이다.
 
-The `rust` tool provides central access to the other rust tools,
-as well as handy shortcuts for directly running source files.
-For example, if you have a file `foo.rs` in your current directory,
-`rust run foo.rs` would attempt to compile it and, if successful,
-directly run the resulting binary.
+`rust` 도구는 나머지 rust 도구들로의 중앙집중적 접근 뿐만아니라 소스 파일을 바로 실행하기 위해 간편한 단축 명령을 제공한다.
+예를 들어, 현재 디렉토리에 `foo.rs` 파일이 있다면, `rust run foo.rs` 명령은 컴파일을 시도할 것이고, 성공하면 결과로 생성된 바이너리를 바로 실행한다.
 
-To get a list of all available commands, simply call `rust` without any
-argument.
+모든 가능한 명령의 목록을 얻으려면, 어떤 인자도 없이 단순히 `rust`만 호출하면 된다.
 
 ## Editing Rust code
 
