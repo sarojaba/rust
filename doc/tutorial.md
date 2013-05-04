@@ -104,21 +104,11 @@ hello.rs:2     io::print_with_unicorns("hello?");
 
 모든 가능한 명령의 목록을 얻으려면, 어떤 인자도 없이 단순히 `rust`만 호출하면 된다.
 
-## Editing Rust code
+## Rust 코드 수정하기
 
-There are vim highlighting and indentation scripts in the Rust source
-distribution under `src/etc/vim/`. There is an emacs mode under
-`src/etc/emacs/` called `rust-mode`, but do read the instructions
-included in that directory. In particular, if you are running emacs
-24, then using emacs's internal package manager to install `rust-mode`
-is the easiest way to keep it up to date. There is also a package for
-Sublime Text 2, available both [standalone][sublime] and through
-[Sublime Package Control][sublime-pkg], and support for Kate
-under `src/etc/kate`.
+Rust 소스 배포판 `src/etc/vim/` 하위에 vim 하이라이트와 들여쓰기 스크립트가 있다. `src/etc/emacs/` 하위에 `rust-mode`라고 불리는 emacs 모드가 있지만, 디렉토리에 포함된 설명서를 꼭 읽어라. 특히, emacs 24에서 실행한다면, `rust-mode` 설치를 최신으로 유지하는 가장 쉬운 방법인 emacs 내부 패키지 관리자를 사용해라. 또한 Sublime Text 2를 위한 패키지는 [standalone][sublime]와 [Sublime Package Control][sublime-pkg]를 통해서 모두 가능하고, Kate를 위한 지원은 `src/etc/kate` 하위에 있다.
 
-There is ctags support via `src/etc/ctags.rust`, but many other
-tools and editors are not yet supported. If you end up writing a Rust
-mode for your favorite editor, let us know so that we can link to it.
+`src/etc/ctags.rust`를 통해 ctags를 지원하지만, 많은 다른 도구들과 편집기들은 아직 지원하지 않는다. 당신이 가장 선호하는 편집기를 위한 Rust 모드가 작성이 완료되면, 우리에게 알려주면 링크를 걸어주겠다.
 
 [sublime]: http://github.com/dbp/sublime-rust
 [sublime-pkg]: http://wbond.net/sublime_packages/package_control
