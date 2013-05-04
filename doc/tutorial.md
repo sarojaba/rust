@@ -113,7 +113,7 @@ Rust 소스 배포판 `src/etc/vim/` 하위에 vim 하이라이트와 들여쓰�
 [sublime]: http://github.com/dbp/sublime-rust
 [sublime-pkg]: http://wbond.net/sublime_packages/package_control
 
-# Syntax basics
+# 기본 문법
 
 당신이 C계열의 언어(C++, Java, JavaScript, C#, or PHP)로 프로그래밍을 했다고 가정하면, Rust는 비슷하다고 느낄 것이다. 코드는 중괄호로 구분되는 블록들의 나열이다. `if`와 `while`과 비슷한 분기나 반복을 위한 제어 구조도 있다. 함수는 `myfunc(arg1, args2);`라고 호출한다. 연산자도 C와 같고 거의 동일한 우선순위를 가진다. 주석 또한 C와 같다. 모듈 이름은 C++ 처럼 더블 콜론(::)으로 구분된다.
 
