@@ -20,20 +20,13 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 
 이 튜토리얼은 독자가 하나 이상 의 C 계열의 언어에 이미 친숙하다고 가정한다. 포인터와 일반적인 메모리 관리 기법의 이해가 도움을 줄 것이다.
 
-## Conventions
+## 관습
 
-Throughout the tutorial, language keywords and identifiers defined in
-example code are displayed in `code font`.
+튜토리얼을 통해서, 예제 코드에서 정의되는 언어 키워드와 식별자는 `코드 글꼴`로 표시된다.
 
-Code snippets are indented, and also shown in a monospaced font. Not
-all snippets constitute whole programs. For brevity, we'll often show
-fragments of programs that don't compile on their own. To try them
-out, you might have to wrap them in `fn main() { ... }`, and make sure
-they don't contain references to names that aren't actually defined.
+코드 조각은 들여쓰여지고, monospaced 글꼴로 보여진다. 모든 코드 조각들이 전체 프로그램을 구성하지는 않는다. 간결함을 위해, 컴파일되지 않는 프로그램의 일부분을 보여줄 것이다. 실행해보기 위해, `fn main() { ... }` 안에 넣어야할 것이다, 실제로 정의되지 않은 이름을 참조하는 것을 확인해야한다.
 
-> ***Warning:*** Rust is a language under ongoing development. Notes
-> about potential changes to the language, implementation
-> deficiencies, and other caveats appear offset in blockquotes.
+> ***경고:*** Rust 계속 개발중인 언어이다. 언어의 잠재적인 변화, 구현 부족, 그리고 정지에 대해 알고있어야한다.
 
 # Getting started
 
