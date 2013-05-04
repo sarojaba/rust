@@ -19,10 +19,10 @@
 </ul></li>
 <li><a href="#시작하기"><span class="toc-section-number">2</span> 시작하기</a><ul>
 <li><a href="#자신의-첫-프로그램-컴파일하기"><span class="toc-section-number">2.1</span> 자신의 첫 프로그램 컴파일하기</a></li>
-<li><a href="#using-the-rust-tool"><span class="toc-section-number">2.2</span> Using the rust tool</a></li>
-<li><a href="#editing-rust-code"><span class="toc-section-number">2.3</span> Editing Rust code</a></li>
+<li><a href="#rust-도구-사용하기"><span class="toc-section-number">2.2</span> rust 도구 사용하기</a></li>
+<li><a href="#rust-코드-수정하기"><span class="toc-section-number">2.3</span> Rust 코드 수정하기</a></li>
 </ul></li>
-<li><a href="#syntax-basics"><span class="toc-section-number">3</span> Syntax basics</a><ul>
+<li><a href="#기본-문법"><span class="toc-section-number">3</span> 기본 문법</a><ul>
 <li><a href="#expressions-and-semicolons"><span class="toc-section-number">3.1</span> Expressions and semicolons</a></li>
 <li><a href="#primitive-types-and-literals"><span class="toc-section-number">3.2</span> Primitive types and literals</a></li>
 <li><a href="#operators"><span class="toc-section-number">3.3</span> Operators</a></li>
@@ -137,16 +137,16 @@ $ make &amp;&amp; make install</code></pre>
 hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
                ^~~~~~~~~~~~~~~~~~~~~~~</code></pre>
 <p>최대한 단순화하면, Rust 프로그램은 몇 개의 타입과 함수를 가지고 있는 <code>.rs</code> 파일이다. 만약 <code>main</code> 함수를 가지고 있으면, 실행되도록 컴파일 될 수 있다. Rust는 파일의 최상위 레벨에서 선언된 코드를 허용하지 않는다. 모든 구문은 함수 안에 존재해야 한다. Rust 프로그램은 다른 프로그램에 포함되는 라이브러리로서 컴파일 될 수 있다.</p>
-<h2 id="using-the-rust-tool"><a href="#TOC"><span class="header-section-number">2.2</span> Using the rust tool</a></h2>
-<p>While using <code>rustc</code> directly to generate your executables, and then running them manually is a perfectly valid way to test your code, for smaller projects, prototypes, or if you're a beginner, it might be more convenient to use the <code>rust</code> tool.</p>
-<p>The <code>rust</code> tool provides central access to the other rust tools, as well as handy shortcuts for directly running source files. For example, if you have a file <code>foo.rs</code> in your current directory, <code>rust run foo.rs</code> would attempt to compile it and, if successful, directly run the resulting binary.</p>
-<p>To get a list of all available commands, simply call <code>rust</code> without any argument.</p>
-<h2 id="editing-rust-code"><a href="#TOC"><span class="header-section-number">2.3</span> Editing Rust code</a></h2>
-<p>There are vim highlighting and indentation scripts in the Rust source distribution under <code>src/etc/vim/</code>. There is an emacs mode under <code>src/etc/emacs/</code> called <code>rust-mode</code>, but do read the instructions included in that directory. In particular, if you are running emacs 24, then using emacs's internal package manager to install <code>rust-mode</code> is the easiest way to keep it up to date. There is also a package for Sublime Text 2, available both <a href="http://github.com/dbp/sublime-rust">standalone</a> and through <a href="http://wbond.net/sublime_packages/package_control">Sublime Package Control</a>, and support for Kate under <code>src/etc/kate</code>.</p>
-<p>There is ctags support via <code>src/etc/ctags.rust</code>, but many other tools and editors are not yet supported. If you end up writing a Rust mode for your favorite editor, let us know so that we can link to it.</p>
-<h1 id="syntax-basics"><a href="#TOC"><span class="header-section-number">3</span> Syntax basics</a></h1>
-<p>Assuming you've programmed in any C-family language (C++, Java, JavaScript, C#, or PHP), Rust will feel familiar. Code is arranged in blocks delineated by curly braces; there are control structures for branching and looping, like the familiar <code>if</code> and <code>while</code>; function calls are written <code>myfunc(arg1, arg2)</code>; operators are written the same and mostly have the same precedence as in C; comments are again like C; module names are separated with double-colon (<code>::</code>) as with C++.</p>
-<p>The main surface difference to be aware of is that the condition at the head of control structures like <code>if</code> and <code>while</code> does not require parentheses, while their bodies <em>must</em> be wrapped in braces. Single-statement, unbraced bodies are not allowed.</p>
+<h2 id="rust-도구-사용하기"><a href="#TOC"><span class="header-section-number">2.2</span> rust 도구 사용하기</a></h2>
+<p>실행되는 것을 생성하기 위해 <code>rustc</code>를 직접적으로 사용하고, 수동으로 실행하는 것은 당신의 코드를 테스트하는 완전하고 유효한 방법이지만, 작은 프로젝트이거나 프로토타입이거나 당신이 초보자라면 <code>rust</code> 도구를 사용하는 것이 더 편리할 것이다.</p>
+<p><code>rust</code> 도구는 나머지 rust 도구들로의 중앙집중적 접근 뿐만아니라 소스 파일을 바로 실행하기 위해 간편한 단축 명령을 제공한다. 예를 들어, 현재 디렉토리에 <code>foo.rs</code> 파일이 있다면, <code>rust run foo.rs</code> 명령은 컴파일을 시도할 것이고, 성공하면 결과로 생성된 바이너리를 바로 실행한다.</p>
+<p>모든 가능한 명령의 목록을 얻으려면, 어떤 인자도 없이 단순히 <code>rust</code>만 호출하면 된다.</p>
+<h2 id="rust-코드-수정하기"><a href="#TOC"><span class="header-section-number">2.3</span> Rust 코드 수정하기</a></h2>
+<p>Rust 소스 배포판 <code>src/etc/vim/</code> 하위에 vim 하이라이트와 들여쓰기 스크립트가 있다. <code>src/etc/emacs/</code> 하위에 <code>rust-mode</code>라고 불리는 emacs 모드가 있지만, 디렉토리에 포함된 설명서를 꼭 읽어라. 특히, emacs 24에서 실행한다면, <code>rust-mode</code> 설치를 최신으로 유지하는 가장 쉬운 방법인 emacs 내부 패키지 관리자를 사용해라. 또한 Sublime Text 2를 위한 패키지는 <a href="http://github.com/dbp/sublime-rust">standalone</a>와 <a href="http://wbond.net/sublime_packages/package_control">Sublime Package Control</a>를 통해서 모두 가능하고, Kate를 위한 지원은 <code>src/etc/kate</code> 하위에 있다.</p>
+<p><code>src/etc/ctags.rust</code>를 통해 ctags를 지원하지만, 많은 다른 도구들과 편집기들은 아직 지원하지 않는다. 당신이 가장 선호하는 편집기를 위한 Rust 모드가 작성이 완료되면, 우리에게 알려주면 링크를 걸어주겠다.</p>
+<h1 id="기본-문법"><a href="#TOC"><span class="header-section-number">3</span> 기본 문법</a></h1>
+<p>당신이 C계열의 언어(C++, Java, JavaScript, C#, or PHP)로 프로그래밍을 했다고 가정하면, Rust는 비슷하다고 느낄 것이다. 코드는 중괄호로 구분되는 블록들의 나열이다. <code>if</code>와 <code>while</code>과 비슷한 분기나 반복을 위한 제어 구조도 있다. 함수는 <code>myfunc(arg1, args2);</code>라고 호출한다. 연산자도 C와 같고 거의 동일한 우선순위를 가진다. 주석 또한 C와 같다. 모듈 이름은 C++ 처럼 더블 콜론(::)으로 구분된다.</p>
+<p>인지되는 주된 표면적 차이는 <code>if</code>와 <code>while</code>과 같은 제어 구조의 머리에 있는 조건이 괄호가 필요없고, 몸통은 <em>무조건</em> 중괄호로 둘러싸야한다. 몸통에 문장이 하나일때, 중괄호를 하지않는 것은 허용되지 않는다.</p>
 <pre><code># mod universe { pub fn recalibrate() -&gt; bool { true } }
 fn main() {
     /* A simple loop */
@@ -157,7 +157,7 @@ fn main() {
         }
     }
 }</code></pre>
-<p>The <code>let</code> keyword introduces a local variable. Variables are immutable by default. To introduce a local variable that you can re-assign later, use <code>let mut</code> instead.</p>
+<p><code>let</code> 키워드는 지역 변수를 나타낸다. 변수는 기본적으로 변하지 않는다. 나중에 재할당할 수 있는 지역 변수를 나타내기 위해, <code>let mut</code>를 사용한다.</p>
 <pre><code>let hi = &quot;hi&quot;;
 let mut count = 0;
 
@@ -165,14 +165,14 @@ while count &lt; 10 {
     io::println(fmt!(&quot;count: %?&quot;, count));
     count += 1;
 }</code></pre>
-<p>Although Rust can almost always infer the types of local variables, you can specify a variable's type by following it with a colon, then the type name. Static items, on the other hand, always require a type annotation.</p>
+<p>Rust는 지역 변수의 타입을 거의 항상 추론할 수 있지만, 콜론 다음에 타입의 이름을 적어줌으로써 변수의 타입을 명시해줄 수 있다. 반대로, 정적 아이템은 타입 주석이 항상 필요하다.</p>
 <pre><code>static monster_factor: float = 57.8;
 let monster_size = monster_factor * 10.0;
 let monster_size: int = 50;</code></pre>
-<p>Local variables may shadow earlier declarations, as in the previous example: <code>monster_size</code> was first declared as a <code>float</code>, and then a second <code>monster_size</code> was declared as an <code>int</code>. If you were to actually compile this example, though, the compiler would determine that the first <code>monster_size</code> is unused and issue a warning (because this situation is likely to indicate a programmer error). For occasions where unused variables are intentional, their names may be prefixed with an underscore to silence the warning, like <code>let _monster_size = 50;</code>.</p>
-<p>Rust identifiers start with an alphabetic character or an underscore, and after that may contain any sequence of alphabetic characters, numbers, or underscores. The preferred style is to write function, variable, and module names with lowercase letters, using underscores where they help readability, while writing types in camel case.</p>
+<p>앞의 예제에서 지역 변수는 shadow earlier 선언이다: 첫번째 <code>monster_size</code>는 <code>float</code>으로, 두번째 <code>monster_size</code>는 <code>int</code>로 선언되었다. 이 예제를 실제로 컴파일하더라도, 컴파일러는 첫번째 <code>monster_size</code>는 사용되지 않는다고 판단하고 경고를 표시할 것이다(이 상황은 프로그래머 오류를 발생시킬 가능성이 있기 때문이다). 사용되지 않는 변수가 의도적인 경우, 경고를 없애기 위해, <code>let _monster_size = 50;</code>처럼 이름을 밑줄로 시작하면 된다.</p>
+<p>Rust 식별자는 알파벳 문자나 밑줄로 시작하고 그 이후로 알파벳 문자, 숫자, 밑줄의 나열된다. 선호되는 스타일은 함수, 변수, 그리고 모듈 이름은 가독성에 도움을 주기위해 밑줄이 포함된 소문자로 작성하고, 타입은 camel case로 작성한다.</p>
 <pre><code>let my_variable = 100;
-type MyType = int;     // primitive types are _not_ camel case</code></pre>
+type MyType = int;     // 기본 타입은 camel case로 작성하지 않는다.</code></pre>
 <h2 id="expressions-and-semicolons"><a href="#TOC"><span class="header-section-number">3.1</span> Expressions and semicolons</a></h2>
 <p>Though it isn't apparent in all code, there is a fundamental difference between Rust's syntax and predecessors like C. Many constructs that are statements in C are expressions in Rust, allowing code to be more concise. For example, you might write a piece of code like this:</p>
 <pre><code># let item = &quot;salad&quot;;
