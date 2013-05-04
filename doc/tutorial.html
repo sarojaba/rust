@@ -14,11 +14,11 @@
 <div id="TOC">
 <ul>
 <li><a href="#머리말"><span class="toc-section-number">1</span> 머리말</a><ul>
-<li><a href="#scope"><span class="toc-section-number">1.1</span> Scope</a></li>
-<li><a href="#conventions"><span class="toc-section-number">1.2</span> Conventions</a></li>
+<li><a href="#범위"><span class="toc-section-number">1.1</span> 범위</a></li>
+<li><a href="#관습"><span class="toc-section-number">1.2</span> 관습</a></li>
 </ul></li>
-<li><a href="#getting-started"><span class="toc-section-number">2</span> Getting started</a><ul>
-<li><a href="#compiling-your-first-program"><span class="toc-section-number">2.1</span> Compiling your first program</a></li>
+<li><a href="#시작하기"><span class="toc-section-number">2</span> 시작하기</a><ul>
+<li><a href="#자신의-첫-프로그램-컴파일하기"><span class="toc-section-number">2.1</span> 자신의 첫 프로그램 컴파일하기</a></li>
 <li><a href="#using-the-rust-tool"><span class="toc-section-number">2.2</span> Using the rust tool</a></li>
 <li><a href="#editing-rust-code"><span class="toc-section-number">2.3</span> Editing Rust code</a></li>
 </ul></li>
@@ -80,37 +80,37 @@
 </div>
 <h1 id="머리말"><a href="#TOC"><span class="header-section-number">1</span> 머리말</a></h1>
 <p>Rust는 타입 안전성, 메모리 안전성, 동시성 그리고 성능에 초점을 맞춘 프로그래밍 언어이다. 몇 가지로 분류되는 일반적인 에러들로부터 자유로운 대규모, 고성능 소프트웨어를 작성하도록 계획되었다. Rust는 능률적인 데이터 구조를 장려하는 고수준의 메모리 모델과 세그멘테이션 오류를 일으키는 무효한 메모리 접근을 예방하는 안전한 동시성 패턴을 가지고 있다. 컴파일 시간에 타입이 정해진다.</p>
-<p>As a multi-paradigm language, Rust supports writing code in procedural, functional and object-oriented styles. Some of its pleasant high-level features include:</p>
+<p>다중 패러다임 언어로서, Rust는 절차형, 함수형 그리고 객체지향 스타일로 작성된 코드를 모두 지원한다. 또한 다음의 고수준의 기능들을 포함한다:</p>
 <ul>
-<li><strong>Type inference.</strong> Type annotations on local variable declarations are optional.</li>
-<li><strong>Safe task-based concurrency.</strong> Rust's lightweight tasks do not share memory, instead communicating through messages.</li>
-<li><strong>Higher-order functions.</strong> Efficient and flexible closures provide iteration and other control structures</li>
-<li><strong>Pattern matching and algebraic data types.</strong> Pattern matching on Rust's enumeration types (a more powerful version of C's enums, similar to algebraic data types in functional languages) is a compact and expressive way to encode program logic.</li>
-<li><strong>Polymorphism.</strong> Rust has type-parametric functions and types, type classes and OO-style interfaces.</li>
+<li><strong>타입 추론</strong> 타입을 알려주는 지역 변수 선언은 선택적이다.</li>
+<li><strong>안전한 태스크 기반의 동시성</strong> Rust의 가벼운 태스크들은 메모리를 공유하지 않는 대신 메시지를 통해 통신한다.</li>
+<li><strong>고차(Higher-order) 함수</strong> 효율적이고 유연한 클로저는 반복과 제어 구조를 분리하여 제공한다.</li>
+<li><strong>패턴 매칭과 대수적 자료구조</strong> Rust의 열거형(C의 열거형의 더 강력한 버전, 함수형 언어에서 대수적 자료구조와 비슷)에서 패턴 매칭은 프로그램 논리를 코드화하는 함축적이고 표현적인 방법이다.</li>
+<li><strong>다형성</strong> Rust는 타입-인자의 함수와 타입, 타입 클래스 그리고 객체지향 스타일의 인터페이스를 가진다.</li>
 </ul>
-<h2 id="scope"><a href="#TOC"><span class="header-section-number">1.1</span> Scope</a></h2>
-<p>This is an introductory tutorial for the Rust programming language. It covers the fundamentals of the language, including the syntax, the type system and memory model, generics, and modules. <a href="#what-next">Additional tutorials</a> cover specific language features in greater depth.</p>
-<p>This tutorial assumes that the reader is already familiar with one or more languages in the C family. Understanding of pointers and general memory management techniques will help.</p>
-<h2 id="conventions"><a href="#TOC"><span class="header-section-number">1.2</span> Conventions</a></h2>
-<p>Throughout the tutorial, language keywords and identifiers defined in example code are displayed in <code>code font</code>.</p>
-<p>Code snippets are indented, and also shown in a monospaced font. Not all snippets constitute whole programs. For brevity, we'll often show fragments of programs that don't compile on their own. To try them out, you might have to wrap them in <code>fn main() { ... }</code>, and make sure they don't contain references to names that aren't actually defined.</p>
+<h2 id="범위"><a href="#TOC"><span class="header-section-number">1.1</span> 범위</a></h2>
+<p>이 문서는 Rust 프로그래밍 언어를 소개하는 튜토리얼이다. 문법, the 타입 시스템과 메모리 모델, 제너릭, 모듈을 포함한 언어의 기초를 다룬다. <a href="#what-next">Additional tutorials</a>은 언어에 특화된 기능을 더 깊이 다룬다.</p>
+<p>이 튜토리얼은 독자가 하나 이상 의 C 계열의 언어에 이미 친숙하다고 가정한다. 포인터와 일반적인 메모리 관리 기법의 이해가 도움을 줄 것이다.</p>
+<h2 id="관습"><a href="#TOC"><span class="header-section-number">1.2</span> 관습</a></h2>
+<p>튜토리얼을 통해서, 예제 코드에서 정의되는 언어 키워드와 식별자는 <code>코드 글꼴</code>로 표시된다.</p>
+<p>코드 조각은 들여쓰여지고, monospaced 글꼴로 보여진다. 모든 코드 조각들이 전체 프로그램을 구성하지는 않는다. 간결함을 위해, 컴파일되지 않는 프로그램의 일부분을 보여줄 것이다. 실행해보기 위해, <code>fn main() { ... }</code> 안에 넣어야할 것이다, 실제로 정의되지 않은 이름을 참조하는 것을 확인해야한다.</p>
 <blockquote>
-<p><strong><em>Warning:</em></strong> Rust is a language under ongoing development. Notes about potential changes to the language, implementation deficiencies, and other caveats appear offset in blockquotes.</p>
+<p><strong><em>경고:</em></strong> Rust 계속 개발중인 언어이다. 언어의 잠재적인 변화, 구현 부족, 그리고 정지에 대해 알고있어야한다.</p>
 </blockquote>
-<h1 id="getting-started"><a href="#TOC"><span class="header-section-number">2</span> Getting started</a></h1>
-<p>The Rust compiler currently must be built from a <a href="http://static.rust-lang.org/dist/rust-0.6.tar.gz">tarball</a>, unless you are on Windows, in which case using the <a href="http://static.rust-lang.org/dist/rust-0.6-install.exe">installer</a> is recommended.</p>
-<p>Since the Rust compiler is written in Rust, it must be built by a precompiled &quot;snapshot&quot; version of itself (made in an earlier state of development). As such, source builds require a connection to the Internet, to fetch snapshots, and an OS that can execute the available snapshot binaries.</p>
-<p>Snapshot binaries are currently built and tested on several platforms:</p>
+<h1 id="시작하기"><a href="#TOC"><span class="header-section-number">2</span> 시작하기</a></h1>
+<p>현재 Rust 컴파일러는 <a href="http://static.rust-lang.org/dist/rust-0.6.tar.gz">tarball</a>로 제작되고, Windows의 경우는 <a href="http://static.rust-lang.org/dist/rust-0.6-install.exe">installer</a> 사용을 추천한다.</p>
+<p>컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 &quot;snapshot&quot; 버전으로 만들어진다(개발 초기 단계에). 이처럼, 소스를 빌드하려면 스냅샷을 받아오기 위해 인터넷 연결과 유효한 스냅샷 바이너리를 실행할 수 있는 OS가 필요하다.</p>
+<p>현재 스냅샷 바이너리는 아래의 플랫폼들에서 제작되고 테스트된다:</p>
 <ul>
 <li>Windows (7, Server 2008 R2), x86 only</li>
 <li>Linux (various distributions), x86 and x86-64</li>
 <li>OSX 10.6 (&quot;Snow Leopard&quot;) or greater, x86 and x86-64</li>
 </ul>
-<p>You may find that other platforms work, but these are our &quot;tier 1&quot; supported build environments that are most likely to work.</p>
+<p>다른 플랫폼에서 작동하는 것을 찾을 수도 있지만, 선호되는 빌드 환경을 지원하는 것이 우선의 목표이다.</p>
 <blockquote>
-<p><strong><em>Note:</em></strong> Windows users should read the detailed &quot;<a href="https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust">getting started</a>&quot; notes on the wiki. Even when using the binary installer, the Windows build requires a MinGW installation, the precise details of which are not discussed here. Finally, <code>rustc</code> may need to be <a href="https://github.com/mozilla/rust/issues/3319">referred to as <code>rustc.exe</code></a>. It's a bummer, we know.</p>
+<p><strong><em>Note:</em></strong> 윈도우즈 사용자들은 위키에서 세부적인 <a href="https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust">getting started</a> 내용을 읽어야한다. 바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다. 자세한 내용은 여기서 논의하지 않는다. 마지막으로, <code>rustc</code>는 <a href="https://github.com/mozilla/rust/issues/3319">referred to as <code>rustc.exe</code></a>를 알고 있어야한다. 기대에 어긋나는 것이라는 것은 알고있다.</p>
 </blockquote>
-<p>To build from source you will also need the following prerequisite packages:</p>
+<p>소스로부터 빌드하려면 사전에 필요한 패키지는 다음과 같다:</p>
 <ul>
 <li>g++ 4.4 or clang++ 3.x</li>
 <li>python 2.6 or later (but not 3.x)</li>
@@ -118,25 +118,25 @@
 <li>gnu make 3.81 or later</li>
 <li>curl</li>
 </ul>
-<p>If you've fulfilled those prerequisites, something along these lines should work.</p>
+<p>만약 충분히 필요 조건을 만족한다면, 다음의 명령들을 수행하면 된다.</p>
 <pre class="notrust"><code>$ curl -O http://static.rust-lang.org/dist/rust-0.6.tar.gz
 $ tar -xzf rust-0.6.tar.gz
 $ cd rust-0.6
 $ ./configure
 $ make &amp;&amp; make install</code></pre>
-<p>You may need to use <code>sudo make install</code> if you do not normally have permission to modify the destination directory. The install locations can be adjusted by passing a <code>--prefix</code> argument to <code>configure</code>. Various other options are also supported: pass <code>--help</code> for more information on them.</p>
-<p>When complete, <code>make install</code> will place several programs into <code>/usr/local/bin</code>: <code>rustc</code>, the Rust compiler; <code>rustdoc</code>, the API-documentation tool; <code>rustpkg</code>, the Rust package manager; <code>rusti</code>, the Rust REPL; and <code>rust</code>, a tool which acts both as a unified interface for them, and for a few common command line scenarios.</p>
-<h2 id="compiling-your-first-program"><a href="#TOC"><span class="header-section-number">2.1</span> Compiling your first program</a></h2>
-<p>Rust program files are, by convention, given the extension <code>.rs</code>. Say we have a file <code>hello.rs</code> containing this program:</p>
+<p>만약 목표 디렉토리를 수정할 권한을 가지고 있지 않다면 <code>sudo make install</code>을 사용해야 할 수도 있다. 설치 장소는 <code>configure</code> 명령의 인자로 <code>--prefix</code>를 전달하여 조정할 수 있다. 다양한 다른 옵션들도 지원되고 <code>--help</code> 인자를 통해 더 자세한 정보를 얻을 수 있습니다.</p>
+<p><code>make install</code>이 성공적으로 완료되면 <code>/usr/local/bin</code> 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. <code>rustc</code>는 the Rust 컴파일러, <code>rustdoc</code>는 API-문서 도구, 그리고 <code>rustpkg</code>는 Rust 패키지 관리자 및 빌드 시스템, <code>rusti</code>는 Rust REPL, 그리고 <code>rust</code>는, 위 명령들의 통합된 인터페이스, 몇개의 공통의 명령행 시나리오로 동작하는 도구이다.</p>
+<h2 id="자신의-첫-프로그램-컴파일하기"><a href="#TOC"><span class="header-section-number">2.1</span> 자신의 첫 프로그램 컴파일하기</a></h2>
+<p>관습적으로 Rust 프로그램 파일은 <code>.rs</code>라는 확장자를 가진다. 아래의 프로그램을 가지는 <code>hello.rs</code> 파일을 만들어보자.</p>
 <pre><code>fn main() {
     io::println(&quot;hello?&quot;);
 }</code></pre>
-<p>If the Rust compiler was installed successfully, running <code>rustc hello.rs</code> will produce an executable called <code>hello</code> (or <code>hello.exe</code> on Windows) which, upon running, will likely do exactly what you expect.</p>
-<p>The Rust compiler tries to provide useful information when it encounters an error. If you introduce an error into the program (for example, by changing <code>io::println</code> to some nonexistent function), and then compile it, you'll see an error message like this:</p>
+<p>만약 Rust 컴파일러가 성공적으로 설치되었다면, <code>rustc hello.rs</code>라고 실행하면 <code>hello</code> 라는 실행파일이 생성되고(윈도우즈에서는 <code>hello.exe</code>), 실행하면 원하는 결과가 정확히 실행될 것이다.</p>
+<p>The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, <code>io:println</code> 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.</p>
 <pre class="notrust"><code>hello.rs:2:4: 2:16 error: unresolved name: io::print_with_unicorns
 hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
                ^~~~~~~~~~~~~~~~~~~~~~~</code></pre>
-<p>In its simplest form, a Rust program is a <code>.rs</code> file with some types and functions defined in it. If it has a <code>main</code> function, it can be compiled to an executable. Rust does not allow code that's not a declaration to appear at the top level of the file: all statements must live inside a function. Rust programs can also be compiled as libraries, and included in other programs.</p>
+<p>최대한 단순화하면, Rust 프로그램은 몇 개의 타입과 함수를 가지고 있는 <code>.rs</code> 파일이다. 만약 <code>main</code> 함수를 가지고 있으면, 실행되도록 컴파일 될 수 있다. Rust는 파일의 최상위 레벨에서 선언된 코드를 허용하지 않는다. 모든 구문은 함수 안에 존재해야 한다. Rust 프로그램은 다른 프로그램에 포함되는 라이브러리로서 컴파일 될 수 있다.</p>
 <h2 id="using-the-rust-tool"><a href="#TOC"><span class="header-section-number">2.2</span> Using the rust tool</a></h2>
 <p>While using <code>rustc</code> directly to generate your executables, and then running them manually is a perfectly valid way to test your code, for smaller projects, prototypes, or if you're a beginner, it might be more convenient to use the <code>rust</code> tool.</p>
 <p>The <code>rust</code> tool provides central access to the other rust tools, as well as handy shortcuts for directly running source files. For example, if you have a file <code>foo.rs</code> in your current directory, <code>rust run foo.rs</code> would attempt to compile it and, if successful, directly run the resulting binary.</p>
