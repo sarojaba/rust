@@ -4,22 +4,14 @@
 
 Rust는 타입 안전성, 메모리 안전성, 동시성 그리고 성능에 초점을 맞춘 프로그래밍 언어이다. 몇 가지로 분류되는 일반적인 에러들로부터 자유로운 대규모, 고성능 소프트웨어를 작성하도록 계획되었다. Rust는 능률적인 데이터 구조를 장려하는 고수준의 메모리 모델과 세그멘테이션 오류를 일으키는 무효한 메모리 접근을 예방하는 안전한 동시성 패턴을 가지고 있다. 컴파일 시간에 타입이 정해진다.
 
-As a multi-paradigm language, Rust supports writing code in
-procedural, functional and object-oriented styles. Some of its
-pleasant high-level features include:
+다중 패러다임 언어로서, Rust는 절차형, 함수형 그리고 객체지향 스타일로 작성된 코드를 모두 지원한다. 또한 다음의 고수준의 기능들을 포함한다:
 
-* **Type inference.** Type annotations on local variable declarations
-  are optional.
-* **Safe task-based concurrency.** Rust's lightweight tasks do not share
-  memory, instead communicating through messages.
-* **Higher-order functions.** Efficient and flexible closures provide
-  iteration and other control structures
-* **Pattern matching and algebraic data types.** Pattern matching on
-  Rust's enumeration types (a more powerful version of C's enums,
-  similar to algebraic data types in functional languages) is a
-  compact and expressive way to encode program logic.
-* **Polymorphism.** Rust has type-parametric functions and
-  types, type classes and OO-style interfaces.
+* **타입 추론** 타입을 알려주는 지역 변수 선언은 선택적이다.
+* **안전한 태스크 기반의 동시성** Rust의 가벼운 태스크들은 메모리를 공유하지 않는 대신 메시지를 통해 통신한다.
+* **고차(Higher-order) 함수** 효율적이고 유연한 클로저는 반복과 제어 구조를 분리하여 제공한다.
+* **패턴 매칭과 대수적 자료구조**
+  Rust의 열거형(C의 열거형의 더 강력한 버전, 함수형 언어에서 대수적 자료구조와 비슷)에서 패턴 매칭은 프로그램 논리를 코드화하는 함축적이고 표현적인 방법이다.
+* **다형성** Rust는 타입-인자의 함수와 타입, 타입 클래스 그리고 객체지향 스타일의 인터페이스를 가진다.
 
 ## Scope
 
