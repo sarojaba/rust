@@ -13,17 +13,12 @@ Rust는 타입 안전성, 메모리 안전성, 동시성 그리고 성능에 초
   Rust의 열거형(C의 열거형의 더 강력한 버전, 함수형 언어에서 대수적 자료구조와 비슷)에서 패턴 매칭은 프로그램 논리를 코드화하는 함축적이고 표현적인 방법이다.
 * **다형성** Rust는 타입-인자의 함수와 타입, 타입 클래스 그리고 객체지향 스타일의 인터페이스를 가진다.
 
-## Scope
+## 범위
 
-This is an introductory tutorial for the Rust programming language. It
-covers the fundamentals of the language, including the syntax, the
-type system and memory model, generics, and modules. [Additional
-tutorials](#what-next) cover specific language features in greater
-depth.
+이 문서는 Rust 프로그래밍 언어를 소개하는 튜토리얼이다. 문법, the 타입 시스템과 메모리 모델, 제너릭, 모듈을 포함한 언어의 기초를 다룬다. [Additional
+tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 
-This tutorial assumes that the reader is already familiar with one or
-more languages in the C family. Understanding of pointers and general
-memory management techniques will help.
+이 튜토리얼은 독자가 하나 이상 의 C 계열의 언어에 이미 친숙하다고 가정한다. 포인터와 일반적인 메모리 관리 기법의 이해가 도움을 줄 것이다.
 
 ## Conventions
 
