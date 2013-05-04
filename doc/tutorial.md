@@ -28,39 +28,26 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 
 > ***경고:*** Rust 계속 개발중인 언어이다. 언어의 잠재적인 변화, 구현 부족, 그리고 정지에 대해 알고있어야한다.
 
-# Getting started
+# 시작하기
 
-The Rust compiler currently must be built from a [tarball], unless you
-are on Windows, in which case using the [installer][win-exe] is
-recommended.
+현재 Rust 컴파일러는 [tarball]로 제작되고, Windows의 경우는 [installer][win-exe] 사용을 추천한다.
 
-Since the Rust compiler is written in Rust, it must be built by
-a precompiled "snapshot" version of itself (made in an earlier state
-of development). As such, source builds require a connection to
-the Internet, to fetch snapshots, and an OS that can execute the
-available snapshot binaries.
+컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "snapshot" 버전으로 만들어진다(개발 초기 단계에). 이처럼, 소스를 빌드하려면 스냅샷을 받아오기 위해 인터넷 연결과 유효한 스냅샷 바이너리를 실행할 수 있는 OS가 필요하다.
 
-Snapshot binaries are currently built and tested on several platforms:
+현재 스냅샷 바이너리는 아래의 플랫폼들에서 제작되고 테스트된다:
 
 * Windows (7, Server 2008 R2), x86 only
 * Linux (various distributions), x86 and x86-64
 * OSX 10.6 ("Snow Leopard") or greater, x86 and x86-64
 
-You may find that other platforms work, but these are our "tier 1"
-supported build environments that are most likely to work.
+다른 플랫폼에서 작동하는 것을 찾을 수도 있지만, 선호되는 빌드 환경을 지원하는 것이 우선의 목표이다.
 
-> ***Note:*** Windows users should read the detailed
-> "[getting started][wiki-start]" notes on the wiki. Even when using
-> the binary installer, the Windows build requires a MinGW installation,
-> the precise details of which are not discussed here. Finally, `rustc` may
-> need to be [referred to as `rustc.exe`][bug-3319]. It's a bummer, we
-> know.
+> ***Note:*** 윈도우즈 사용자들은 위키에서 세부적인 [getting started][wiki-start] 내용을 읽어야한다. 바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다. 자세한 내용은 여기서 논의하지 않는다. 마지막으로, `rustc`는 [referred to as `rustc.exe`][bug-3319]를 알고 있어야한다. 기대에 어긋나는 것이라는 것은 알고있다.
 
 [bug-3319]: https://github.com/mozilla/rust/issues/3319
 [wiki-start]:	https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
 
-To build from source you will also need the following prerequisite
-packages:
+소스로부터 빌드하려면 사전에 필요한 패키지는 다음과 같다:
 
 * g++ 4.4 or clang++ 3.x
 * python 2.6 or later (but not 3.x)
@@ -68,8 +55,7 @@ packages:
 * gnu make 3.81 or later
 * curl
 
-If you've fulfilled those prerequisites, something along these lines
-should work.
+만약 충분히 필요 조건을 만족한다면, 다음의 명령들을 수행하면 된다.
 
 ~~~~ {.notrust}
 $ curl -O http://static.rust-lang.org/dist/rust-0.6.tar.gz
@@ -79,17 +65,9 @@ $ ./configure
 $ make && make install
 ~~~~
 
-You may need to use `sudo make install` if you do not normally have
-permission to modify the destination directory. The install locations
-can be adjusted by passing a `--prefix` argument to
-`configure`. Various other options are also supported: pass `--help`
-for more information on them.
+만약 목표 디렉토리를 수정할 권한을 가지고 있지 않다면 `sudo make install`을 사용해야 할 수도 있다. 설치 장소는 `configure` 명령의 인자로 `--prefix`를 전달하여 조정할 수 있다. 다양한 다른 옵션들도 지원되고 `--help` 인자를 통해 더 자세한 정보를 얻을 수 있습니다.
 
-When complete, `make install` will place several programs into
-`/usr/local/bin`: `rustc`, the Rust compiler; `rustdoc`, the
-API-documentation tool; `rustpkg`, the Rust package manager;
-`rusti`, the Rust REPL; and `rust`, a tool which acts both as a unified
-interface for them, and for a few common command line scenarios.
+`make install`이 성공적으로 완료되면 `/usr/local/bin` 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. `rustc`는 the Rust 컴파일러, `rustdoc`는 API-문서 도구, 그리고 `rustpkg`는 Rust 패키지 관리자 및 빌드 시스템, `rusti`는 Rust REPL, 그리고 `rust`는, 위 명령들의 통합된 인터페이스, 몇개의 공통의 명령행 시나리오로 동작하는 도구이다.
 
 [wiki-start]: https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
 [tarball]: http://static.rust-lang.org/dist/rust-0.6.tar.gz
