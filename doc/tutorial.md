@@ -162,13 +162,9 @@ let my_variable = 100;
 type MyType = int;     // 기본 타입은 camel case로 작성하지 않는다.
 ~~~
 
-## Expressions and semicolons
+## 표현식과 세미콜론
 
-Though it isn't apparent in all code, there is a fundamental
-difference between Rust's syntax and predecessors like C.
-Many constructs that are statements in C are expressions
-in Rust, allowing code to be more concise. For example, you might
-write a piece of code like this:
+모든 코드에서 외관상 다르더라도, Rust의 문법과 C와 같은 predecessors 사이에는 근본적인 차이가 있다. C에서 문장인 많은 구조들은 Rust에서는 더 간결한 코드를 허용하는 표현식이다. 예를 들어, 다음과 같은 코드의 일부분을 작성할 수 있다.
 
 ~~~~
 # let item = "salad";
@@ -182,7 +178,7 @@ if item == "salad" {
 }
 ~~~~
 
-But, in Rust, you don't have to repeat the name `price`:
+그러나, Rust에서는, `price`라는 이름을 반복할 필요가 없다.
 
 ~~~~
 # let item = "salad";
@@ -196,22 +192,11 @@ let price =
     };
 ~~~~
 
-Both pieces of code are exactly equivalent: they assign a value to
-`price` depending on the condition that holds. Note that there
-are no semicolons in the blocks of the second snippet. This is
-important: the lack of a semicolon after the last statement in a
-braced block gives the whole block the value of that last expression.
+두 코드의 일부분은 정확히 동일하다. 둘다 주어진 조건에 따라 값을 `price`에 할당한다. 두번째 코드 조각의 블록안에 세미콜론이 없다는 것을 명심해라. 이것은 중요하다. 중괄호 사이의 블록내의 마지막 문장 뒤에 세미콜론의 누락은 전체 블록에게 마지막 표현식의 값을 준다.
 
-Put another way, the semicolon in Rust *ignores the value of an expression*.
-Thus, if the branches of the `if` had looked like `{ 4; }`, the above example
-would simply assign `()` (nil or void) to `price`. But without the semicolon, each
-branch has a different value, and `price` gets the value of the branch that
-was taken.
+다르게 말하면, Rust에서 세미콜론은 *표현식의 값을 무시한다*. 그래서 `if`의 분기가 `{ 4; }`처럼 되어있다면, 위의 예제는 단순히 `price`에 `()` (nil 또는 void)를 할당할 것이다. 그러나 세미콜론이 없으면, 각 분기는 서로 다른 값을 가지고, `price`는 분기에서 얻은 값을 가진다.
 
-In short, everything that's not a declaration (declarations are `let` for
-variables; `fn` for functions; and any top-level named items such as
-[traits](#traits), [enum types](#enums), and [constants](#constants)) is an
-expression, including function bodies.
+즉, 선언(변수를 위한 `let`, 함수를 위한 `fn`, 그리고 [traits](#traits), [enum types](#enums), 그리고 [constants](#constants)와 같은 최상위 요소)이 아닌 모든 것(함수 몸통 포함)은 표현식이다.
 
 ~~~~
 fn is_four(x: int) -> bool {
