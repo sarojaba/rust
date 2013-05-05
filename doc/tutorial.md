@@ -206,20 +206,11 @@ fn is_four(x: int) -> bool {
 }
 ~~~~
 
-## Primitive types and literals
+## 기본 타입과 리터럴
 
-There are general signed and unsigned integer types, `int` and `uint`,
-as well as 8-, 16-, 32-, and 64-bit variants, `i8`, `u16`, etc.
-Integers can be written in decimal (`144`), hexadecimal (`0x90`), or
-binary (`0b10010000`) base. Each integral type has a corresponding literal
-suffix that can be used to indicate the type of a literal: `i` for `int`,
-`u` for `uint`, `i8` for the `i8` type.
+일반적인 부호있는/없는 정수 타입인 `int`와 `uint`, 또한 8-, 16-, 32-, 그리고 64-bit 변수인, `i8`, `u16` 등이 있다. 정수는 10진수 (`144`), 16진수 (`0x90`), 또는 2진수 (`0b10010000`) 로 작성될 수 있다. 각 정수 타입은 리터럴의 타입을 가리키는데 사용될 수 있는 리터럴 접미사와 대응된다. 예를들어 `i`는 `int`, `u`는 `uint`, `i8`는 `i8` 타입이다.
 
-In the absence of an integer literal suffix, Rust will infer the
-integer type based on type annotations and function signatures in the
-surrounding program. In the absence of any type information at all,
-Rust will assume that an unsuffixed integer literal has type
-`int`.
+정수 리터럴 접미사가 없으면, Rust는 근처 코드의 타입 어노테이션과 함수 시그니처에 근거해 정수 타입으로 추론할 것이다. 어떤 타입 정보도 없으면, Rust는 접미사없는 정수 리터럴인 `int` 타입으로 가정할 것이다.
 
 ~~~~
 let a = 1;       // a is an int
@@ -228,21 +219,13 @@ let c = 100u;    // c is a uint
 let d = 1000i32; // d is an i32
 ~~~~
 
-There are three floating-point types: `float`, `f32`, and `f64`.
-Floating-point numbers are written `0.0`, `1e6`, or `2.1e-4`.
-Like integers, floating-point literals are inferred to the correct type.
-Suffixes `f`, `f32`, and `f64` can be used to create literals of a specific type.
+Rust는 `float`, `f32`, 그리고 `f64`의 세가지 부동소수점 타입이 있다. 부동소수점 숫자는 `0.0`, `1e6`, 또는 `2.1e-4` 처럼 표현된다. 정수처럼, 부동소수점 리터럴도 타입이 정확하게 추론된다. 명시적 타입의 리터럴인 접미사 `f`, `f32`, 그리고 `f64`으로 생성할 수 있다.
 
-The keywords `true` and `false` produce literals of type `bool`.
+키워드 `true`와 `false`은 `bool` 타입의 리터럴을 생성한다.
 
-Characters, the `char` type, are four-byte Unicode codepoints,
-whose literals are written between single quotes, as in `'x'`.
-Just like C, Rust understands a number of character escapes, using the backslash
-character, such as `\n`, `\r`, and `\t`. String literals,
-written between double quotes, allow the same escape sequences.
-More on strings [later](#vectors-and-strings).
+`char` 타입인 문자의 리터럴은 `'x'`와 같이 작은 따옴표 사이에 4 바이트 유니코드 코드포인트를 적는다. C와 동일하게, Rust는 `\n`, `\r`, `\t` 같이 백슬러시 문자를 사용하는 다양한 탈출 문자를 이해한다. 문자열 리터럴은 쌍따옴표 사이에 적고, 동일한 탈출 문자를 허용한다. 문자열에 대해 더 알고싶으면 [later](#vectors-and-strings).
 
-The nil type, written `()`, has a single value, also written `()`.
+`()`로 적히는 nil 타입은 똑같이 `()`라고 쓰는 하나의 값만 가진다.
 
 ## Operators
 
