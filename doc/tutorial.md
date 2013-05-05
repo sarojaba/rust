@@ -243,18 +243,11 @@ let y: uint = x as uint;
 assert!(y == 4u);
 ~~~~
 
-## Syntax extensions
+## 문법 확장
 
-*Syntax extensions* are special forms that are not built into the language,
-but are instead provided by the libraries. To make it clear to the reader when
-a name refers to a syntax extension, the names of all syntax extensions end
-with `!`. The standard library defines a few syntax extensions, the most
-useful of which is `fmt!`, a `sprintf`-style text formatter that you will
-often see in examples.
+*문법 확장*은 언어 안에 포함되지 않은 특별한 형식이지만, 대신 라이브러리로 제공된다. 어떤 이름이 문법 확장을 가리키는 것을 독자에게 더 명확히 하기위해, 모든 문법 확장의 이름은 `!`으로 끝난다. 표준 라이브러리는 앞으로 예제에서 종종 보게될 `sprintf` 스타일의 텍스트 형식지정자인 `fmt!`와 같이 가장 유용한 몇개의 문법 확장을 정의한다.
 
-`fmt!` supports most of the directives that [printf][pf] supports, but unlike
-printf, will give you a compile-time error when the types of the directives
-don't match the types of the arguments.
+`fmt!`는 [printf][pf]가 지원하는 대부분의 지시자를 지원하지만, printf와 다르게, 지시자의 타입이 인자의 타입과 일치하지 않는 경우 컴파일 시간에 오류를 뱉는다.
 
 ~~~~
 # let mystery_object = ();
@@ -267,7 +260,7 @@ io::println(fmt!("what is this thing: %?", mystery_object));
 
 [pf]: http://en.cppreference.com/w/cpp/io/c/fprintf
 
-You can define your own syntax extensions with the macro system. For details, see the [macro tutorial][macros].
+매크로 시스템을 통해 자신만의 문법 확장을 정의할 수 있다. 자세한 사항은 [macro tutorial][macros]를 참고하세요.
 
 [macros]: tutorial-macros.html
 
