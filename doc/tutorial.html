@@ -23,8 +23,8 @@
 <li><a href="#rust-코드-수정하기"><span class="toc-section-number">2.3</span> Rust 코드 수정하기</a></li>
 </ul></li>
 <li><a href="#기본-문법"><span class="toc-section-number">3</span> 기본 문법</a><ul>
-<li><a href="#expressions-and-semicolons"><span class="toc-section-number">3.1</span> Expressions and semicolons</a></li>
-<li><a href="#primitive-types-and-literals"><span class="toc-section-number">3.2</span> Primitive types and literals</a></li>
+<li><a href="#표현식과-세미콜론"><span class="toc-section-number">3.1</span> 표현식과 세미콜론</a></li>
+<li><a href="#기본-타입과-리터럴"><span class="toc-section-number">3.2</span> 기본 타입과 리터럴</a></li>
 <li><a href="#operators"><span class="toc-section-number">3.3</span> Operators</a></li>
 <li><a href="#syntax-extensions"><span class="toc-section-number">3.4</span> Syntax extensions</a></li>
 </ul></li>
@@ -128,9 +128,11 @@ $ make &amp;&amp; make install</code></pre>
 <p><code>make install</code>이 성공적으로 완료되면 <code>/usr/local/bin</code> 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. <code>rustc</code>는 the Rust 컴파일러, <code>rustdoc</code>는 API-문서 도구, 그리고 <code>rustpkg</code>는 Rust 패키지 관리자 및 빌드 시스템, <code>rusti</code>는 Rust REPL, 그리고 <code>rust</code>는, 위 명령들의 통합된 인터페이스, 몇개의 공통의 명령행 시나리오로 동작하는 도구이다.</p>
 <h2 id="자신의-첫-프로그램-컴파일하기"><a href="#TOC"><span class="header-section-number">2.1</span> 자신의 첫 프로그램 컴파일하기</a></h2>
 <p>관습적으로 Rust 프로그램 파일은 <code>.rs</code>라는 확장자를 가진다. 아래의 프로그램을 가지는 <code>hello.rs</code> 파일을 만들어보자.</p>
-<pre><code>fn main() {
-    io::println(&quot;hello?&quot;);
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;hello?&quot;</span>);
+}
+</pre>
+
 <p>만약 Rust 컴파일러가 성공적으로 설치되었다면, <code>rustc hello.rs</code>라고 실행하면 <code>hello</code> 라는 실행파일이 생성되고(윈도우즈에서는 <code>hello.exe</code>), 실행하면 원하는 결과가 정확히 실행될 것이다.</p>
 <p>The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, <code>io:println</code> 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.</p>
 <pre class="notrust"><code>hello.rs:2:4: 2:16 error: unresolved name: io::print_with_unicorns
@@ -147,707 +149,799 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <h1 id="기본-문법"><a href="#TOC"><span class="header-section-number">3</span> 기본 문법</a></h1>
 <p>당신이 C계열의 언어(C++, Java, JavaScript, C#, or PHP)로 프로그래밍을 했다고 가정하면, Rust는 비슷하다고 느낄 것이다. 코드는 중괄호로 구분되는 블록들의 나열이다. <code>if</code>와 <code>while</code>과 비슷한 분기나 반복을 위한 제어 구조도 있다. 함수는 <code>myfunc(arg1, args2);</code>라고 호출한다. 연산자도 C와 같고 거의 동일한 우선순위를 가진다. 주석 또한 C와 같다. 모듈 이름은 C++ 처럼 더블 콜론(::)으로 구분된다.</p>
 <p>인지되는 주된 표면적 차이는 <code>if</code>와 <code>while</code>과 같은 제어 구조의 머리에 있는 조건이 괄호가 필요없고, 몸통은 <em>무조건</em> 중괄호로 둘러싸야한다. 몸통에 문장이 하나일때, 중괄호를 하지않는 것은 허용되지 않는다.</p>
-<pre><code># mod universe { pub fn recalibrate() -&gt; bool { true } }
-fn main() {
-    /* A simple loop */
-    loop {
-        // A tricky calculation
-        if universe::recalibrate() {
-            return;
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-comment">/* A simple loop */</span>
+    <span class="cm-keyword">loop</span> {
+        <span class="cm-comment">// A tricky calculation</span>
+        <span class="cm-keyword">if</span> <span class="cm-variable-2">universe::</span><span class="cm-variable">recalibrate</span>() {
+            <span class="cm-keyword">return</span>;
         }
     }
-}</code></pre>
-<p><code>let</code> 키워드는 지역 변수를 나타낸다. 변수는 기본적으로 변하지 않는다. 나중에 재할당할 수 있는 지역 변수를 나타내기 위해, <code>let mut</code>를 사용한다.</p>
-<pre><code>let hi = &quot;hi&quot;;
-let mut count = 0;
+}
+</pre>
 
-while count &lt; 10 {
-    io::println(fmt!(&quot;count: %?&quot;, count));
-    count += 1;
-}</code></pre>
+<p><code>let</code> 키워드는 지역 변수를 나타낸다. 변수는 기본적으로 변하지 않는다. 나중에 재할당할 수 있는 지역 변수를 나타내기 위해, <code>let mut</code>를 사용한다.</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">hi</span> = <span class="cm-string">&quot;hi&quot;</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">count</span> = <span class="cm-number">0</span>;
+
+<span class="cm-keyword">while</span> <span class="cm-variable">count</span> &lt; <span class="cm-number">10</span> {
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;count: %?&quot;</span>, <span class="cm-variable">count</span>));
+    <span class="cm-variable">count</span> += <span class="cm-number">1</span>;
+}
+</pre>
+
 <p>Rust는 지역 변수의 타입을 거의 항상 추론할 수 있지만, 콜론 다음에 타입의 이름을 적어줌으로써 변수의 타입을 명시해줄 수 있다. 반대로, 정적 아이템은 타입 주석이 항상 필요하다.</p>
-<pre><code>static monster_factor: float = 57.8;
-let monster_size = monster_factor * 10.0;
-let monster_size: int = 50;</code></pre>
+<pre class="cm-s-default"><span class="cm-variable">static</span> <span class="cm-variable">monster_factor</span>: <span class="cm-variable">float</span> = <span class="cm-number">57.8</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">monster_size</span> = <span class="cm-variable">monster_factor</span> * <span class="cm-number">10.0</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">monster_size</span>: <span class="cm-keyword">int</span> = <span class="cm-number">50</span>;
+</pre>
+
 <p>앞의 예제에서 지역 변수는 shadow earlier 선언이다: 첫번째 <code>monster_size</code>는 <code>float</code>으로, 두번째 <code>monster_size</code>는 <code>int</code>로 선언되었다. 이 예제를 실제로 컴파일하더라도, 컴파일러는 첫번째 <code>monster_size</code>는 사용되지 않는다고 판단하고 경고를 표시할 것이다(이 상황은 프로그래머 오류를 발생시킬 가능성이 있기 때문이다). 사용되지 않는 변수가 의도적인 경우, 경고를 없애기 위해, <code>let _monster_size = 50;</code>처럼 이름을 밑줄로 시작하면 된다.</p>
 <p>Rust 식별자는 알파벳 문자나 밑줄로 시작하고 그 이후로 알파벳 문자, 숫자, 밑줄의 나열된다. 선호되는 스타일은 함수, 변수, 그리고 모듈 이름은 가독성에 도움을 주기위해 밑줄이 포함된 소문자로 작성하고, 타입은 camel case로 작성한다.</p>
-<pre><code>let my_variable = 100;
-type MyType = int;     // 기본 타입은 camel case로 작성하지 않는다.</code></pre>
-<h2 id="expressions-and-semicolons"><a href="#TOC"><span class="header-section-number">3.1</span> Expressions and semicolons</a></h2>
-<p>Though it isn't apparent in all code, there is a fundamental difference between Rust's syntax and predecessors like C. Many constructs that are statements in C are expressions in Rust, allowing code to be more concise. For example, you might write a piece of code like this:</p>
-<pre><code># let item = &quot;salad&quot;;
-let price;
-if item == &quot;salad&quot; {
-    price = 3.50;
-} else if item == &quot;muffin&quot; {
-    price = 2.25;
-} else {
-    price = 2.00;
-}</code></pre>
-<p>But, in Rust, you don't have to repeat the name <code>price</code>:</p>
-<pre><code># let item = &quot;salad&quot;;
-let price =
-    if item == &quot;salad&quot; {
-        3.50
-    } else if item == &quot;muffin&quot; {
-        2.25
-    } else {
-        2.00
-    };</code></pre>
-<p>Both pieces of code are exactly equivalent: they assign a value to <code>price</code> depending on the condition that holds. Note that there are no semicolons in the blocks of the second snippet. This is important: the lack of a semicolon after the last statement in a braced block gives the whole block the value of that last expression.</p>
-<p>Put another way, the semicolon in Rust <em>ignores the value of an expression</em>. Thus, if the branches of the <code>if</code> had looked like <code>{ 4; }</code>, the above example would simply assign <code>()</code> (nil or void) to <code>price</code>. But without the semicolon, each branch has a different value, and <code>price</code> gets the value of the branch that was taken.</p>
-<p>In short, everything that's not a declaration (declarations are <code>let</code> for variables; <code>fn</code> for functions; and any top-level named items such as <a href="#traits">traits</a>, <a href="#enums">enum types</a>, and <a href="#constants">constants</a>) is an expression, including function bodies.</p>
-<pre><code>fn is_four(x: int) -&gt; bool {
-   // No need for a return statement. The result of the expression
-   // is used as the return value.
-   x == 4
-}</code></pre>
-<h2 id="primitive-types-and-literals"><a href="#TOC"><span class="header-section-number">3.2</span> Primitive types and literals</a></h2>
-<p>There are general signed and unsigned integer types, <code>int</code> and <code>uint</code>, as well as 8-, 16-, 32-, and 64-bit variants, <code>i8</code>, <code>u16</code>, etc. Integers can be written in decimal (<code>144</code>), hexadecimal (<code>0x90</code>), or binary (<code>0b10010000</code>) base. Each integral type has a corresponding literal suffix that can be used to indicate the type of a literal: <code>i</code> for <code>int</code>, <code>u</code> for <code>uint</code>, <code>i8</code> for the <code>i8</code> type.</p>
-<p>In the absence of an integer literal suffix, Rust will infer the integer type based on type annotations and function signatures in the surrounding program. In the absence of any type information at all, Rust will assume that an unsuffixed integer literal has type <code>int</code>.</p>
-<pre><code>let a = 1;       // a is an int
-let b = 10i;     // b is an int, due to the &#39;i&#39; suffix
-let c = 100u;    // c is a uint
-let d = 1000i32; // d is an i32</code></pre>
-<p>There are three floating-point types: <code>float</code>, <code>f32</code>, and <code>f64</code>. Floating-point numbers are written <code>0.0</code>, <code>1e6</code>, or <code>2.1e-4</code>. Like integers, floating-point literals are inferred to the correct type. Suffixes <code>f</code>, <code>f32</code>, and <code>f64</code> can be used to create literals of a specific type.</p>
-<p>The keywords <code>true</code> and <code>false</code> produce literals of type <code>bool</code>.</p>
-<p>Characters, the <code>char</code> type, are four-byte Unicode codepoints, whose literals are written between single quotes, as in <code>'x'</code>. Just like C, Rust understands a number of character escapes, using the backslash character, such as <code>\n</code>, <code>\r</code>, and <code>\t</code>. String literals, written between double quotes, allow the same escape sequences. More on strings <a href="#vectors-and-strings">later</a>.</p>
-<p>The nil type, written <code>()</code>, has a single value, also written <code>()</code>.</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">my_variable</span> = <span class="cm-number">100</span>;
+<span class="cm-keyword">type</span> <span class="cm-def">MyType</span> = <span class="cm-keyword">int</span>;     <span class="cm-comment">// 기본 타입은 camel case로 작성하지 않는다.</span>
+</pre>
+
+<h2 id="표현식과-세미콜론"><a href="#TOC"><span class="header-section-number">3.1</span> 표현식과 세미콜론</a></h2>
+<p>모든 코드에서 외관상 다르더라도, Rust의 문법과 C와 같은 predecessors 사이에는 근본적인 차이가 있다. C에서 문장인 많은 구조들은 Rust에서는 더 간결한 코드를 허용하는 표현식이다. 예를 들어, 다음과 같은 코드의 일부분을 작성할 수 있다.</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">price</span>;
+<span class="cm-keyword">if</span> <span class="cm-variable">item</span> == <span class="cm-string">&quot;salad&quot;</span> {
+    <span class="cm-variable">price</span> = <span class="cm-number">3.50</span>;
+} <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> <span class="cm-variable">item</span> == <span class="cm-string">&quot;muffin&quot;</span> {
+    <span class="cm-variable">price</span> = <span class="cm-number">2.25</span>;
+} <span class="cm-keyword">else</span> {
+    <span class="cm-variable">price</span> = <span class="cm-number">2.00</span>;
+}
+</pre>
+
+<p>그러나, Rust에서는, <code>price</code>라는 이름을 반복할 필요가 없다.</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">price</span> =
+    <span class="cm-keyword">if</span> <span class="cm-variable">item</span> == <span class="cm-string">&quot;salad&quot;</span> {
+        <span class="cm-number">3.50</span>
+    } <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> <span class="cm-variable">item</span> == <span class="cm-string">&quot;muffin&quot;</span> {
+        <span class="cm-number">2.25</span>
+    } <span class="cm-keyword">else</span> {
+        <span class="cm-number">2.00</span>
+    };
+</pre>
+
+<p>두 코드의 일부분은 정확히 동일하다. 둘다 주어진 조건에 따라 값을 <code>price</code>에 할당한다. 두번째 코드 조각의 블록안에 세미콜론이 없다는 것을 명심해라. 이것은 중요하다. 중괄호 사이의 블록내의 마지막 문장 뒤에 세미콜론의 누락은 전체 블록에게 마지막 표현식의 값을 준다.</p>
+<p>다르게 말하면, Rust에서 세미콜론은 <em>표현식의 값을 무시한다</em>. 그래서 <code>if</code>의 분기가 <code>{ 4; }</code>처럼 되어있다면, 위의 예제는 단순히 <code>price</code>에 <code>()</code> (nil 또는 void)를 할당할 것이다. 그러나 세미콜론이 없으면, 각 분기는 서로 다른 값을 가지고, <code>price</code>는 분기에서 얻은 값을 가진다.</p>
+<p>즉, 선언(변수를 위한 <code>let</code>, 함수를 위한 <code>fn</code>, 그리고 <a href="#traits">traits</a>, <a href="#enums">enum types</a>, 그리고 <a href="#constants">constants</a>와 같은 최상위 요소)이 아닌 모든 것(함수 몸통 포함)은 표현식이다.</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">is_four</span>(<span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">bool</span> {
+   <span class="cm-comment">// No need for a return statement. The result of the expression</span>
+   <span class="cm-comment">// is used as the return value.</span>
+   <span class="cm-variable">x</span> == <span class="cm-number">4</span>
+}
+</pre>
+
+<h2 id="기본-타입과-리터럴"><a href="#TOC"><span class="header-section-number">3.2</span> 기본 타입과 리터럴</a></h2>
+<p>일반적인 부호있는/없는 정수 타입인 <code>int</code>와 <code>uint</code>, 또한 8-, 16-, 32-, 그리고 64-bit 변수인, <code>i8</code>, <code>u16</code> 등이 있다. 정수는 10진수 (<code>144</code>), 16진수 (<code>0x90</code>), 또는 2진수 (<code>0b10010000</code>) 로 작성될 수 있다. 각 정수 타입은 리터럴의 타입을 가리키는데 사용될 수 있는 리터럴 접미사와 대응된다. 예를들어 <code>i</code>는 <code>int</code>, <code>u</code>는 <code>uint</code>, <code>i8</code>는 <code>i8</code> 타입이다.</p>
+<p>정수 리터럴 접미사가 없으면, Rust는 근처 코드의 타입 어노테이션과 함수 시그니처에 근거해 정수 타입으로 추론할 것이다. 어떤 타입 정보도 없으면, Rust는 접미사없는 정수 리터럴인 <code>int</code> 타입으로 가정할 것이다.</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">a</span> = <span class="cm-number">1</span>;       <span class="cm-comment">// a is an int</span>
+<span class="cm-keyword">let</span> <span class="cm-def">b</span> = <span class="cm-number">10</span><span class="cm-variable">i</span>;     <span class="cm-comment">// b is an int, due to the 'i' suffix</span>
+<span class="cm-keyword">let</span> <span class="cm-def">c</span> = <span class="cm-number">100</span><span class="cm-variable">u</span>;    <span class="cm-comment">// c is a uint</span>
+<span class="cm-keyword">let</span> <span class="cm-def">d</span> = <span class="cm-number">1000i32</span>; <span class="cm-comment">// d is an i32</span>
+</pre>
+
+<p>Rust는 <code>float</code>, <code>f32</code>, 그리고 <code>f64</code>의 세가지 부동소수점 타입이 있다. 부동소수점 숫자는 <code>0.0</code>, <code>1e6</code>, 또는 <code>2.1e-4</code> 처럼 표현된다. 정수처럼, 부동소수점 리터럴도 타입이 정확하게 추론된다. 명시적 타입의 리터럴인 접미사 <code>f</code>, <code>f32</code>, 그리고 <code>f64</code>으로 생성할 수 있다.</p>
+<p>키워드 <code>true</code>와 <code>false</code>은 <code>bool</code> 타입의 리터럴을 생성한다.</p>
+<p><code>char</code> 타입인 문자의 리터럴은 <code>'x'</code>와 같이 작은 따옴표 사이에 4 바이트 유니코드 코드포인트를 적는다. C와 동일하게, Rust는 <code>\n</code>, <code>\r</code>, <code>\t</code> 같이 백슬러시 문자를 사용하는 다양한 탈출 문자를 이해한다. 문자열 리터럴은 쌍따옴표 사이에 적고, 동일한 탈출 문자를 허용한다. 문자열에 대해 더 알고싶으면 <a href="#vectors-and-strings">later</a>.</p>
+<p><code>()</code>로 적히는 nil 타입은 똑같이 <code>()</code>라고 쓰는 하나의 값만 가진다.</p>
 <h2 id="operators"><a href="#TOC"><span class="header-section-number">3.3</span> Operators</a></h2>
 <p>Rust's set of operators contains very few surprises. Arithmetic is done with <code>*</code>, <code>/</code>, <code>%</code>, <code>+</code>, and <code>-</code> (multiply, quotient, remainder, add, and subtract). <code>-</code> is also a unary prefix operator that negates numbers. As in C, the bitwise operators <code>&gt;&gt;</code>, <code>&lt;&lt;</code>, <code>&amp;</code>, <code>|</code>, and <code>^</code> are also supported.</p>
 <p>Note that, if applied to an integer value, <code>!</code> flips all the bits (like <code>~</code> in C).</p>
 <p>The comparison operators are the traditional <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, and <code>&gt;=</code>. Short-circuiting (lazy) boolean operators are written <code>&amp;&amp;</code> (and) and <code>||</code> (or).</p>
 <p>For type casting, Rust uses the binary <code>as</code> operator. It takes an expression on the left side and a type on the right side and will, if a meaningful conversion exists, convert the result of the expression to the given type.</p>
-<pre><code>let x: float = 4.0;
-let y: uint = x as uint;
-assert!(y == 4u);</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">x</span>: <span class="cm-keyword">float</span> = <span class="cm-number">4.0</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">y</span>: <span class="cm-keyword">uint</span> = <span class="cm-variable">x</span> <span class="cm-keyword">as</span> <span class="cm-variable">uint</span>;
+<span class="cm-keyword">assert</span>!(<span class="cm-variable">y</span> == <span class="cm-number">4</span><span class="cm-variable">u</span>);
+</pre>
+
 <h2 id="syntax-extensions"><a href="#TOC"><span class="header-section-number">3.4</span> Syntax extensions</a></h2>
 <p><em>Syntax extensions</em> are special forms that are not built into the language, but are instead provided by the libraries. To make it clear to the reader when a name refers to a syntax extension, the names of all syntax extensions end with <code>!</code>. The standard library defines a few syntax extensions, the most useful of which is <code>fmt!</code>, a <code>sprintf</code>-style text formatter that you will often see in examples.</p>
 <p><code>fmt!</code> supports most of the directives that <a href="http://en.cppreference.com/w/cpp/io/c/fprintf">printf</a> supports, but unlike printf, will give you a compile-time error when the types of the directives don't match the types of the arguments.</p>
-<pre><code># let mystery_object = ();
+<pre class="cm-s-default">
+<span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%s is %d&quot;</span>, <span class="cm-string">&quot;the answer&quot;</span>, <span class="cm-number">43</span>));
 
-io::println(fmt!(&quot;%s is %d&quot;, &quot;the answer&quot;, 43));
+<span class="cm-comment">// %? will conveniently print any type</span>
+<span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;what is this thing: %?&quot;</span>, <span class="cm-variable">mystery_object</span>));
+</pre>
 
-// %? will conveniently print any type
-io::println(fmt!(&quot;what is this thing: %?&quot;, mystery_object));</code></pre>
+
+
 <p>You can define your own syntax extensions with the macro system. For details, see the <a href="tutorial-macros.html">macro tutorial</a>.</p>
 <h1 id="control-structures"><a href="#TOC"><span class="header-section-number">4</span> Control structures</a></h1>
 <h2 id="conditionals"><a href="#TOC"><span class="header-section-number">4.1</span> Conditionals</a></h2>
 <p>We've seen <code>if</code> expressions a few times already. To recap, braces are compulsory, an <code>if</code> can have an optional <code>else</code> clause, and multiple <code>if</code>/<code>else</code> constructs can be chained together:</p>
-<pre><code>if false {
-    io::println(&quot;that&#39;s odd&quot;);
-} else if true {
-    io::println(&quot;right&quot;);
-} else {
-    io::println(&quot;neither true nor false&quot;);
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">if</span> <span class="cm-atom">false</span> {
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;that's odd&quot;</span>);
+} <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> <span class="cm-atom">true</span> {
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;right&quot;</span>);
+} <span class="cm-keyword">else</span> {
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;neither true nor false&quot;</span>);
+}
+</pre>
+
 <p>The condition given to an <code>if</code> construct <em>must</em> be of type <code>bool</code> (no implicit conversion happens). If the arms are blocks that have a value, this value must be of the same type for every arm in which control reaches the end of the block:</p>
-<pre><code>fn signum(x: int) -&gt; int {
-    if x &lt; 0 { -1 }
-    else if x &gt; 0 { 1 }
-    else { return 0 }
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">signum</span>(<span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">int</span> {
+    <span class="cm-keyword">if</span> <span class="cm-variable">x</span> &lt; <span class="cm-number">0</span> { -<span class="cm-number">1</span> }
+    <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> <span class="cm-variable">x</span> &gt; <span class="cm-number">0</span> { <span class="cm-number">1</span> }
+    <span class="cm-keyword">else</span> { <span class="cm-keyword">return</span> <span class="cm-number">0</span> }
+}
+</pre>
+
 <h2 id="pattern-matching"><a href="#TOC"><span class="header-section-number">4.2</span> Pattern matching</a></h2>
 <p>Rust's <code>match</code> construct is a generalized, cleaned-up version of C's <code>switch</code> construct. You provide it with a value and a number of <em>arms</em>, each labelled with a pattern, and the code compares the value against each pattern in order until one matches. The matching pattern executes its corresponding arm.</p>
-<pre><code># let my_number = 1;
-match my_number {
-  0     =&gt; io::println(&quot;zero&quot;),
-  1 | 2 =&gt; io::println(&quot;one or two&quot;),
-  3..10 =&gt; io::println(&quot;three to ten&quot;),
-  _     =&gt; io::println(&quot;something else&quot;)
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">my_number</span> {
+  <span class="cm-number">0</span>     =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>),
+  <span class="cm-number">1</span> | <span class="cm-number">2</span> =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;one or two&quot;</span>),
+  <span class="cm-number">3..10</span> =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;three to ten&quot;</span>),
+  <span class="cm-def">_</span>     =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;something else&quot;</span>)
+}
+</pre>
+
 <p>Unlike in C, there is no &quot;falling through&quot; between arms: only one arm executes, and it doesn't have to explicitly <code>break</code> out of the construct when it is finished.</p>
 <p>A <code>match</code> arm consists of a <em>pattern</em>, then an arrow <code>=&gt;</code>, followed by an <em>action</em> (expression). Literals are valid patterns and match only their own value. A single arm may match multiple different patterns by combining them with the pipe operator (<code>|</code>), so long as every pattern binds the same set of variables. Ranges of numeric literal patterns can be expressed with two dots, as in <code>M..N</code>. The underscore (<code>_</code>) is a wildcard pattern that matches any single value. The asterisk (<code>*</code>) is a different wildcard that can match one or more fields in an <code>enum</code> variant.</p>
 <p>The patterns in a match arm are followed by a fat arrow, <code>=&gt;</code>, then an expression to evaluate. Each case is separated by commas. It's often convenient to use a block expression for each case, in which case the commas are optional.</p>
-<pre><code># let my_number = 1;
-match my_number {
-  0 =&gt; { io::println(&quot;zero&quot;) }
-  _ =&gt; { io::println(&quot;something else&quot;) }
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">my_number</span> {
+  <span class="cm-number">0</span> =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>) }
+  <span class="cm-def">_</span> =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;something else&quot;</span>) }
+}
+</pre>
+
 <p><code>match</code> constructs must be <em>exhaustive</em>: they must have an arm covering every possible case. For example, the typechecker would reject the previous example if the arm with the wildcard pattern was omitted.</p>
 <p>A powerful application of pattern matching is <em>destructuring</em>: matching in order to bind names to the contents of data types.</p>
 <blockquote>
 <p><strong><em>Note:</em></strong> The following code makes use of tuples (<code>(float, float)</code>) which are explained in section 5.3. For now you can think of tuples as a list of items.</p>
 </blockquote>
-<pre><code>fn angle(vector: (float, float)) -&gt; float {
-    let pi = float::consts::pi;
-    match vector {
-      (0f, y) if y &lt; 0f =&gt; 1.5 * pi,
-      (0f, y) =&gt; 0.5 * pi,
-      (x, y) =&gt; float::atan(y / x)
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">angle</span>(<span class="cm-def">vector</span>: (<span class="cm-keyword">float</span>, <span class="cm-keyword">float</span>)) -&gt; <span class="cm-keyword">float</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">pi</span> = <span class="cm-variable-2">float::consts::</span><span class="cm-variable">pi</span>;
+    <span class="cm-keyword">match</span> <span class="cm-variable">vector</span> {
+      (<span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-def">y</span>) <span class="cm-keyword">if</span> <span class="cm-def">y</span> &lt; <span class="cm-number">0</span><span class="cm-def">f</span> =&gt; <span class="cm-number">1.5</span> * <span class="cm-def">pi</span>,
+      (<span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-def">y</span>) =&gt; <span class="cm-number">0.5</span> * <span class="cm-def">pi</span>,
+      (<span class="cm-def">x</span>, <span class="cm-def">y</span>) =&gt; <span class="cm-variable-2">float::</span><span class="cm-def">atan</span>(<span class="cm-def">y</span> <span class="cm-variable">/</span> <span class="cm-variable">x</span>)
     }
-}</code></pre>
+}
+</pre>
+
 <p>A variable name in a pattern matches any value, <em>and</em> binds that name to the value of the matched value inside of the arm's action. Thus, <code>(0f, y)</code> matches any tuple whose first element is zero, and binds <code>y</code> to the second element. <code>(x, y)</code> matches any two-element tuple, and binds both elements to variables.</p>
 <p>Any <code>match</code> arm can have a guard clause (written <code>if EXPR</code>), called a <em>pattern guard</em>, which is an expression of type <code>bool</code> that determines, after the pattern is found to match, whether the arm is taken or not. The variables bound by the pattern are in scope in this guard expression. The first arm in the <code>angle</code> example shows an example of a pattern guard.</p>
 <p>You've already seen simple <code>let</code> bindings, but <code>let</code> is a little fancier than you've been led to believe. It, too, supports destructuring patterns. For example, you can write this to extract the fields from a tuple, introducing two variables at once: <code>a</code> and <code>b</code>.</p>
-<pre><code># fn get_tuple_of_two_ints() -&gt; (int, int) { (1, 1) }
-let (a, b) = get_tuple_of_two_ints();</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> (<span class="cm-def">a</span>, <span class="cm-def">b</span>) = <span class="cm-variable">get_tuple_of_two_ints</span>();
+</pre>
+
 <p>Let bindings only work with <em>irrefutable</em> patterns: that is, patterns that can never fail to match. This excludes <code>let</code> from matching literals and most <code>enum</code> variants.</p>
 <h2 id="loops"><a href="#TOC"><span class="header-section-number">4.3</span> Loops</a></h2>
 <p><code>while</code> denotes a loop that iterates as long as its given condition (which must have type <code>bool</code>) evaluates to <code>true</code>. Inside a loop, the keyword <code>break</code> aborts the loop, and <code>loop</code> aborts the current iteration and continues with the next.</p>
-<pre><code>let mut cake_amount = 8;
-while cake_amount &gt; 0 {
-    cake_amount -= 1;
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">cake_amount</span> = <span class="cm-number">8</span>;
+<span class="cm-keyword">while</span> <span class="cm-variable">cake_amount</span> &gt; <span class="cm-number">0</span> {
+    <span class="cm-variable">cake_amount</span> -= <span class="cm-number">1</span>;
+}
+</pre>
+
 <p><code>loop</code> denotes an infinite loop, and is the preferred way of writing <code>while true</code>:</p>
-<pre><code>let mut x = 5;
-loop {
-    x += x - 3;
-    if x % 5 == 0 { break; }
-    io::println(int::to_str(x));
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-number">5</span>;
+<span class="cm-keyword">loop</span> {
+    <span class="cm-variable">x</span> += <span class="cm-variable">x</span> - <span class="cm-number">3</span>;
+    <span class="cm-keyword">if</span> <span class="cm-variable">x</span> % <span class="cm-number">5</span> == <span class="cm-number">0</span> { <span class="cm-keyword">break</span>; }
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable-2">int::</span><span class="cm-variable">to_str</span>(<span class="cm-variable">x</span>));
+}
+</pre>
+
 <p>This code prints out a weird sequence of numbers and stops as soon as it finds one that can be divided by five.</p>
 <p>For more involved iteration, such as enumerating the elements of a collection, Rust uses <a href="#closures">higher-order functions</a>.</p>
 <h1 id="data-structures"><a href="#TOC"><span class="header-section-number">5</span> Data structures</a></h1>
 <h2 id="structs"><a href="#TOC"><span class="header-section-number">5.1</span> Structs</a></h2>
 <p>Rust struct types must be declared before they are used using the <code>struct</code> syntax: <code>struct Name { field1: T1, field2: T2 [, ...] }</code>, where <code>T1</code>, <code>T2</code>, ... denote types. To construct a struct, use the same syntax, but leave off the <code>struct</code>: for example: <code>Point { x: 1.0, y: 2.0 }</code>.</p>
 <p>Structs are quite similar to C structs and are even laid out the same way in memory (so you can read from a Rust struct in C, and vice-versa). Use the dot operator to access struct fields, as in <code>mypoint.x</code>.</p>
-<pre><code>struct Point {
-    x: float,
-    y: float
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {
+    <span class="cm-variable">x</span>: <span class="cm-variable">float</span>,
+    <span class="cm-variable">y</span>: <span class="cm-variable">float</span>
+}
+</pre>
+
 <p>Inherited mutability means that any field of a struct may be mutable, if the struct is in a mutable slot (or a field of a struct in a mutable slot, and so forth).</p>
 <p>With a value (say, <code>mypoint</code>) of such a type in a mutable location, you can do <code>mypoint.y += 1.0</code>. But in an immutable location, such an assignment to a struct without inherited mutability would result in a type error.</p>
-<pre class="xfail-test"><code># struct Point { x: float, y: float }
-let mut mypoint = Point { x: 1.0, y: 1.0 };
-let origin = Point { x: 0.0, y: 0.0 };
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">mypoint</span> = <span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">1.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">1.0</span> };
+<span class="cm-keyword">let</span> <span class="cm-def">origin</span> = <span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">0.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">0.0</span> };
 
-mypoint.y += 1.0; // mypoint is mutable, and its fields as well
-origin.y += 1.0; // ERROR: assigning to immutable field</code></pre>
+<span class="cm-variable">mypoint</span>.<span class="cm-variable">y</span> += <span class="cm-number">1.0</span>; <span class="cm-comment">// mypoint is mutable, and its fields as well</span>
+<span class="cm-variable">origin</span>.<span class="cm-variable">y</span> += <span class="cm-number">1.0</span>; <span class="cm-comment">// ERROR: assigning to immutable field</span>
+</pre>
+
 <p><code>match</code> patterns destructure structs. The basic syntax is <code>Name { fieldname: pattern, ... }</code>:</p>
-<pre><code># struct Point { x: float, y: float }
-# let mypoint = Point { x: 0.0, y: 0.0 };
-match mypoint {
-    Point { x: 0.0, y: yy } =&gt; { io::println(yy.to_str());                     }
-    Point { x: xx,  y: yy } =&gt; { io::println(xx.to_str() + &quot; &quot; + yy.to_str()); }
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">mypoint</span> {
+    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">0.0</span>, <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>());                     }
+    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-variable">xx</span>,  <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">xx</span>.<span class="cm-variable">to_str</span>() + <span class="cm-string">&quot; &quot;</span> + <span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>()); }
+}
+</pre>
+
 <p>In general, the field names of a struct do not have to appear in the same order they appear in the type. When you are not interested in all the fields of a struct, a struct pattern may end with <code>, _</code> (as in <code>Name { field1, _ }</code>) to indicate that you're ignoring all other fields. Additionally, struct fields have a shorthand matching form that simply reuses the field name as the binding name.</p>
-<pre><code># struct Point { x: float, y: float }
-# let mypoint = Point { x: 0.0, y: 0.0 };
-match mypoint {
-    Point { x, _ } =&gt; { io::println(x.to_str()) }
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">mypoint</span> {
+    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>, <span class="cm-variable">_</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">x</span>.<span class="cm-variable">to_str</span>()) }
+}
+</pre>
+
 <h2 id="enums"><a href="#TOC"><span class="header-section-number">5.2</span> Enums</a></h2>
 <p>Enums are datatypes that have several alternate representations. For example, consider the type shown earlier:</p>
-<pre><code># struct Point { x: float, y: float }
-enum Shape {
-    Circle(Point, float),
-    Rectangle(Point, Point)
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">enum</span> <span class="cm-def">Shape</span> {
+    <span class="cm-def">Circle</span>(<span class="cm-variable-3">Point</span>, <span class="cm-keyword">float</span>),
+    <span class="cm-def">Rectangle</span>(<span class="cm-variable-3">Point</span>, <span class="cm-variable-3">Point</span>)
+}
+</pre>
+
 <p>A value of this type is either a <code>Circle</code>, in which case it contains a <code>Point</code> struct and a float, or a <code>Rectangle</code>, in which case it contains two <code>Point</code> structs. The run-time representation of such a value includes an identifier of the actual form that it holds, much like the &quot;tagged union&quot; pattern in C, but with better static guarantees.</p>
 <p>The above declaration will define a type <code>Shape</code> that can refer to such shapes, and two functions, <code>Circle</code> and <code>Rectangle</code>, which can be used to construct values of the type (taking arguments of the specified types). So <code>Circle(Point { x: 0f, y: 0f }, 10f)</code> is the way to create a new circle.</p>
 <p>Enum variants need not have parameters. This <code>enum</code> declaration, for example, is equivalent to a C enum:</p>
-<pre><code>enum Direction {
-    North,
-    East,
-    South,
-    West
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">enum</span> <span class="cm-def">Direction</span> {
+    <span class="cm-def">North</span>,
+    <span class="cm-def">East</span>,
+    <span class="cm-def">South</span>,
+    <span class="cm-def">West</span>
+}
+</pre>
+
 <p>This declaration defines <code>North</code>, <code>East</code>, <code>South</code>, and <code>West</code> as constants, all of which have type <code>Direction</code>.</p>
 <p>When an enum is C-like (that is, when none of the variants have parameters), it is possible to explicitly set the discriminator values to a constant value:</p>
-<pre><code>enum Color {
-  Red = 0xff0000,
-  Green = 0x00ff00,
-  Blue = 0x0000ff
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">enum</span> <span class="cm-def">Color</span> {
+  <span class="cm-def">Red</span> = <span class="cm-def">0xff0000</span>,
+  <span class="cm-def">Green</span> = <span class="cm-def">0x00ff00</span>,
+  <span class="cm-def">Blue</span> = <span class="cm-def">0x0000ff</span>
+}
+</pre>
+
 <p>If an explicit discriminator is not specified for a variant, the value defaults to the value of the previous variant plus one. If the first variant does not have a discriminator, it defaults to 0. For example, the value of <code>North</code> is 0, <code>East</code> is 1, <code>South</code> is 2, and <code>West</code> is 3.</p>
 <p>When an enum is C-like, you can apply the <code>as</code> cast operator to convert it to its discriminator value as an <code>int</code>.</p>
 <p>For enum types with multiple variants, destructuring is the only way to get at their contents. All variant constructors can be used as patterns, as in this definition of <code>area</code>:</p>
-<pre><code># struct Point {x: float, y: float}
-# enum Shape { Circle(Point, float), Rectangle(Point, Point) }
-fn area(sh: Shape) -&gt; float {
-    match sh {
-        Circle(_, size) =&gt; float::consts::pi * size * size,
-        Rectangle(Point { x, y }, Point { x: x2, y: y2 }) =&gt; (x2 - x) * (y2 - y)
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">area</span>(<span class="cm-def">sh</span>: <span class="cm-variable-3">Shape</span>) -&gt; <span class="cm-keyword">float</span> {
+    <span class="cm-keyword">match</span> <span class="cm-variable">sh</span> {
+        <span class="cm-def">Circle</span>(<span class="cm-def">_</span>, <span class="cm-def">size</span>) =&gt; <span class="cm-variable-2">float::consts::</span><span class="cm-def">pi</span> * <span class="cm-def">size</span> * <span class="cm-def">size</span>,
+        <span class="cm-def">Rectangle</span>(<span class="cm-def">Point</span> { <span class="cm-variable">x</span>, <span class="cm-def">y</span> }, <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-variable">x2</span>, <span class="cm-def">y</span>: <span class="cm-variable">y2</span> }) =&gt; (<span class="cm-def">x2</span> - <span class="cm-variable">x</span>) * (<span class="cm-def">y2</span> - <span class="cm-variable">y</span>)
     }
-}</code></pre>
-<p>You can write a lone <code>_</code> to ignore an individual field, and can ignore all fields of a variant like: <code>Circle(*)</code>. As in their introduction form, nullary enum patterns are written without parentheses.</p>
-<pre><code># struct Point { x: float, y: float }
-# enum Direction { North, East, South, West }
-fn point_from_direction(dir: Direction) -&gt; Point {
-    match dir {
-        North =&gt; Point { x:  0f, y:  1f },
-        East  =&gt; Point { x:  1f, y:  0f },
-        South =&gt; Point { x:  0f, y: -1f },
-        West  =&gt; Point { x: -1f, y:  0f }
-    }
-}</code></pre>
-<p>Enum variants may also be structs. For example:</p>
-<pre><code># use core::float;
-# struct Point { x: float, y: float }
-# fn square(x: float) -&gt; float { x * x }
-enum Shape {
-    Circle { center: Point, radius: float },
-    Rectangle { top_left: Point, bottom_right: Point }
 }
-fn area(sh: Shape) -&gt; float {
-    match sh {
-        Circle { radius: radius, _ } =&gt; float::consts::pi * square(radius),
-        Rectangle { top_left: top_left, bottom_right: bottom_right } =&gt; {
-            (bottom_right.x - top_left.x) * (bottom_right.y - top_left.y)
+</pre>
+
+<p>You can write a lone <code>_</code> to ignore an individual field, and can ignore all fields of a variant like: <code>Circle(*)</code>. As in their introduction form, nullary enum patterns are written without parentheses.</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">point_from_direction</span>(<span class="cm-def">dir</span>: <span class="cm-variable-3">Direction</span>) -&gt; <span class="cm-variable-3">Point</span> {
+    <span class="cm-keyword">match</span> <span class="cm-variable">dir</span> {
+        <span class="cm-def">North</span> =&gt; <span class="cm-def">Point</span> { <span class="cm-variable">x</span>:  <span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>:  <span class="cm-number">1</span><span class="cm-variable">f</span> },
+        <span class="cm-def">East</span>  =&gt; <span class="cm-def">Point</span> { <span class="cm-variable">x</span>:  <span class="cm-number">1</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>:  <span class="cm-number">0</span><span class="cm-variable">f</span> },
+        <span class="cm-def">South</span> =&gt; <span class="cm-def">Point</span> { <span class="cm-variable">x</span>:  <span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: -<span class="cm-number">1</span><span class="cm-variable">f</span> },
+        <span class="cm-def">West</span>  =&gt; <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: -<span class="cm-number">1</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>:  <span class="cm-number">0</span><span class="cm-variable">f</span> }
+    }
+}
+</pre>
+
+<p>Enum variants may also be structs. For example:</p>
+<pre class="cm-s-default"><span class="cm-keyword">enum</span> <span class="cm-def">Shape</span> {
+    <span class="cm-def">Circle</span> { <span class="cm-def">center</span>: <span class="cm-def">Point</span>, <span class="cm-def">radius</span>: <span class="cm-def">float</span> },
+    <span class="cm-variable">Rectangle</span> { <span class="cm-variable">top_left</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">bottom_right</span>: <span class="cm-variable">Point</span> }
+}
+<span class="cm-keyword">fn</span> <span class="cm-def">area</span>(<span class="cm-def">sh</span>: <span class="cm-variable-3">Shape</span>) -&gt; <span class="cm-keyword">float</span> {
+    <span class="cm-keyword">match</span> <span class="cm-variable">sh</span> {
+        <span class="cm-def">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">radius</span>, <span class="cm-variable">_</span> } =&gt; <span class="cm-variable-2">float::consts::</span><span class="cm-def">pi</span> * <span class="cm-def">square</span>(<span class="cm-def">radius</span>),
+        <span class="cm-def">Rectangle</span> { <span class="cm-variable">top_left</span>: <span class="cm-variable">top_left</span>, <span class="cm-variable">bottom_right</span>: <span class="cm-variable">bottom_right</span> } =&gt; {
+            (<span class="cm-def">bottom_right</span>.<span class="cm-variable">x</span> - <span class="cm-variable">top_left</span>.<span class="cm-variable">x</span>) * (<span class="cm-variable">bottom_right</span>.<span class="cm-variable">y</span> - <span class="cm-variable">top_left</span>.<span class="cm-variable">y</span>)
         }
     }
-}</code></pre>
+}
+</pre>
+
 <h2 id="tuples"><a href="#TOC"><span class="header-section-number">5.3</span> Tuples</a></h2>
 <p>Tuples in Rust behave exactly like structs, except that their fields do not have names. Thus, you cannot access their fields with dot notation. Tuples can have any arity except for 0 (though you may consider unit, <code>()</code>, as the empty tuple if you like).</p>
-<pre><code>let mytup: (int, int, float) = (10, 20, 30.0);
-match mytup {
-  (a, b, c) =&gt; info!(a + b + (c as int))
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mytup</span>: (<span class="cm-keyword">int</span>, <span class="cm-keyword">int</span>, <span class="cm-keyword">float</span>) = (<span class="cm-number">10</span>, <span class="cm-number">20</span>, <span class="cm-number">30.0</span>);
+<span class="cm-keyword">match</span> <span class="cm-variable">mytup</span> {
+  (<span class="cm-def">a</span>, <span class="cm-def">b</span>, <span class="cm-def">c</span>) =&gt; <span class="cm-def">info</span>!(<span class="cm-def">a</span> + <span class="cm-variable">b</span> + (<span class="cm-variable">c</span> <span class="cm-keyword">as</span> <span class="cm-variable">int</span>))
+}
+</pre>
+
 <h2 id="tuple-structs"><a href="#TOC"><span class="header-section-number">5.4</span> Tuple structs</a></h2>
 <p>Rust also has <em>tuple structs</em>, which behave like both structs and tuples, except that, unlike tuples, tuple structs have names (so <code>Foo(1, 2)</code> has a different type from <code>Bar(1, 2)</code>), and tuple structs' <em>fields</em> do not have names.</p>
-<p>For example: ~~~~ struct MyTup(int, int, float); let mytup: MyTup = MyTup(10, 20, 30.0); match mytup { MyTup(a, b, c) =&gt; info!(a + b + (c as int)) } ~~~~</p>
+For example:
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">MyTup</span>(<span class="cm-variable">int</span>, <span class="cm-variable">int</span>, <span class="cm-variable">float</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">mytup</span>: <span class="cm-variable-3">MyTup</span> = <span class="cm-variable">MyTup</span>(<span class="cm-number">10</span>, <span class="cm-number">20</span>, <span class="cm-number">30.0</span>);
+<span class="cm-keyword">match</span> <span class="cm-variable">mytup</span> {
+  <span class="cm-def">MyTup</span>(<span class="cm-def">a</span>, <span class="cm-def">b</span>, <span class="cm-def">c</span>) =&gt; <span class="cm-def">info</span>!(<span class="cm-def">a</span> + <span class="cm-variable">b</span> + (<span class="cm-variable">c</span> <span class="cm-keyword">as</span> <span class="cm-variable">int</span>))
+}
+</pre>
+
 <a name="newtype"></a>
 <p>There is a special case for tuple structs with a single field, which are sometimes called &quot;newtypes&quot; (after Haskell's &quot;newtype&quot; feature). These are used to define new types in such a way that the new name is not just a synonym for an existing type but is rather its own distinct type.</p>
-<pre><code>struct GizmoId(int);</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">GizmoId</span>(<span class="cm-variable">int</span>);
+</pre>
+
 <p>For convenience, you can extract the contents of such a struct with the dereference (<code>*</code>) unary operator:</p>
-<pre><code># struct GizmoId(int);
-let my_gizmo_id: GizmoId = GizmoId(10);
-let id_int: int = *my_gizmo_id;</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">my_gizmo_id</span>: <span class="cm-variable-3">GizmoId</span> = <span class="cm-variable">GizmoId</span>(<span class="cm-number">10</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">id_int</span>: <span class="cm-keyword">int</span> = *<span class="cm-variable">my_gizmo_id</span>;
+</pre>
+
 <p>Types like this can be useful to differentiate between data that have the same type but must be used in different ways.</p>
-<pre><code>struct Inches(int);
-struct Centimeters(int);</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Inches</span>(<span class="cm-variable">int</span>);
+<span class="cm-keyword">struct</span> <span class="cm-variable">Centimeters</span>(<span class="cm-variable">int</span>);
+</pre>
+
 <p>The above definitions allow for a simple way for programs to avoid confusing numbers that correspond to different units.</p>
 <h1 id="functions"><a href="#TOC"><span class="header-section-number">6</span> Functions</a></h1>
 <p>We've already seen several function definitions. Like all other static declarations, such as <code>type</code>, functions can be declared both at the top level and inside other functions (or in modules, which we'll come back to <a href="#modules-and-crates">later</a>). The <code>fn</code> keyword introduces a function. A function has an argument list, which is a parenthesized list of <code>expr: type</code> pairs separated by commas. An arrow <code>-&gt;</code> separates the argument list and the function's return type.</p>
-<pre><code>fn line(a: int, b: int, x: int) -&gt; int {
-    return a * x + b;
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">line</span>(<span class="cm-def">a</span>: <span class="cm-keyword">int</span>, <span class="cm-def">b</span>: <span class="cm-keyword">int</span>, <span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">int</span> {
+    <span class="cm-keyword">return</span> <span class="cm-variable">a</span> * <span class="cm-variable">x</span> + <span class="cm-variable">b</span>;
+}
+</pre>
+
 <p>The <code>return</code> keyword immediately returns from the body of a function. It is optionally followed by an expression to return. A function can also return a value by having its top-level block produce an expression.</p>
-<pre><code>fn line(a: int, b: int, x: int) -&gt; int {
-    a * x + b
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">line</span>(<span class="cm-def">a</span>: <span class="cm-keyword">int</span>, <span class="cm-def">b</span>: <span class="cm-keyword">int</span>, <span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">int</span> {
+    <span class="cm-variable">a</span> * <span class="cm-variable">x</span> + <span class="cm-variable">b</span>
+}
+</pre>
+
 <p>It's better Rust style to write a return value this way instead of writing an explicit <code>return</code>. The utility of <code>return</code> comes in when returning early from a function. Functions that do not return a value are said to return nil, <code>()</code>, and both the return type and the return value may be omitted from the definition. The following two functions are equivalent.</p>
-<pre><code>fn do_nothing_the_hard_way() -&gt; () { return (); }
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">do_nothing_the_hard_way</span>() -&gt; () { <span class="cm-keyword">return</span> (); }
 
-fn do_nothing_the_easy_way() { }</code></pre>
+<span class="cm-keyword">fn</span> <span class="cm-def">do_nothing_the_easy_way</span>() { }
+</pre>
+
 <p>Ending the function with a semicolon like so is equivalent to returning <code>()</code>.</p>
-<pre><code>fn line(a: int, b: int, x: int) -&gt; int { a * x + b  }
-fn oops(a: int, b: int, x: int) -&gt; ()  { a * x + b; }
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">line</span>(<span class="cm-def">a</span>: <span class="cm-keyword">int</span>, <span class="cm-def">b</span>: <span class="cm-keyword">int</span>, <span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">int</span> { <span class="cm-variable">a</span> * <span class="cm-variable">x</span> + <span class="cm-variable">b</span>  }
+<span class="cm-keyword">fn</span> <span class="cm-def">oops</span>(<span class="cm-def">a</span>: <span class="cm-keyword">int</span>, <span class="cm-def">b</span>: <span class="cm-keyword">int</span>, <span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; ()  { <span class="cm-variable">a</span> * <span class="cm-variable">x</span> + <span class="cm-variable">b</span>; }
 
-assert!(8 == line(5, 3, 1));
-assert!(() == oops(5, 3, 1));</code></pre>
+<span class="cm-keyword">assert</span>!(<span class="cm-number">8</span> == <span class="cm-variable">line</span>(<span class="cm-number">5</span>, <span class="cm-number">3</span>, <span class="cm-number">1</span>));
+<span class="cm-keyword">assert</span>!(() == <span class="cm-variable">oops</span>(<span class="cm-number">5</span>, <span class="cm-number">3</span>, <span class="cm-number">1</span>));
+</pre>
+
 <p>As with <code>match</code> expressions and <code>let</code> bindings, function arguments support pattern destructuring. Like <code>let</code>, argument patterns must be irrefutable, as in this example that unpacks the first value from a tuple and returns it.</p>
-<pre><code>fn first((value, _): (int, float)) -&gt; int { value }</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">first</span>((<span class="cm-variable">value</span>, <span class="cm-def">_</span>): (<span class="cm-def">int</span>, <span class="cm-def">float</span>)) -&gt; <span class="cm-keyword">int</span> { <span class="cm-variable">value</span> }
+</pre>
+
 <h1 id="destructors"><a href="#TOC"><span class="header-section-number">7</span> Destructors</a></h1>
 <p>A <em>destructor</em> is a function responsible for cleaning up the resources used by an object when it is no longer accessible. Destructors can be defined to handle the release of resources like files, sockets and heap memory.</p>
 <p>Objects are never accessible after their destructor has been called, so there are no dynamic failures from accessing freed resources. When a task fails, the destructors of all objects in the task are called.</p>
 <p>The <code>~</code> sigil represents a unique handle for a memory allocation on the heap:</p>
-<pre><code>{
-    // an integer allocated on the heap
-    let y = ~10;
+<pre class="cm-s-default">{
+    <span class="cm-comment">// an integer allocated on the heap</span>
+    <span class="cm-keyword">let</span> <span class="cm-def">y</span> = <span class="cm-variable">~10</span>;
 }
-// the destructor frees the heap memory as soon as `y` goes out of scope</code></pre>
+<span class="cm-comment">// the destructor frees the heap memory as soon as `y` goes out of scope</span>
+</pre>
+
 <p>Rust includes syntax for heap memory allocation in the language since it's commonly used, but the same semantics can be implemented by a type with a custom destructor.</p>
 <h1 id="ownership"><a href="#TOC"><span class="header-section-number">8</span> Ownership</a></h1>
 <p>Rust formalizes the concept of object ownership to delegate management of an object's lifetime to either a variable or a task-local garbage collector. An object's owner is responsible for managing the lifetime of the object by calling the destructor, and the owner determines whether the object is mutable.</p>
 <p>Ownership is recursive, so mutability is inherited recursively and a destructor destroys the contained tree of owned objects. Variables are top-level owners and destroy the contained object when they go out of scope. A box managed by the garbage collector starts a new ownership tree, and the destructor is called when it is collected.</p>
-<pre><code>// the struct owns the objects contained in the `x` and `y` fields
-struct Foo { x: int, y: ~int }
+<pre class="cm-s-default"><span class="cm-comment">// the struct owns the objects contained in the `x` and `y` fields</span>
+<span class="cm-keyword">struct</span> <span class="cm-variable">Foo</span> { <span class="cm-variable">x</span>: <span class="cm-variable">int</span>, <span class="cm-variable">y</span>: <span class="cm-variable">~int</span> }
 
 {
-    // `a` is the owner of the struct, and thus the owner of the struct&#39;s fields
-    let a = Foo { x: 5, y: ~10 };
+    <span class="cm-comment">// `a` is the owner of the struct, and thus the owner of the struct's fields</span>
+    <span class="cm-keyword">let</span> <span class="cm-def">a</span> = <span class="cm-variable">Foo</span> { <span class="cm-variable">x</span>: <span class="cm-number">5</span>, <span class="cm-variable">y</span>: <span class="cm-variable">~10</span> };
 }
-// when `a` goes out of scope, the destructor for the `~int` in the struct&#39;s
-// field is called
+<span class="cm-comment">// when `a` goes out of scope, the destructor for the `~int` in the struct's</span>
+<span class="cm-comment">// field is called</span>
 
-// `b` is mutable, and the mutability is inherited by the objects it owns
-let mut b = Foo { x: 5, y: ~10 };
-b.x = 10;</code></pre>
+<span class="cm-comment">// `b` is mutable, and the mutability is inherited by the objects it owns</span>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">b</span> = <span class="cm-variable">Foo</span> { <span class="cm-variable">x</span>: <span class="cm-number">5</span>, <span class="cm-variable">y</span>: <span class="cm-variable">~10</span> };
+<span class="cm-variable">b</span>.<span class="cm-variable">x</span> = <span class="cm-number">10</span>;
+</pre>
+
 <p>If an object doesn't contain garbage-collected boxes, it consists of a single ownership tree and is given the <code>Owned</code> trait which allows it to be sent between tasks. Custom destructors can only be implemented directly on types that are <code>Owned</code>, but garbage-collected boxes can still <em>contain</em> types with custom destructors.</p>
 <h1 id="boxes"><a href="#TOC"><span class="header-section-number">9</span> Boxes</a></h1>
 <p>Many modern languages represent values as pointers to heap memory by default. In contrast, Rust, like C and C++, represents such types directly. Another way to say this is that aggregate data in Rust are <em>unboxed</em>. This means that if you <code>let x = Point { x: 1f, y: 1f };</code>, you are creating a struct on the stack. If you then copy it into a data structure, you copy the entire struct, not just a pointer.</p>
 <p>For small structs like <code>Point</code>, this is usually more efficient than allocating memory and indirecting through a pointer. But for big structs, or mutable state, it can be useful to have a single copy on the stack or on the heap, and refer to that through a pointer.</p>
 <h2 id="owned-boxes"><a href="#TOC"><span class="header-section-number">9.1</span> Owned boxes</a></h2>
 <p>An owned box (<code>~</code>) is a uniquely owned allocation on the heap. It inherits the mutability and lifetime of the owner as it would if there was no box:</p>
-<pre><code>let x = 5; // immutable
-let mut y = 5; // mutable
-y += 2;
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">x</span> = <span class="cm-number">5</span>; <span class="cm-comment">// immutable</span>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">y</span> = <span class="cm-number">5</span>; <span class="cm-comment">// mutable</span>
+<span class="cm-variable">y</span> += <span class="cm-number">2</span>;
 
-let x = ~5; // immutable
-let mut y = ~5; // mutable
-*y += 2; // the * operator is needed to access the contained value</code></pre>
+<span class="cm-keyword">let</span> <span class="cm-def">x</span> = <span class="cm-variable">~5</span>; <span class="cm-comment">// immutable</span>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">y</span> = <span class="cm-variable">~5</span>; <span class="cm-comment">// mutable</span>
+*<span class="cm-variable">y</span> += <span class="cm-number">2</span>; <span class="cm-comment">// the * operator is needed to access the contained value</span>
+</pre>
+
 <p>The purpose of an owned box is to add a layer of indirection in order to create recursive data structures or cheaply pass around an object larger than a pointer. Since an owned box has a unique owner, it can only be used to represent a tree data structure.</p>
 <p>The following struct won't compile, because the lack of indirection would mean it has an infinite size:</p>
-<pre class="xfail-test"><code>struct Foo {
-    child: Option&lt;Foo&gt;
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Foo</span> {
+    <span class="cm-variable">child</span>: <span class="cm-variable">Option</span>&lt;<span class="cm-variable">Foo</span>&gt;
+}
+</pre>
+
 <blockquote>
 <p><strong><em>Note:</em></strong> The <code>Option</code> type is an enum that represents an <em>optional</em> value. It's comparable to a nullable pointer in many other languages, but stores the contained value unboxed.</p>
 </blockquote>
 <p>Adding indirection with an owned pointer allocates the child outside of the struct on the heap, which makes it a finite size and won't result in a compile-time error:</p>
-<pre><code>struct Foo {
-    child: Option&lt;~Foo&gt;
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Foo</span> {
+    <span class="cm-variable">child</span>: <span class="cm-variable">Option</span>&lt;<span class="cm-variable">~Foo</span>&gt;
+}
+</pre>
+
 <h2 id="managed-boxes"><a href="#TOC"><span class="header-section-number">9.2</span> Managed boxes</a></h2>
 <p>A managed box (<code>@</code>) is a heap allocation with the lifetime managed by a task-local garbage collector. It will be destroyed at some point after there are no references left to the box, no later than the end of the task. Managed boxes lack an owner, so they start a new ownership tree and don't inherit mutability. They do own the contained object, and mutability is defined by the type of the shared box (<code>@</code> or <code>@mut</code>). An object containing a managed box is not <code>Owned</code>, and can't be sent between tasks.</p>
-<pre><code>let a = @5; // immutable
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">a</span> = @<span class="cm-number">5</span>; <span class="cm-comment">// immutable</span>
 
-let mut b = @5; // mutable variable, immutable box
-b = @10;
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">b</span> = @<span class="cm-number">5</span>; <span class="cm-comment">// mutable variable, immutable box</span>
+<span class="cm-variable">b</span> = @<span class="cm-number">10</span>;
 
-let c = @mut 5; // immutable variable, mutable box
-*c = 10;
+<span class="cm-keyword">let</span> <span class="cm-def">c</span> = @<span class="cm-variable">mut</span> <span class="cm-number">5</span>; <span class="cm-comment">// immutable variable, mutable box</span>
+*<span class="cm-variable">c</span> = <span class="cm-number">10</span>;
 
-let mut d = @mut 5; // mutable variable, mutable box
-*d += 5;
-d = @mut 15;</code></pre>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">d</span> = @<span class="cm-variable">mut</span> <span class="cm-number">5</span>; <span class="cm-comment">// mutable variable, mutable box</span>
+*<span class="cm-variable">d</span> += <span class="cm-number">5</span>;
+<span class="cm-variable">d</span> = @<span class="cm-variable">mut</span> <span class="cm-number">15</span>;
+</pre>
+
 <p>A mutable variable and an immutable variable can refer to the same box, given that their types are compatible. Mutability of a box is a property of its type, however, so for example a mutable handle to an immutable box cannot be assigned a reference to a mutable box.</p>
-<pre><code>let a = @1;     // immutable box
-let b = @mut 2; // mutable box
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">a</span> = @<span class="cm-number">1</span>;     <span class="cm-comment">// immutable box</span>
+<span class="cm-keyword">let</span> <span class="cm-def">b</span> = @<span class="cm-variable">mut</span> <span class="cm-number">2</span>; <span class="cm-comment">// mutable box</span>
 
-let mut c : @int;       // declare a variable with type managed immutable int
-let mut d : @mut int;   // and one of type managed mutable int
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">c</span> : @<span class="cm-keyword">int</span>;       <span class="cm-comment">// declare a variable with type managed immutable int</span>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">d</span> : @<span class="cm-variable-3">mut</span> <span class="cm-keyword">int</span>;   <span class="cm-comment">// and one of type managed mutable int</span>
 
-c = a;          // box type is the same, okay
-d = b;          // box type is the same, okay</code></pre>
-<pre class="xfail-test"><code>// but b cannot be assigned to c, or a to d
-c = b;          // error</code></pre>
+<span class="cm-variable">c</span> = <span class="cm-variable">a</span>;          <span class="cm-comment">// box type is the same, okay</span>
+<span class="cm-variable">d</span> = <span class="cm-variable">b</span>;          <span class="cm-comment">// box type is the same, okay</span>
+</pre>
+
+<pre class="cm-s-default"><span class="cm-comment">// but b cannot be assigned to c, or a to d</span>
+<span class="cm-variable">c</span> = <span class="cm-variable">b</span>;          <span class="cm-comment">// error</span>
+</pre>
+
 <h1 id="move-semantics"><a href="#TOC"><span class="header-section-number">10</span> Move semantics</a></h1>
 <p>Rust uses a shallow copy for parameter passing, assignment and returning values from functions. A shallow copy is considered a move of ownership if the ownership tree of the copied value includes an owned box or a type with a custom destructor. After a value has been moved, it can no longer be used from the source location and will not be destroyed there.</p>
-<pre><code>let x = ~5;
-let y = x.clone(); // y is a newly allocated box
-let z = x; // no new memory allocated, x can no longer be used</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">x</span> = <span class="cm-variable">~5</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">y</span> = <span class="cm-variable">x</span>.<span class="cm-variable">clone</span>(); <span class="cm-comment">// y is a newly allocated box</span>
+<span class="cm-keyword">let</span> <span class="cm-def">z</span> = <span class="cm-variable">x</span>; <span class="cm-comment">// no new memory allocated, x can no longer be used</span>
+</pre>
+
 <p>Since in owned boxes mutability is a property of the owner, not the box, mutable boxes may become immutable when they are moved, and vice-versa.</p>
-<pre><code>let r = ~13;
-let mut s = r; // box becomes mutable
-*s += 1;
-let t = s; // box becomes immutable</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">r</span> = <span class="cm-variable">~13</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">s</span> = <span class="cm-variable">r</span>; <span class="cm-comment">// box becomes mutable</span>
+*<span class="cm-variable">s</span> += <span class="cm-number">1</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">t</span> = <span class="cm-variable">s</span>; <span class="cm-comment">// box becomes immutable</span>
+</pre>
+
 <h1 id="borrowed-pointers"><a href="#TOC"><span class="header-section-number">11</span> Borrowed pointers</a></h1>
 <p>Rust's borrowed pointers are a general purpose reference type. In contrast with owned boxes, where the holder of an owned box is the owner of the pointed-to memory, borrowed pointers never imply ownership. A pointer can be borrowed to any object, and the compiler verifies that it cannot outlive the lifetime of the object.</p>
 <p>As an example, consider a simple struct type, <code>Point</code>:</p>
-<pre><code>struct Point {
-    x: float,
-    y: float
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {
+    <span class="cm-variable">x</span>: <span class="cm-variable">float</span>,
+    <span class="cm-variable">y</span>: <span class="cm-variable">float</span>
+}
+</pre>
+
 <p>We can use this simple definition to allocate points in many different ways. For example, in this code, each of these three local variables contains a point, but allocated in a different location:</p>
-<pre><code># struct Point { x: float, y: float }
-let on_the_stack : Point  =  Point { x: 3.0, y: 4.0 };
-let managed_box  : @Point = @Point { x: 5.0, y: 1.0 };
-let owned_box    : ~Point = ~Point { x: 7.0, y: 9.0 };</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">on_the_stack</span> : <span class="cm-variable-3">Point</span>  =  <span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">3.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">4.0</span> };
+<span class="cm-keyword">let</span> <span class="cm-def">managed_box</span>  : @<span class="cm-variable-3">Point</span> = @<span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">5.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">1.0</span> };
+<span class="cm-keyword">let</span> <span class="cm-def">owned_box</span>    : <span class="cm-variable-3">~Point</span> = <span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">7.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">9.0</span> };
+</pre>
+
 <p>Suppose we wanted to write a procedure that computed the distance between any two points, no matter where they were stored. For example, we might like to compute the distance between <code>on_the_stack</code> and <code>managed_box</code>, or between <code>managed_box</code> and <code>owned_box</code>. One option is to define a function that takes two arguments of type point—that is, it takes the points by value. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive or, worse, if there are mutable fields, they can change the semantics of your program. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
-<pre><code># struct Point { x: float, y: float }
-# fn sqrt(f: float) -&gt; float { 0f }
-fn compute_distance(p1: &amp;Point, p2: &amp;Point) -&gt; float {
-    let x_d = p1.x - p2.x;
-    let y_d = p1.y - p2.y;
-    sqrt(x_d * x_d + y_d * y_d)
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">compute_distance</span>(<span class="cm-def">p1</span>: &amp;<span class="cm-variable-3">Point</span>, <span class="cm-def">p2</span>: &amp;<span class="cm-variable-3">Point</span>) -&gt; <span class="cm-keyword">float</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">x_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">x</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">x</span>;
+    <span class="cm-keyword">let</span> <span class="cm-def">y_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">y</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">y</span>;
+    <span class="cm-variable">sqrt</span>(<span class="cm-variable">x_d</span> * <span class="cm-variable">x_d</span> + <span class="cm-variable">y_d</span> * <span class="cm-variable">y_d</span>)
+}
+</pre>
+
 <p>Now we can call <code>compute_distance()</code> in various ways:</p>
-<pre><code># struct Point{ x: float, y: float };
-# let on_the_stack : Point  =  Point { x: 3.0, y: 4.0 };
-# let managed_box  : @Point = @Point { x: 5.0, y: 1.0 };
-# let owned_box    : ~Point = ~Point { x: 7.0, y: 9.0 };
-# fn compute_distance(p1: &amp;Point, p2: &amp;Point) -&gt; float { 0f }
-compute_distance(&amp;on_the_stack, managed_box);
-compute_distance(managed_box, owned_box);</code></pre>
+<pre class="cm-s-default"><span class="cm-variable">compute_distance</span>(&amp;<span class="cm-variable">on_the_stack</span>, <span class="cm-variable">managed_box</span>);
+<span class="cm-variable">compute_distance</span>(<span class="cm-variable">managed_box</span>, <span class="cm-variable">owned_box</span>);
+</pre>
+
 <p>Here the <code>&amp;</code> operator is used to take the address of the variable <code>on_the_stack</code>; this is because <code>on_the_stack</code> has the type <code>Point</code> (that is, a struct value) and we have to take its address to get a value. We also call this <em>borrowing</em> the local variable <code>on_the_stack</code>, because we are creating an alias: that is, another route to the same data.</p>
 <p>In the case of the boxes <code>managed_box</code> and <code>owned_box</code>, however, no explicit action is necessary. The compiler will automatically convert a box like <code>@point</code> or <code>~point</code> to a borrowed pointer like <code>&amp;point</code>. This is another form of borrowing; in this case, the contents of the managed/owned box are being lent out.</p>
 <p>Whenever a value is borrowed, there are some limitations on what you can do with the original. For example, if the contents of a variable have been lent out, you cannot send that variable to another task, nor will you be permitted to take actions that might cause the borrowed value to be freed or to change its type. This rule should make intuitive sense: you must wait for a borrowed value to be returned (that is, for the borrowed pointer to go out of scope) before you can make full use of it again.</p>
 <p>For a more in-depth explanation of borrowed pointers, read the <a href="tutorial-borrowed-ptr.html">borrowed pointer tutorial</a>.</p>
 <h2 id="freezing"><a href="#TOC"><span class="header-section-number">11.1</span> Freezing</a></h2>
 <p>Borrowing an immutable pointer to an object freezes it and prevents mutation. <code>Owned</code> objects have freezing enforced statically at compile-time.</p>
-<pre><code>let mut x = 5;
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-number">5</span>;
 {
-    let y = &amp;x; // x is now frozen, it cannot be modified
+    <span class="cm-keyword">let</span> <span class="cm-def">y</span> = &amp;<span class="cm-variable">x</span>; <span class="cm-comment">// x is now frozen, it cannot be modified</span>
 }
-// x is now unfrozen again</code></pre>
+<span class="cm-comment">// x is now unfrozen again</span>
+</pre>
+
 <p>Mutable managed boxes handle freezing dynamically when any of their contents are borrowed, and the task will fail if an attempt to modify them is made while they are frozen:</p>
-<pre><code>let x = @mut 5;
-let y = x;
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">x</span> = @<span class="cm-variable">mut</span> <span class="cm-number">5</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">y</span> = <span class="cm-variable">x</span>;
 {
-    let z = &amp;*y; // the managed box is now frozen
-    // modifying it through x or y will cause a task failure
+    <span class="cm-keyword">let</span> <span class="cm-def">z</span> = &amp;*<span class="cm-variable">y</span>; <span class="cm-comment">// the managed box is now frozen</span>
+    <span class="cm-comment">// modifying it through x or y will cause a task failure</span>
 }
-// the box is now unfrozen again</code></pre>
+<span class="cm-comment">// the box is now unfrozen again</span>
+</pre>
+
 <h1 id="dereferencing-pointers"><a href="#TOC"><span class="header-section-number">12</span> Dereferencing pointers</a></h1>
 <p>Rust uses the unary star operator (<code>*</code>) to access the contents of a box or pointer, similarly to C.</p>
-<pre><code>let managed = @10;
-let owned = ~20;
-let borrowed = &amp;30;
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">managed</span> = @<span class="cm-number">10</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">owned</span> = <span class="cm-variable">~20</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">borrowed</span> = &amp;<span class="cm-number">30</span>;
 
-let sum = *managed + *owned + *borrowed;</code></pre>
+<span class="cm-keyword">let</span> <span class="cm-def">sum</span> = *<span class="cm-variable">managed</span> + *<span class="cm-variable">owned</span> + *<span class="cm-variable">borrowed</span>;
+</pre>
+
 <p>Dereferenced mutable pointers may appear on the left hand side of assignments. Such an assignment modifies the value that the pointer points to.</p>
-<pre><code>let managed = @mut 10;
-let mut owned = ~20;
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">managed</span> = @<span class="cm-variable">mut</span> <span class="cm-number">10</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">owned</span> = <span class="cm-variable">~20</span>;
 
-let mut value = 30;
-let borrowed = &amp;mut value;
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">value</span> = <span class="cm-number">30</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">borrowed</span> = &amp;<span class="cm-variable">mut</span> <span class="cm-variable">value</span>;
 
-*managed = *owned + 10;
-*owned = *borrowed + 100;
-*borrowed = *managed + 1000;</code></pre>
+*<span class="cm-variable">managed</span> = *<span class="cm-variable">owned</span> + <span class="cm-number">10</span>;
+*<span class="cm-variable">owned</span> = *<span class="cm-variable">borrowed</span> + <span class="cm-number">100</span>;
+*<span class="cm-variable">borrowed</span> = *<span class="cm-variable">managed</span> + <span class="cm-number">1000</span>;
+</pre>
+
 <p>Pointers have high operator precedence, but lower precedence than the dot operator used for field and method access. This precedence order can sometimes make code awkward and parenthesis-filled.</p>
-<pre><code># struct Point { x: float, y: float }
-# enum Shape { Rectangle(Point, Point) }
-# impl Shape { fn area(&amp;self) -&gt; int { 0 } }
-let start = @Point { x: 10f, y: 20f };
-let end = ~Point { x: (*start).x + 100f, y: (*start).y + 100f };
-let rect = &amp;Rectangle(*start, *end);
-let area = (*rect).area();</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">start</span> = @<span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">10</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">20</span><span class="cm-variable">f</span> };
+<span class="cm-keyword">let</span> <span class="cm-def">end</span> = <span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: (*<span class="cm-variable">start</span>).<span class="cm-variable">x</span> + <span class="cm-variable">100f</span>, <span class="cm-variable">y</span>: (*<span class="cm-variable">start</span>).<span class="cm-variable">y</span> + <span class="cm-variable">100f</span> };
+<span class="cm-keyword">let</span> <span class="cm-def">rect</span> = &amp;<span class="cm-variable">Rectangle</span>(*<span class="cm-variable">start</span>, *<span class="cm-variable">end</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">area</span> = (*<span class="cm-variable">rect</span>).<span class="cm-variable">area</span>();
+</pre>
+
 <p>To combat this ugliness the dot operator applies <em>automatic pointer dereferencing</em> to the receiver (the value on the left-hand side of the dot), so in most cases, explicitly dereferencing the receiver is not necessary.</p>
-<pre><code># struct Point { x: float, y: float }
-# enum Shape { Rectangle(Point, Point) }
-# impl Shape { fn area(&amp;self) -&gt; int { 0 } }
-let start = @Point { x: 10f, y: 20f };
-let end = ~Point { x: start.x + 100f, y: start.y + 100f };
-let rect = &amp;Rectangle(*start, *end);
-let area = rect.area();</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">start</span> = @<span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">10</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">20</span><span class="cm-variable">f</span> };
+<span class="cm-keyword">let</span> <span class="cm-def">end</span> = <span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-variable">start</span>.<span class="cm-variable">x</span> + <span class="cm-number">100</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-variable">start</span>.<span class="cm-variable">y</span> + <span class="cm-number">100</span><span class="cm-variable">f</span> };
+<span class="cm-keyword">let</span> <span class="cm-def">rect</span> = &amp;<span class="cm-variable">Rectangle</span>(*<span class="cm-variable">start</span>, *<span class="cm-variable">end</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">area</span> = <span class="cm-variable">rect</span>.<span class="cm-variable">area</span>();
+</pre>
+
 <p>You can write an expression that dereferences any number of pointers automatically. For example, if you felt inclined, you could write something silly like</p>
-<pre><code># struct Point { x: float, y: float }
-let point = &amp;@~Point { x: 10f, y: 20f };
-io::println(fmt!(&quot;%f&quot;, point.x));</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">point</span> = &amp;@<span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">10</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">20</span><span class="cm-variable">f</span> };
+<span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%f&quot;</span>, <span class="cm-variable">point</span>.<span class="cm-variable">x</span>));
+</pre>
+
 <p>The indexing operator (<code>[]</code>) also auto-dereferences.</p>
 <h1 id="vectors-and-strings"><a href="#TOC"><span class="header-section-number">13</span> Vectors and strings</a></h1>
 <p>A vector is a contiguous section of memory containing zero or more values of the same type. Like other types in Rust, vectors can be stored on the stack, the local heap, or the exchange heap. Borrowed pointers to vectors are also called 'slices'.</p>
-<pre><code># enum Crayon {
-#     Almond, AntiqueBrass, Apricot,
-#     Aquamarine, Asparagus, AtomicTangerine,
-#     BananaMania, Beaver, Bittersweet,
-#     Black, BlizzardBlue, Blue
-# }
-// A fixed-size stack vector
-let stack_crayons: [Crayon, ..3] = [Almond, AntiqueBrass, Apricot];
+<pre class="cm-s-default"><span class="cm-comment">// A fixed-size stack vector</span>
+<span class="cm-keyword">let</span> <span class="cm-def">stack_crayons</span>: [<span class="cm-variable-3">Crayon</span>, ..<span class="cm-number">3</span>] = [<span class="cm-variable">Almond</span>, <span class="cm-variable">AntiqueBrass</span>, <span class="cm-variable">Apricot</span>];
 
-// A borrowed pointer to stack-allocated vector
-let stack_crayons: &amp;[Crayon] = &amp;[Aquamarine, Asparagus, AtomicTangerine];
+<span class="cm-comment">// A borrowed pointer to stack-allocated vector</span>
+<span class="cm-keyword">let</span> <span class="cm-def">stack_crayons</span>: &amp;[<span class="cm-variable-3">Crayon</span>] = &amp;[<span class="cm-variable">Aquamarine</span>, <span class="cm-variable">Asparagus</span>, <span class="cm-variable">AtomicTangerine</span>];
 
-// A local heap (managed) vector of crayons
-let local_crayons: @[Crayon] = @[BananaMania, Beaver, Bittersweet];
+<span class="cm-comment">// A local heap (managed) vector of crayons</span>
+<span class="cm-keyword">let</span> <span class="cm-def">local_crayons</span>: @[<span class="cm-variable-3">Crayon</span>] = @[<span class="cm-variable">BananaMania</span>, <span class="cm-variable">Beaver</span>, <span class="cm-variable">Bittersweet</span>];
 
-// An exchange heap (owned) vector of crayons
-let exchange_crayons: ~[Crayon] = ~[Black, BlizzardBlue, Blue];</code></pre>
+<span class="cm-comment">// An exchange heap (owned) vector of crayons</span>
+<span class="cm-keyword">let</span> <span class="cm-def">exchange_crayons</span>: <span class="cm-variable-3">~</span>[<span class="cm-def">Crayon</span>] = <span class="cm-variable">~</span>[<span class="cm-variable">Black</span>, <span class="cm-variable">BlizzardBlue</span>, <span class="cm-variable">Blue</span>];
+</pre>
+
 <p>The <code>+</code> operator means concatenation when applied to vector types.</p>
-<pre><code># enum Crayon { Almond, AntiqueBrass, Apricot,
-#               Aquamarine, Asparagus, AtomicTangerine,
-#               BananaMania, Beaver, Bittersweet };
+<pre class="cm-s-default">
+<span class="cm-keyword">let</span> <span class="cm-def">my_crayons</span> = <span class="cm-variable">~</span>[<span class="cm-variable">Almond</span>, <span class="cm-variable">AntiqueBrass</span>, <span class="cm-variable">Apricot</span>];
+<span class="cm-keyword">let</span> <span class="cm-def">your_crayons</span> = <span class="cm-variable">~</span>[<span class="cm-variable">BananaMania</span>, <span class="cm-variable">Beaver</span>, <span class="cm-variable">Bittersweet</span>];
 
-let my_crayons = ~[Almond, AntiqueBrass, Apricot];
-let your_crayons = ~[BananaMania, Beaver, Bittersweet];
+<span class="cm-comment">// Add two vectors to create a new one</span>
+<span class="cm-keyword">let</span> <span class="cm-def">our_crayons</span> = <span class="cm-variable">my_crayons</span> + <span class="cm-variable">your_crayons</span>;
 
-// Add two vectors to create a new one
-let our_crayons = my_crayons + your_crayons;
+<span class="cm-comment">// += will append to a vector, provided it lives in a mutable slot</span>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">my_crayons</span> = <span class="cm-variable">my_crayons</span>;
+<span class="cm-variable">my_crayons</span> += <span class="cm-variable">your_crayons</span>;
+</pre>
 
-// += will append to a vector, provided it lives in a mutable slot
-let mut my_crayons = my_crayons;
-my_crayons += your_crayons;</code></pre>
 <blockquote>
 <p><strong><em>Note:</em></strong> The above examples of vector addition use owned vectors. Some operations on slices and stack vectors are not yet well-supported. Owned vectors are often the most usable.</p>
 </blockquote>
 <p>Square brackets denote indexing into a vector:</p>
-<pre><code># enum Crayon { Almond, AntiqueBrass, Apricot,
-#               Aquamarine, Asparagus, AtomicTangerine,
-#               BananaMania, Beaver, Bittersweet };
-# fn draw_scene(c: Crayon) { }
-let crayons: [Crayon, ..3] = [BananaMania, Beaver, Bittersweet];
-match crayons[0] {
-    Bittersweet =&gt; draw_scene(crayons[0]),
-    _ =&gt; ()
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">crayons</span>: [<span class="cm-variable-3">Crayon</span>, ..<span class="cm-number">3</span>] = [<span class="cm-variable">BananaMania</span>, <span class="cm-variable">Beaver</span>, <span class="cm-variable">Bittersweet</span>];
+<span class="cm-keyword">match</span> <span class="cm-variable">crayons</span>[<span class="cm-number">0</span>] {
+    <span class="cm-def">Bittersweet</span> =&gt; <span class="cm-def">draw_scene</span>(<span class="cm-def">crayons</span>[<span class="cm-number">0</span>]),
+    <span class="cm-def">_</span> =&gt; ()
+}
+</pre>
+
 <p>A vector can be destructured using pattern matching:</p>
-<pre><code>let numbers: [int, ..3] = [1, 2, 3];
-let score = match numbers {
-    [] =&gt; 0,
-    [a] =&gt; a * 10,
-    [a, b] =&gt; a * 6 + b * 4,
-    [a, b, c, ..rest] =&gt; a * 5 + b * 3 + c * 2 + rest.len() as int
-};</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">numbers</span>: [<span class="cm-keyword">int</span>, ..<span class="cm-number">3</span>] = [<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>];
+<span class="cm-keyword">let</span> <span class="cm-def">score</span> = <span class="cm-keyword">match</span> <span class="cm-variable">numbers</span> {
+    [] =&gt; <span class="cm-number">0</span>,
+    [<span class="cm-def">a</span>] =&gt; <span class="cm-def">a</span> * <span class="cm-number">10</span>,
+    [<span class="cm-def">a</span>, <span class="cm-def">b</span>] =&gt; <span class="cm-def">a</span> * <span class="cm-number">6</span> + <span class="cm-def">b</span> * <span class="cm-number">4</span>,
+    [<span class="cm-def">a</span>, <span class="cm-def">b</span>, <span class="cm-def">c</span>, ..<span class="cm-def">rest</span>] =&gt; <span class="cm-def">a</span> * <span class="cm-number">5</span> + <span class="cm-def">b</span> * <span class="cm-number">3</span> + <span class="cm-def">c</span> * <span class="cm-number">2</span> + <span class="cm-def">rest</span>.<span class="cm-def">len</span>() <span class="cm-keyword">as</span> <span class="cm-def">int</span>
+};
+</pre>
+
 <p>The elements of a vector <em>inherit the mutability of the vector</em>, and as such, individual elements may not be reassigned when the vector lives in an immutable slot.</p>
-<pre class="xfail-test"><code># enum Crayon { Almond, AntiqueBrass, Apricot,
-#               Aquamarine, Asparagus, AtomicTangerine,
-#               BananaMania, Beaver, Bittersweet };
-let crayons: ~[Crayon] = ~[BananaMania, Beaver, Bittersweet];
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">crayons</span>: <span class="cm-variable-3">~</span>[<span class="cm-def">Crayon</span>] = <span class="cm-variable">~</span>[<span class="cm-variable">BananaMania</span>, <span class="cm-variable">Beaver</span>, <span class="cm-variable">Bittersweet</span>];
 
-crayons[0] = Apricot; // ERROR: Can&#39;t assign to immutable vector</code></pre>
+<span class="cm-variable">crayons</span>[<span class="cm-number">0</span>] = <span class="cm-variable">Apricot</span>; <span class="cm-comment">// ERROR: Can't assign to immutable vector</span>
+</pre>
+
 <p>Moving it into a mutable slot makes the elements assignable.</p>
-<pre><code># enum Crayon { Almond, AntiqueBrass, Apricot,
-#               Aquamarine, Asparagus, AtomicTangerine,
-#               BananaMania, Beaver, Bittersweet };
-let crayons: ~[Crayon] = ~[BananaMania, Beaver, Bittersweet];
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">crayons</span>: <span class="cm-variable-3">~</span>[<span class="cm-def">Crayon</span>] = <span class="cm-variable">~</span>[<span class="cm-variable">BananaMania</span>, <span class="cm-variable">Beaver</span>, <span class="cm-variable">Bittersweet</span>];
 
-// Put the vector into a mutable slot
-let mut mutable_crayons = crayons;
+<span class="cm-comment">// Put the vector into a mutable slot</span>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">mutable_crayons</span> = <span class="cm-variable">crayons</span>;
 
-// Now it&#39;s mutable to the bone
-mutable_crayons[0] = Apricot;</code></pre>
+<span class="cm-comment">// Now it's mutable to the bone</span>
+<span class="cm-variable">mutable_crayons</span>[<span class="cm-number">0</span>] = <span class="cm-variable">Apricot</span>;
+</pre>
+
 <p>This is a simple example of Rust's <em>dual-mode data structures</em>, also referred to as <em>freezing and thawing</em>.</p>
 <p>Strings are implemented with vectors of <code>u8</code>, though they have a distinct type. They support most of the same allocation options as vectors, though the string literal without a storage sigil (for example, <code>&quot;foo&quot;</code>) is treated differently than a comparable vector (<code>[foo]</code>). Whereas plain vectors are stack-allocated fixed-length vectors, plain strings are borrowed pointers to read-only (static) memory. All strings are immutable.</p>
-<pre><code>// A plain string is a slice to read-only (static) memory
-let stack_crayons: &amp;str = &quot;Almond, AntiqueBrass, Apricot&quot;;
+<pre class="cm-s-default"><span class="cm-comment">// A plain string is a slice to read-only (static) memory</span>
+<span class="cm-keyword">let</span> <span class="cm-def">stack_crayons</span>: &amp;<span class="cm-keyword">str</span> = <span class="cm-string">&quot;Almond, AntiqueBrass, Apricot&quot;</span>;
 
-// The same thing, but with the `&amp;`
-let stack_crayons: &amp;str = &amp;&quot;Aquamarine, Asparagus, AtomicTangerine&quot;;
+<span class="cm-comment">// The same thing, but with the `&amp;`</span>
+<span class="cm-keyword">let</span> <span class="cm-def">stack_crayons</span>: &amp;<span class="cm-keyword">str</span> = &amp;<span class="cm-string">&quot;Aquamarine, Asparagus, AtomicTangerine&quot;</span>;
 
-// A local heap (managed) string
-let local_crayons: @str = @&quot;BananaMania, Beaver, Bittersweet&quot;;
+<span class="cm-comment">// A local heap (managed) string</span>
+<span class="cm-keyword">let</span> <span class="cm-def">local_crayons</span>: @<span class="cm-keyword">str</span> = @<span class="cm-string">&quot;BananaMania, Beaver, Bittersweet&quot;</span>;
 
-// An exchange heap (owned) string
-let exchange_crayons: ~str = ~&quot;Black, BlizzardBlue, Blue&quot;;</code></pre>
+<span class="cm-comment">// An exchange heap (owned) string</span>
+<span class="cm-keyword">let</span> <span class="cm-def">exchange_crayons</span>: <span class="cm-variable-3">~str</span> = <span class="cm-variable">~</span><span class="cm-string">&quot;Black, BlizzardBlue, Blue&quot;</span>;
+</pre>
+
 <p>Both vectors and strings support a number of useful <a href="#functions-and-methods">methods</a>, defined in <a href="core/vec.html"><code>core::vec</code></a> and <a href="core/str.html"><code>core::str</code></a>. Here are some examples.</p>
-<pre><code># use core::io::println;
-# enum Crayon {
-#     Almond, AntiqueBrass, Apricot,
-#     Aquamarine, Asparagus, AtomicTangerine,
-#     BananaMania, Beaver, Bittersweet
-# }
-# fn unwrap_crayon(c: Crayon) -&gt; int { 0 }
-# fn eat_crayon_wax(i: int) { }
-# fn store_crayon_in_nasal_cavity(i: uint, c: Crayon) { }
-# fn crayon_to_str(c: Crayon) -&gt; &amp;str { &quot;&quot; }
+<pre class="cm-s-default">
+<span class="cm-keyword">let</span> <span class="cm-def">crayons</span> = [<span class="cm-variable">Almond</span>, <span class="cm-variable">AntiqueBrass</span>, <span class="cm-variable">Apricot</span>];
 
-let crayons = [Almond, AntiqueBrass, Apricot];
+<span class="cm-comment">// Check the length of the vector</span>
+<span class="cm-keyword">assert</span>!(<span class="cm-variable">crayons</span>.<span class="cm-variable">len</span>() == <span class="cm-number">3</span>);
+<span class="cm-keyword">assert</span>!(!<span class="cm-variable">crayons</span>.<span class="cm-variable">is_empty</span>());
 
-// Check the length of the vector
-assert!(crayons.len() == 3);
-assert!(!crayons.is_empty());
-
-// Iterate over a vector, obtaining a pointer to each element
-for crayons.each |crayon| {
-    let delicious_crayon_wax = unwrap_crayon(*crayon);
-    eat_crayon_wax(delicious_crayon_wax);
+<span class="cm-comment">// Iterate over a vector, obtaining a pointer to each element</span>
+<span class="cm-keyword">for</span> <span class="cm-def">crayons</span>.<span class="cm-variable">each</span> |<span class="cm-variable">crayon</span>| {
+    <span class="cm-keyword">let</span> <span class="cm-def">delicious_crayon_wax</span> = <span class="cm-variable">unwrap_crayon</span>(*<span class="cm-variable">crayon</span>);
+    <span class="cm-variable">eat_crayon_wax</span>(<span class="cm-variable">delicious_crayon_wax</span>);
 }
 
-// Map vector elements
-let crayon_names = crayons.map(|v| crayon_to_str(*v));
-let favorite_crayon_name = crayon_names[0];
+<span class="cm-comment">// Map vector elements</span>
+<span class="cm-keyword">let</span> <span class="cm-variable">crayon_names</span> = <span class="cm-variable">crayons</span>.<span class="cm-variable">map</span>(|<span class="cm-variable">v</span>| <span class="cm-variable">crayon_to_str</span>(*<span class="cm-variable">v</span>));
+<span class="cm-keyword">let</span> <span class="cm-def">favorite_crayon_name</span> = <span class="cm-variable">crayon_names</span>[<span class="cm-number">0</span>];
 
-// Remove whitespace from before and after the string
-let new_favorite_crayon_name = favorite_crayon_name.trim();
+<span class="cm-comment">// Remove whitespace from before and after the string</span>
+<span class="cm-keyword">let</span> <span class="cm-def">new_favorite_crayon_name</span> = <span class="cm-variable">favorite_crayon_name</span>.<span class="cm-variable">trim</span>();
 
-if favorite_crayon_name.len() &gt; 5 {
-   // Create a substring
-   println(favorite_crayon_name.substr(0, 5));
-}</code></pre>
+<span class="cm-keyword">if</span> <span class="cm-variable">favorite_crayon_name</span>.<span class="cm-variable">len</span>() &gt; <span class="cm-number">5</span> {
+   <span class="cm-comment">// Create a substring</span>
+   <span class="cm-variable">println</span>(<span class="cm-variable">favorite_crayon_name</span>.<span class="cm-variable">substr</span>(<span class="cm-number">0</span>, <span class="cm-number">5</span>));
+}
+</pre>
+
 <h1 id="closures"><a href="#TOC"><span class="header-section-number">14</span> Closures</a></h1>
 <p>Named functions, like those we've seen so far, may not refer to local variables declared outside the function: they do not close over their environment (sometimes referred to as &quot;capturing&quot; variables in their environment). For example, you couldn't write the following:</p>
-<pre class="ignore"><code>let foo = 10;
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">foo</span> = <span class="cm-number">10</span>;
 
-fn bar() -&gt; int {
-   return foo; // `bar` cannot refer to `foo`
-}</code></pre>
+<span class="cm-keyword">fn</span> <span class="cm-def">bar</span>() -&gt; <span class="cm-keyword">int</span> {
+   <span class="cm-keyword">return</span> <span class="cm-variable">foo</span>; <span class="cm-comment">// `bar` cannot refer to `foo`</span>
+}
+</pre>
+
 <p>Rust also supports <em>closures</em>, functions that can access variables in the enclosing scope.</p>
-<pre><code># use println = core::io::println;
-fn call_closure_with_ten(b: &amp;fn(int)) { b(10); }
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">call_closure_with_ten</span>(<span class="cm-def">b</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-keyword">int</span>)) { <span class="cm-variable">b</span>(<span class="cm-number">10</span>); }
 
-let captured_var = 20;
-let closure = |arg| println(fmt!(&quot;captured_var=%d, arg=%d&quot;, captured_var, arg));
+<span class="cm-keyword">let</span> <span class="cm-def">captured_var</span> = <span class="cm-number">20</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">closure</span> = |<span class="cm-variable">arg</span>| <span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;captured_var=%d, arg=%d&quot;</span>, <span class="cm-variable">captured_var</span>, <span class="cm-variable">arg</span>));
 
-call_closure_with_ten(closure);</code></pre>
+<span class="cm-variable">call_closure_with_ten</span>(<span class="cm-variable">closure</span>);
+</pre>
+
 <p>Closures begin with the argument list between vertical bars and are followed by a single expression. The types of the arguments are generally omitted, as is the return type, because the compiler can almost always infer them. In the rare case where the compiler needs assistance, though, the arguments and return types may be annotated.</p>
-<pre><code>let square = |x: int| -&gt; uint { x * x as uint };</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">square</span> = |<span class="cm-variable">x</span>: <span class="cm-variable">int</span>| -&gt; <span class="cm-variable">uint</span> { <span class="cm-variable">x</span> * <span class="cm-variable">x</span> <span class="cm-keyword">as</span> <span class="cm-variable">uint</span> };
+</pre>
+
 <p>There are several forms of closure, each with its own role. The most common, called a <em>stack closure</em>, has type <code>&amp;fn</code> and can directly access local variables in the enclosing scope.</p>
-<pre><code>let mut max = 0;
-[1, 2, 3].map(|x| if *x &gt; max { max = *x });</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">max</span> = <span class="cm-number">0</span>;
+[<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>].<span class="cm-variable">map</span>(|<span class="cm-variable">x</span>| <span class="cm-keyword">if</span> *<span class="cm-variable">x</span> &gt; <span class="cm-variable">max</span> { <span class="cm-variable">max</span> = *<span class="cm-variable">x</span> });
+</pre>
+
 <p>Stack closures are very efficient because their environment is allocated on the call stack and refers by pointer to captured locals. To ensure that stack closures never outlive the local variables to which they refer, stack closures are not first-class. That is, they can only be used in argument position; they cannot be stored in data structures or returned from functions. Despite these limitations, stack closures are used pervasively in Rust code.</p>
 <h2 id="managed-closures"><a href="#TOC"><span class="header-section-number">14.1</span> Managed closures</a></h2>
 <p>When you need to store a closure in a data structure, a stack closure will not do, since the compiler will refuse to let you store it. For this purpose, Rust provides a type of closure that has an arbitrary lifetime, written <code>@fn</code> (boxed closure, analogous to the <code>@</code> pointer type described earlier). This type of closure <em>is</em> first-class.</p>
 <p>A managed closure does not directly access its environment, but merely copies out the values that it closes over into a private data structure. This means that it can not assign to these variables, and cannot observe updates to them.</p>
 <p>This code creates a closure that adds a given string to its argument, returns it from a function, and then calls it:</p>
-<pre><code># extern mod std;
-fn mk_appender(suffix: ~str) -&gt; @fn(~str) -&gt; ~str {
-    // The compiler knows that we intend this closure to be of type @fn
-    return |s| s + suffix;
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">mk_appender</span>(<span class="cm-def">suffix</span>: <span class="cm-variable-3">~str</span>) -&gt; @<span class="cm-keyword">fn</span>(<span class="cm-variable-3">~str</span>) -&gt; <span class="cm-variable-3">~str</span> {
+    <span class="cm-comment">// The compiler knows that we intend this closure to be of type @fn</span>
+    <span class="cm-keyword">return</span> |<span class="cm-variable">s</span>| <span class="cm-variable">s</span> + <span class="cm-variable">suffix</span>;
 }
 
-fn main() {
-    let shout = mk_appender(~&quot;!&quot;);
-    io::println(shout(~&quot;hey ho, let&#39;s go&quot;));
-}</code></pre>
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-keyword">let</span> <span class="cm-def">shout</span> = <span class="cm-variable">mk_appender</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;!&quot;</span>);
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">shout</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hey ho, let's go&quot;</span>));
+}
+</pre>
+
 <h2 id="owned-closures"><a href="#TOC"><span class="header-section-number">14.2</span> Owned closures</a></h2>
 <p>Owned closures, written <code>~fn</code> in analogy to the <code>~</code> pointer type, hold on to things that can safely be sent between processes. They copy the values they close over, much like managed closures, but they also own them: that is, no other code can access them. Owned closures are used in concurrent code, particularly for spawning <a href="tutorial-tasks.html">tasks</a>.</p>
 <h2 id="closure-compatibility"><a href="#TOC"><span class="header-section-number">14.3</span> Closure compatibility</a></h2>
 <p>Rust closures have a convenient subtyping property: you can pass any kind of closure (as long as the arguments and return types match) to functions that expect a <code>&amp;fn()</code>. Thus, when writing a higher-order function that only calls its function argument, and does nothing else with it, you should almost always declare the type of that argument as <code>&amp;fn()</code>. That way, callers may pass any kind of closure.</p>
-<pre><code>fn call_twice(f: &amp;fn()) { f(); f(); }
-let closure = || { &quot;I&#39;m a closure, and it doesn&#39;t matter what type I am&quot;; };
-fn function() { &quot;I&#39;m a normal function&quot;; }
-call_twice(closure);
-call_twice(function);</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">call_twice</span>(<span class="cm-def">f</span>: &amp;<span class="cm-keyword">fn</span>()) { <span class="cm-variable">f</span>(); <span class="cm-variable">f</span>(); }
+<span class="cm-keyword">let</span> <span class="cm-def">closure</span> = || { <span class="cm-string">&quot;I'm a closure, and it doesn't matter what type I am&quot;</span>; };
+<span class="cm-keyword">fn</span> <span class="cm-def">function</span>() { <span class="cm-string">&quot;I'm a normal function&quot;</span>; }
+<span class="cm-variable">call_twice</span>(<span class="cm-variable">closure</span>);
+<span class="cm-variable">call_twice</span>(<span class="cm-variable">function</span>);
+</pre>
+
 <blockquote>
 <p><strong><em>Note:</em></strong> Both the syntax and the semantics will be changing in small ways. At the moment they can be unsound in some scenarios, particularly with non-copyable types.</p>
 </blockquote>
 <h2 id="do-syntax"><a href="#TOC"><span class="header-section-number">14.4</span> Do syntax</a></h2>
 <p>The <code>do</code> expression provides a way to treat higher-order functions (functions that take closures as arguments) as control structures.</p>
 <p>Consider this function that iterates over a vector of integers, passing in a pointer to each integer in the vector:</p>
-<pre><code>fn each(v: &amp;[int], op: &amp;fn(v: &amp;int)) {
-   let mut n = 0;
-   while n &lt; v.len() {
-       op(&amp;v[n]);
-       n += 1;
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">each</span>(<span class="cm-def">v</span>: &amp;[<span class="cm-keyword">int</span>], <span class="cm-def">op</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-keyword">int</span>)) {
+   <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">n</span> = <span class="cm-number">0</span>;
+   <span class="cm-keyword">while</span> <span class="cm-variable">n</span> &lt; <span class="cm-variable">v</span>.<span class="cm-variable">len</span>() {
+       <span class="cm-variable">op</span>(&amp;<span class="cm-variable">v</span>[<span class="cm-variable">n</span>]);
+       <span class="cm-variable">n</span> += <span class="cm-number">1</span>;
    }
-}</code></pre>
+}
+</pre>
+
 <p>As an aside, the reason we pass in a <em>pointer</em> to an integer rather than the integer itself is that this is how the actual <code>each()</code> function for vectors works. <code>vec::each</code> though is a <a href="#generics">generic</a> function, so must be efficient to use for all types. Passing the elements by pointer avoids copying potentially large objects.</p>
 <p>As a caller, if we use a closure to provide the final operator argument, we can write it in a way that has a pleasant, block-like structure.</p>
-<pre><code># fn each(v: &amp;[int], op: &amp;fn(v: &amp;int)) { }
-# fn do_some_work(i: &amp;int) { }
-each([1, 2, 3], |n| {
-    do_some_work(n);
-});</code></pre>
+<pre class="cm-s-default"><span class="cm-variable">each</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>], |<span class="cm-variable">n</span>| {
+    <span class="cm-variable">do_some_work</span>(<span class="cm-variable">n</span>);
+});
+</pre>
+
 <p>This is such a useful pattern that Rust has a special form of function call that can be written more like a built-in control structure:</p>
-<pre><code># fn each(v: &amp;[int], op: &amp;fn(v: &amp;int)) { }
-# fn do_some_work(i: &amp;int) { }
-do each([1, 2, 3]) |n| {
-    do_some_work(n);
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">do</span> <span class="cm-variable">each</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>]) |<span class="cm-variable">n</span>| {
+    <span class="cm-variable">do_some_work</span>(<span class="cm-variable">n</span>);
+}
+</pre>
+
 <p>The call is prefixed with the keyword <code>do</code> and, instead of writing the final closure inside the argument list, it appears outside of the parentheses, where it looks more like a typical block of code.</p>
 <p><code>do</code> is a convenient way to create tasks with the <code>task::spawn</code> function. <code>spawn</code> has the signature <code>spawn(fn: ~fn())</code>. In other words, it is a function that takes an owned closure that takes no arguments.</p>
-<pre><code>use core::task::spawn;
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">core::task::</span><span class="cm-variable">spawn</span>;
 
-do spawn() || {
-    debug!(&quot;I&#39;m a task, whatever&quot;);
-}</code></pre>
+<span class="cm-keyword">do</span> <span class="cm-variable">spawn</span>() || {
+    <span class="cm-variable">debug</span>!(<span class="cm-string">&quot;I'm a task, whatever&quot;</span>);
+}
+</pre>
+
 <p>Look at all those bars and parentheses -- that's two empty argument lists back to back. Since that is so unsightly, empty argument lists may be omitted from <code>do</code> expressions.</p>
-<pre><code># use core::task::spawn;
-do spawn {
-   debug!(&quot;Kablam!&quot;);
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">do</span> <span class="cm-variable">spawn</span> {
+   <span class="cm-variable">debug</span>!(<span class="cm-string">&quot;Kablam!&quot;</span>);
+}
+</pre>
+
 <p>If you want to see the output of <code>debug!</code> statements, you will need to turn on <code>debug!</code> logging. To enable <code>debug!</code> logging, set the RUST_LOG environment variable to the name of your crate, which, for a file named <code>foo.rs</code>, will be <code>foo</code> (e.g., with bash, <code>export RUST_LOG=foo</code>).</p>
 <h2 id="for-loops"><a href="#TOC"><span class="header-section-number">14.5</span> For loops</a></h2>
 <p>The most common way to express iteration in Rust is with a <code>for</code> loop. Like <code>do</code>, <code>for</code> is a nice syntax for describing control flow with closures. Additionally, within a <code>for</code> loop, <code>break</code>, <code>loop</code>, and <code>return</code> work just as they do with <code>while</code> and <code>loop</code>.</p>
 <p>Consider again our <code>each</code> function, this time improved to break early when the iteratee returns <code>false</code>:</p>
-<pre><code>fn each(v: &amp;[int], op: &amp;fn(v: &amp;int) -&gt; bool) {
-   let mut n = 0;
-   while n &lt; v.len() {
-       if !op(&amp;v[n]) {
-           break;
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">each</span>(<span class="cm-def">v</span>: &amp;[<span class="cm-keyword">int</span>], <span class="cm-def">op</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">bool</span>) {
+   <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">n</span> = <span class="cm-number">0</span>;
+   <span class="cm-keyword">while</span> <span class="cm-variable">n</span> &lt; <span class="cm-variable">v</span>.<span class="cm-variable">len</span>() {
+       <span class="cm-keyword">if</span> !<span class="cm-variable">op</span>(&amp;<span class="cm-variable">v</span>[<span class="cm-variable">n</span>]) {
+           <span class="cm-keyword">break</span>;
        }
-       n += 1;
+       <span class="cm-variable">n</span> += <span class="cm-number">1</span>;
    }
-}</code></pre>
+}
+</pre>
+
 <p>And using this function to iterate over a vector:</p>
-<pre><code># use each = core::vec::each;
-# use println = core::io::println;
-each([2, 4, 8, 5, 16], |n| {
-    if *n % 2 != 0 {
-        println(&quot;found odd number!&quot;);
-        false
-    } else { true }
-});</code></pre>
+<pre class="cm-s-default"><span class="cm-variable">each</span>([<span class="cm-number">2</span>, <span class="cm-number">4</span>, <span class="cm-number">8</span>, <span class="cm-number">5</span>, <span class="cm-number">16</span>], |<span class="cm-variable">n</span>| {
+    <span class="cm-keyword">if</span> *<span class="cm-variable">n</span> % <span class="cm-number">2</span> != <span class="cm-number">0</span> {
+        <span class="cm-variable">println</span>(<span class="cm-string">&quot;found odd number!&quot;</span>);
+        <span class="cm-atom">false</span>
+    } <span class="cm-keyword">else</span> { <span class="cm-atom">true</span> }
+});
+</pre>
+
 <p>With <code>for</code>, functions like <code>each</code> can be treated more like built-in looping structures. When calling <code>each</code> in a <code>for</code> loop, instead of returning <code>false</code> to break out of the loop, you just write <code>break</code>. To skip ahead to the next iteration, write <code>loop</code>.</p>
-<pre><code># use each = core::vec::each;
-# use println = core::io::println;
-for each([2, 4, 8, 5, 16]) |n| {
-    if *n % 2 != 0 {
-        println(&quot;found odd number!&quot;);
-        break;
+<pre class="cm-s-default"><span class="cm-keyword">for</span> <span class="cm-def">each</span>([<span class="cm-number">2</span>, <span class="cm-number">4</span>, <span class="cm-number">8</span>, <span class="cm-number">5</span>, <span class="cm-number">16</span>]) |<span class="cm-variable">n</span>| {
+    <span class="cm-keyword">if</span> *<span class="cm-variable">n</span> % <span class="cm-number">2</span> != <span class="cm-number">0</span> {
+        <span class="cm-variable">println</span>(<span class="cm-string">&quot;found odd number!&quot;</span>);
+        <span class="cm-keyword">break</span>;
     }
-}</code></pre>
+}
+</pre>
+
 <p>As an added bonus, you can use the <code>return</code> keyword, which is not normally allowed in closures, in a block that appears as the body of a <code>for</code> loop: the meaning of <code>return</code> in such a block is to return from the enclosing function, not just the loop body.</p>
-<pre><code># use each = core::vec::each;
-fn contains(v: &amp;[int], elt: int) -&gt; bool {
-    for each(v) |x| {
-        if (*x == elt) { return true; }
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">contains</span>(<span class="cm-def">v</span>: &amp;[<span class="cm-keyword">int</span>], <span class="cm-def">elt</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">bool</span> {
+    <span class="cm-keyword">for</span> <span class="cm-def">each</span>(<span class="cm-variable">v</span>) |<span class="cm-variable">x</span>| {
+        <span class="cm-keyword">if</span> (*<span class="cm-variable">x</span> == <span class="cm-variable">elt</span>) { <span class="cm-keyword">return</span> <span class="cm-atom">true</span>; }
     }
-    false
-}</code></pre>
+    <span class="cm-atom">false</span>
+}
+</pre>
+
 <p>Notice that, because <code>each</code> passes each value by borrowed pointer, the iteratee needs to dereference it before using it. In these situations it can be convenient to lean on Rust's argument patterns to bind <code>x</code> to the actual value, not the pointer.</p>
-<pre><code># use each = core::vec::each;
-# fn contains(v: &amp;[int], elt: int) -&gt; bool {
-    for each(v) |&amp;x| {
-        if (x == elt) { return true; }
+<pre class="cm-s-default">    <span class="cm-keyword">for</span> <span class="cm-def">each</span>(<span class="cm-variable">v</span>) |&amp;<span class="cm-variable">x</span>| {
+        <span class="cm-keyword">if</span> (<span class="cm-variable">x</span> == <span class="cm-variable">elt</span>) { <span class="cm-keyword">return</span> <span class="cm-atom">true</span>; }
     }
-#    false
-# }</code></pre>
+</pre>
+
 <p><code>for</code> syntax only works with stack closures.</p>
 <blockquote>
 <p><strong><em>Note:</em></strong> This is, essentially, a special loop protocol: the keywords <code>break</code>, <code>loop</code>, and <code>return</code> work, in varying degree, with <code>while</code>, <code>loop</code>, <code>do</code>, and <code>for</code> constructs.</p>
@@ -855,141 +949,133 @@ fn contains(v: &amp;[int], elt: int) -&gt; bool {
 <h1 id="methods"><a href="#TOC"><span class="header-section-number">15</span> Methods</a></h1>
 <p>Methods are like functions except that they always begin with a special argument, called <code>self</code>, which has the type of the method's receiver. The <code>self</code> argument is like <code>this</code> in C++ and many other languages. Methods are called with dot notation, as in <code>my_vec.len()</code>.</p>
 <p><em>Implementations</em>, written with the <code>impl</code> keyword, can define methods on most Rust types, including structs and enums. As an example, let's define a <code>draw</code> method on our <code>Shape</code> enum.</p>
-<pre><code># fn draw_circle(p: Point, f: float) { }
-# fn draw_rectangle(p: Point, p: Point) { }
-struct Point {
-    x: float,
-    y: float
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {
+    <span class="cm-variable">x</span>: <span class="cm-variable">float</span>,
+    <span class="cm-variable">y</span>: <span class="cm-variable">float</span>
 }
 
-enum Shape {
-    Circle(Point, float),
-    Rectangle(Point, Point)
+<span class="cm-keyword">enum</span> <span class="cm-def">Shape</span> {
+    <span class="cm-def">Circle</span>(<span class="cm-variable-3">Point</span>, <span class="cm-keyword">float</span>),
+    <span class="cm-def">Rectangle</span>(<span class="cm-variable-3">Point</span>, <span class="cm-variable-3">Point</span>)
 }
 
-impl Shape {
-    fn draw(&amp;self) {
-        match *self {
-            Circle(p, f) =&gt; draw_circle(p, f),
-            Rectangle(p1, p2) =&gt; draw_rectangle(p1, p2)
+<span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">draw</span>(&amp;<span class="cm-keyword">self</span>) {
+        <span class="cm-keyword">match</span> *<span class="cm-keyword">self</span> {
+            <span class="cm-def">Circle</span>(<span class="cm-def">p</span>, <span class="cm-def">f</span>) =&gt; <span class="cm-def">draw_circle</span>(<span class="cm-def">p</span>, <span class="cm-def">f</span>),
+            <span class="cm-def">Rectangle</span>(<span class="cm-def">p1</span>, <span class="cm-def">p2</span>) =&gt; <span class="cm-def">draw_rectangle</span>(<span class="cm-def">p1</span>, <span class="cm-def">p2</span>)
         }
     }
 }
 
-let s = Circle(Point { x: 1f, y: 2f }, 3f);
-s.draw();</code></pre>
+<span class="cm-keyword">let</span> <span class="cm-def">s</span> = <span class="cm-variable">Circle</span>(<span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">1</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">2</span><span class="cm-variable">f</span> }, <span class="cm-number">3</span><span class="cm-variable">f</span>);
+<span class="cm-variable">s</span>.<span class="cm-variable">draw</span>();
+</pre>
+
 <p>This defines an <em>implementation</em> for <code>Shape</code> containing a single method, <code>draw</code>. In most respects the <code>draw</code> method is defined like any other function, except for the name <code>self</code>.</p>
 <p>The type of <code>self</code> is the type on which the method is implemented, or a pointer thereof. As an argument it is written either <code>self</code>, <code>&amp;self</code>, <code>@self</code>, or <code>~self</code>. A caller must in turn have a compatible pointer type to call the method.</p>
-<pre><code># fn draw_circle(p: Point, f: float) { }
-# fn draw_rectangle(p: Point, p: Point) { }
-# struct Point { x: float, y: float }
-# enum Shape {
-#     Circle(Point, float),
-#     Rectangle(Point, Point)
-# }
-impl Shape {
-    fn draw_borrowed(&amp;self) { ... }
-    fn draw_managed(@self) { ... }
-    fn draw_owned(~self) { ... }
-    fn draw_value(self) { ... }
+<pre class="cm-s-default"><span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">draw_borrowed</span>(&amp;<span class="cm-keyword">self</span>) { ... }
+    <span class="cm-keyword">fn</span> <span class="cm-def">draw_managed</span>(@<span class="cm-keyword">self</span>) { ... }
+    <span class="cm-keyword">fn</span> <span class="cm-def">draw_owned</span>(<span class="cm-def">~self</span>) { ... }
+    <span class="cm-keyword">fn</span> <span class="cm-def">draw_value</span>(<span class="cm-keyword">self</span>) { ... }
 }
 
-let s = Circle(Point { x: 1f, y: 2f }, 3f);
+<span class="cm-keyword">let</span> <span class="cm-def">s</span> = <span class="cm-variable">Circle</span>(<span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">1</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">2</span><span class="cm-variable">f</span> }, <span class="cm-number">3</span><span class="cm-variable">f</span>);
 
-(@s).draw_managed();
-(~s).draw_owned();
-(&amp;s).draw_borrowed();
-s.draw_value();</code></pre>
+(@<span class="cm-variable">s</span>).<span class="cm-variable">draw_managed</span>();
+(<span class="cm-variable">~s</span>).<span class="cm-variable">draw_owned</span>();
+(&amp;<span class="cm-variable">s</span>).<span class="cm-variable">draw_borrowed</span>();
+<span class="cm-variable">s</span>.<span class="cm-variable">draw_value</span>();
+</pre>
+
 <p>Methods typically take a borrowed pointer self type, so the compiler will go to great lengths to convert a callee to a borrowed pointer.</p>
-<pre><code># fn draw_circle(p: Point, f: float) { }
-# fn draw_rectangle(p: Point, p: Point) { }
-# struct Point { x: float, y: float }
-# enum Shape {
-#     Circle(Point, float),
-#     Rectangle(Point, Point)
-# }
-# impl Shape {
-#    fn draw_borrowed(&amp;self) { ... }
-#    fn draw_managed(@self) { ... }
-#    fn draw_owned(~self) { ... }
-#    fn draw_value(self) { ... }
-# }
-# let s = Circle(Point { x: 1f, y: 2f }, 3f);
-// As with typical function arguments, managed and unique pointers
-// are automatically converted to borrowed pointers
+<pre class="cm-s-default"><span class="cm-comment">// As with typical function arguments, managed and unique pointers</span>
+<span class="cm-comment">// are automatically converted to borrowed pointers</span>
 
-(@s).draw_borrowed();
-(~s).draw_borrowed();
+(@<span class="cm-variable">s</span>).<span class="cm-variable">draw_borrowed</span>();
+(<span class="cm-variable">~s</span>).<span class="cm-variable">draw_borrowed</span>();
 
-// Unlike typical function arguments, the self value will
-// automatically be referenced ...
-s.draw_borrowed();
+<span class="cm-comment">// Unlike typical function arguments, the self value will</span>
+<span class="cm-comment">// automatically be referenced ...</span>
+<span class="cm-variable">s</span>.<span class="cm-variable">draw_borrowed</span>();
 
-// ... and dereferenced
-(&amp; &amp;s).draw_borrowed();
+<span class="cm-comment">// ... and dereferenced</span>
+(&amp; &amp;<span class="cm-variable">s</span>).<span class="cm-variable">draw_borrowed</span>();
 
-// ... and dereferenced and borrowed
-(&amp;@~s).draw_borrowed();</code></pre>
+<span class="cm-comment">// ... and dereferenced and borrowed</span>
+(&amp;@<span class="cm-variable">~s</span>).<span class="cm-variable">draw_borrowed</span>();
+</pre>
+
 <p>Implementations may also define standalone (sometimes called &quot;static&quot;) methods. The absence of a <code>self</code> paramater distinguishes such methods. These methods are the preferred way to define constructor functions.</p>
-<pre class="xfail-test"><code>impl Circle {
-    fn area(&amp;self) -&gt; float { ... }
-    fn new(area: float) -&gt; Circle { ... }
-}</code></pre>
-<p>To call such a method, just prefix it with the type name and a double colon:</p>
-<pre><code># use core::float::consts::pi;
-# use core::float::sqrt;
-struct Circle { radius: float }
-impl Circle {
-    fn new(area: float) -&gt; Circle { Circle { radius: sqrt(area / pi) } }
+<pre class="cm-s-default"><span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">area</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { ... }
+    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { ... }
 }
-let c = Circle::new(42.5);</code></pre>
+</pre>
+
+<p>To call such a method, just prefix it with the type name and a double colon:</p>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
+<span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">sqrt</span>(<span class="cm-variable">area</span> <span class="cm-variable">/</span> <span class="cm-variable">pi</span>) } }
+}
+<span class="cm-keyword">let</span> <span class="cm-def">c</span> = <span class="cm-variable-2">Circle::</span><span class="cm-variable">new</span>(<span class="cm-number">42.5</span>);
+</pre>
+
 <h1 id="generics"><a href="#TOC"><span class="header-section-number">16</span> Generics</a></h1>
 <p>Throughout this tutorial, we've been defining functions that act only on specific data types. With type parameters we can also define functions whose arguments have generic types, and which can be invoked with a variety of types. Consider a generic <code>map</code> function, which takes a function <code>function</code> and a vector <code>vector</code> and returns a new vector consisting of the result of applying <code>function</code> to each element of <code>vector</code>:</p>
-<pre><code>fn map&lt;T, U&gt;(vector: &amp;[T], function: &amp;fn(v: &amp;T) -&gt; U) -&gt; ~[U] {
-    let mut accumulator = ~[];
-    for vec::each(vector) |element| {
-        accumulator.push(function(element));
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">map</span>&lt;<span class="cm-variable-3">T</span>, <span class="cm-variable-3">U</span>&gt;(<span class="cm-def">vector</span>: &amp;[<span class="cm-variable-3">T</span>], <span class="cm-def">function</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-variable">T</span>) -&gt; <span class="cm-variable-3">U</span>) -&gt; <span class="cm-variable-3">~</span>[<span class="cm-def">U</span>] {
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">accumulator</span> = <span class="cm-variable">~</span>[];
+    <span class="cm-keyword">for</span> <span class="cm-variable-2">vec::</span><span class="cm-def">each</span>(<span class="cm-variable">vector</span>) |<span class="cm-variable">element</span>| {
+        <span class="cm-variable">accumulator</span>.<span class="cm-variable">push</span>(<span class="cm-variable">function</span>(<span class="cm-variable">element</span>));
     }
-    return accumulator;
-}</code></pre>
+    <span class="cm-keyword">return</span> <span class="cm-variable">accumulator</span>;
+}
+</pre>
+
 <p>When defined with type parameters, as denoted by <code>&lt;T, U&gt;</code>, this function can be applied to any type of vector, as long as the type of <code>function</code>'s argument and the type of the vector's contents agree with each other.</p>
 <p>Inside a generic function, the names of the type parameters (capitalized by convention) stand for opaque types. All you can do with instances of these types is pass them around: you can't apply any operations to them or pattern-match on them. Note that instances of generic types are often passed by pointer. For example, the parameter <code>function()</code> is supplied with a pointer to a value of type <code>T</code> and not a value of type <code>T</code> itself. This ensures that the function works with the broadest set of types possible, since some types are expensive or illegal to copy and pass by value.</p>
 <p>Generic <code>type</code>, <code>struct</code>, and <code>enum</code> declarations follow the same pattern:</p>
-<pre><code># use core::hashmap::HashMap;
-type Set&lt;T&gt; = HashMap&lt;T, ()&gt;;
+<pre class="cm-s-default"><span class="cm-keyword">type</span> <span class="cm-def">Set</span>&lt;<span class="cm-variable-3">T</span>&gt; = <span class="cm-variable-3">HashMap</span>&lt;<span class="cm-variable-3">T</span>, ()&gt;;
 
-struct Stack&lt;T&gt; {
-    elements: ~[T]
+<span class="cm-keyword">struct</span> <span class="cm-variable">Stack</span>&lt;<span class="cm-variable">T</span>&gt; {
+    <span class="cm-variable">elements</span>: <span class="cm-variable">~</span>[<span class="cm-variable">T</span>]
 }
 
-enum Option&lt;T&gt; {
-    Some(T),
-    None
-}</code></pre>
+<span class="cm-keyword">enum</span> <span class="cm-def">Option</span>&lt;<span class="cm-variable-3">T</span>&gt; {
+    <span class="cm-def">Some</span>(<span class="cm-variable-3">T</span>),
+    <span class="cm-def">None</span>
+}
+</pre>
+
 <p>These declarations can be instantiated to valid types like <code>Set&lt;int&gt;</code>, <code>Stack&lt;int&gt;</code>, and <code>Option&lt;int&gt;</code>.</p>
 <p>The last type in that example, <code>Option</code>, appears frequently in Rust code. Because Rust does not have null pointers (except in unsafe code), we need another way to write a function whose result isn't defined on every possible combination of arguments of the appropriate types. The usual way is to write a function that returns <code>Option&lt;T&gt;</code> instead of <code>T</code>.</p>
-<pre><code># struct Point { x: float, y: float }
-# enum Shape { Circle(Point, float), Rectangle(Point, Point) }
-fn radius(shape: Shape) -&gt; Option&lt;float&gt; {
-    match shape {
-        Circle(_, radius) =&gt; Some(radius),
-        Rectangle(*)      =&gt; None
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">radius</span>(<span class="cm-def">shape</span>: <span class="cm-variable-3">Shape</span>) -&gt; <span class="cm-variable-3">Option</span>&lt;<span class="cm-keyword">float</span>&gt; {
+    <span class="cm-keyword">match</span> <span class="cm-variable">shape</span> {
+        <span class="cm-def">Circle</span>(<span class="cm-def">_</span>, <span class="cm-def">radius</span>) =&gt; <span class="cm-def">Some</span>(<span class="cm-def">radius</span>),
+        <span class="cm-def">Rectangle</span>(*)      =&gt; <span class="cm-def">None</span>
     }
-}</code></pre>
+}
+</pre>
+
 <p>The Rust compiler compiles generic functions very efficiently by <em>monomorphizing</em> them. <em>Monomorphization</em> is a fancy name for a simple idea: generate a separate copy of each generic function at each call site, a copy that is specialized to the argument types and can thus be optimized specifically for them. In this respect, Rust's generics have similar performance characteristics to C++ templates.</p>
 <h2 id="traits"><a href="#TOC"><span class="header-section-number">16.1</span> Traits</a></h2>
 <p>Within a generic function the operations available on generic types are very limited. After all, since the function doesn't know what types it is operating on, it can't safely modify or query their values. This is where <em>traits</em> come into play. Traits are Rust's most powerful tool for writing polymorphic code. Java developers will see them as similar to Java interfaces, and Haskellers will notice their similarities to type classes. Rust's traits are a form of <em>bounded polymorphism</em>: a trait is a way of limiting the set of possible types that a type parameter could refer to.</p>
 <p>As motivation, let us consider copying in Rust. The <code>copy</code> operation is not defined for all Rust types. One reason is user-defined destructors: copying a type that has a destructor could result in the destructor running multiple times. Therefore, types with user-defined destructors cannot be copied, either implicitly or explicitly, and neither can types that own other types containing destructors.</p>
 <p>This complicates handling of generic functions. If you have a type parameter <code>T</code>, can you copy values of that type? In Rust, you can't, and if you try to run the following code the compiler will complain.</p>
-<pre class="xfail-test"><code>// This does not compile
-fn head_bad&lt;T&gt;(v: &amp;[T]) -&gt; T {
-    v[0] // error: copying a non-copyable value
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-comment">// This does not compile</span>
+<span class="cm-keyword">fn</span> <span class="cm-def">head_bad</span>&lt;<span class="cm-variable-3">T</span>&gt;(<span class="cm-def">v</span>: &amp;[<span class="cm-variable-3">T</span>]) -&gt; <span class="cm-variable-3">T</span> {
+    <span class="cm-variable">v</span>[<span class="cm-number">0</span>] <span class="cm-comment">// error: copying a non-copyable value</span>
+}
+</pre>
+
 <p>However, we can tell the compiler that the <code>head</code> function is only for copyable types: that is, those that have the <code>Copy</code> trait.</p>
-<pre><code>// This does
-fn head&lt;T: Copy&gt;(v: &amp;[T]) -&gt; T {
-    v[0]
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-comment">// This does</span>
+<span class="cm-keyword">fn</span> <span class="cm-def">head</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Copy</span>&gt;(<span class="cm-def">v</span>: &amp;[<span class="cm-variable-3">T</span>]) -&gt; <span class="cm-variable-3">T</span> {
+    <span class="cm-variable">v</span>[<span class="cm-number">0</span>]
+}
+</pre>
+
 <p>This says that we can call <code>head</code> on any type <code>T</code> as long as that type implements the <code>Copy</code> trait. When instantiating a generic function, you can only instantiate it with types that implement the correct trait, so you could not apply <code>head</code> to a type with a destructor. (<code>Copy</code> is a special trait that is built in to the compiler, making it possible for the compiler to enforce this restriction.)</p>
 <p>While most traits can be defined and implemented by user code, three traits are automatically derived and implemented for all applicable types by the compiler, and may not be overridden:</p>
 <ul>
@@ -1001,295 +1087,294 @@ fn head&lt;T: Copy&gt;(v: &amp;[T]) -&gt; T {
 <p><strong><em>Note:</em></strong> These three traits were referred to as 'kinds' in earlier iterations of the language, and often still are.</p>
 </blockquote>
 <p>Additionally, the <code>Drop</code> trait is used to define destructors. This trait defines one method called <code>finalize</code>, which is automatically called when a value of the type that implements this trait is destroyed, either because the value went out of scope or because the garbage collector reclaimed it.</p>
-<pre><code>struct TimeBomb {
-    explosivity: uint
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">TimeBomb</span> {
+    <span class="cm-variable">explosivity</span>: <span class="cm-variable">uint</span>
 }
 
-impl Drop for TimeBomb {
-    fn finalize(&amp;self) {
-        for old_iter::repeat(self.explosivity) {
-            io::println(&quot;blam!&quot;);
+<span class="cm-keyword">impl</span> <span class="cm-def">Drop</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">TimeBomb</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">finalize</span>(&amp;<span class="cm-keyword">self</span>) {
+        <span class="cm-keyword">for</span> <span class="cm-variable-2">old_iter::</span><span class="cm-def">repeat</span>(<span class="cm-keyword">self</span>.<span class="cm-variable">explosivity</span>) {
+            <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;blam!&quot;</span>);
         }
     }
-}</code></pre>
+}
+</pre>
+
 <p>It is illegal to call <code>finalize</code> directly. Only code inserted by the compiler may call it.</p>
 <h2 id="declaring-and-implementing-traits"><a href="#TOC"><span class="header-section-number">16.2</span> Declaring and implementing traits</a></h2>
 <p>A trait consists of a set of methods, without bodies, or may be empty, as is the case with <code>Copy</code>, <code>Owned</code>, and <code>Const</code>. For example, we could declare the trait <code>Printable</code> for things that can be printed to the console, with a single method:</p>
-<pre><code>trait Printable {
-    fn print(&amp;self);
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Printable</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>);
+}
+</pre>
+
 <p>Traits may be implemented for specific types with <a href="#functions-and-methods">impls</a>. An impl that implements a trait includes the name of the trait at the start of the definition, as in the following impls of <code>Printable</code> for <code>int</code> and <code>~str</code>.</p>
-<pre><code># trait Printable { fn print(&amp;self); }
-impl Printable for int {
-    fn print(&amp;self) { io::println(fmt!(&quot;%d&quot;, *self)) }
+<pre class="cm-s-default"><span class="cm-keyword">impl</span> <span class="cm-def">Printable</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">int</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>) { <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%d&quot;</span>, *<span class="cm-keyword">self</span>)) }
 }
 
-impl Printable for ~str {
-    fn print(&amp;self) { io::println(*self) }
+<span class="cm-keyword">impl</span> <span class="cm-def">Printable</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">~str</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>) { <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(*<span class="cm-keyword">self</span>) }
 }
 
-# 1.print();
-# (~&quot;foo&quot;).print();</code></pre>
+</pre>
+
 <p>Methods defined in an implementation of a trait may be called just like any other method, using dot notation, as in <code>1.print()</code>. Traits may themselves contain type parameters. A trait for generalized sequence types might look like the following:</p>
-<pre><code>trait Seq&lt;T&gt; {
-    fn len(&amp;self) -&gt; uint;
-    fn iter(&amp;self, b: &amp;fn(v: &amp;T));
+<pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Seq</span>&lt;<span class="cm-variable-3">T</span>&gt; {
+    <span class="cm-keyword">fn</span> <span class="cm-def">len</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">uint</span>;
+    <span class="cm-keyword">fn</span> <span class="cm-def">iter</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">b</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-variable">T</span>));
 }
 
-impl&lt;T&gt; Seq&lt;T&gt; for ~[T] {
-    fn len(&amp;self) -&gt; uint { vec::len(*self) }
-    fn iter(&amp;self, b: &amp;fn(v: &amp;T)) {
-        for vec::each(*self) |elt| { b(elt); }
+<span class="cm-keyword">impl</span>&lt;<span class="cm-variable-3">T</span>&gt; <span class="cm-def">Seq</span>&lt;<span class="cm-variable-3">T</span>&gt; <span class="cm-keyword">for</span> <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>] {
+    <span class="cm-keyword">fn</span> <span class="cm-def">len</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">uint</span> { <span class="cm-variable-2">vec::</span><span class="cm-variable">len</span>(*<span class="cm-keyword">self</span>) }
+    <span class="cm-keyword">fn</span> <span class="cm-def">iter</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">b</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-variable">T</span>)) {
+        <span class="cm-keyword">for</span> <span class="cm-variable-2">vec::</span><span class="cm-def">each</span>(*<span class="cm-keyword">self</span>) |<span class="cm-variable">elt</span>| { <span class="cm-variable">b</span>(<span class="cm-variable">elt</span>); }
     }
-}</code></pre>
+}
+</pre>
+
 <p>The implementation has to explicitly declare the type parameter that it binds, <code>T</code>, before using it to specify its trait type. Rust requires this declaration because the <code>impl</code> could also, for example, specify an implementation of <code>Seq&lt;int&gt;</code>. The trait type (appearing between <code>impl</code> and <code>for</code>) <em>refers</em> to a type, rather than defining one.</p>
 <p>The type parameters bound by a trait are in scope in each of the method declarations. So, re-declaring the type parameter <code>T</code> as an explicit type parameter for <code>len</code>, in either the trait or the impl, would be a compile-time error.</p>
 <p>Within a trait definition, <code>Self</code> is a special type that you can think of as a type parameter. An implementation of the trait for any given type <code>T</code> replaces the <code>Self</code> type parameter with <code>T</code>. The following trait describes types that support an equality operation:</p>
-<pre><code>// In a trait, `self` refers to the self argument.
-// `Self` refers to the type implementing the trait.
-trait Eq {
-    fn equals(&amp;self, other: &amp;Self) -&gt; bool;
+<pre class="cm-s-default"><span class="cm-comment">// In a trait, `self` refers to the self argument.</span>
+<span class="cm-comment">// `Self` refers to the type implementing the trait.</span>
+<span class="cm-keyword">trait</span> <span class="cm-def">Eq</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">equals</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">other</span>: &amp;<span class="cm-variable-3">Self</span>) -&gt; <span class="cm-keyword">bool</span>;
 }
 
-// In an impl, `self` refers just to the value of the receiver
-impl Eq for int {
-    fn equals(&amp;self, other: &amp;int) -&gt; bool { *other == *self }
-}</code></pre>
+<span class="cm-comment">// In an impl, `self` refers just to the value of the receiver</span>
+<span class="cm-keyword">impl</span> <span class="cm-def">Eq</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">int</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">equals</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">other</span>: &amp;<span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">bool</span> { *<span class="cm-variable">other</span> == *<span class="cm-keyword">self</span> }
+}
+</pre>
+
 <p>Notice that in the trait definition, <code>equals</code> takes a second parameter of type <code>Self</code>. In contrast, in the <code>impl</code>, <code>equals</code> takes a second parameter of type <code>int</code>, only using <code>self</code> as the name of the receiver.</p>
 <p>Just as in type implementations, traits can define standalone (static) methods. These methods are called by prefixing the method name with the trait name and a double colon. The compiler uses type inference to decide which implementation to use.</p>
-<pre><code># use core::float::consts::pi;
-# use core::float::sqrt;
-trait Shape { fn new(area: float) -&gt; Self; }
-struct Circle { radius: float }
-struct Square { length: float }
+<pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Shape</span> { <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Self</span>; }
+<span class="cm-keyword">struct</span> <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
+<span class="cm-keyword">struct</span> <span class="cm-variable">Square</span> { <span class="cm-variable">length</span>: <span class="cm-variable">float</span> }
 
-impl Shape for Circle {
-    fn new(area: float) -&gt; Circle { Circle { radius: sqrt(area / pi) } }
+<span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">Circle</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">sqrt</span>(<span class="cm-variable">area</span> <span class="cm-variable">/</span> <span class="cm-variable">pi</span>) } }
 }
-impl Shape for Square {
-    fn new(area: float) -&gt; Square { Square { length: sqrt(area) } }
+<span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">Square</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Square</span> { <span class="cm-variable">Square</span> { <span class="cm-variable">length</span>: <span class="cm-variable">sqrt</span>(<span class="cm-variable">area</span>) } }
 }
 
-let area = 42.5;
-let c: Circle = Shape::new(area);
-let s: Square = Shape::new(area);</code></pre>
+<span class="cm-keyword">let</span> <span class="cm-def">area</span> = <span class="cm-number">42.5</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">c</span>: <span class="cm-variable-3">Circle</span> = <span class="cm-variable-2">Shape::</span><span class="cm-variable">new</span>(<span class="cm-variable">area</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">s</span>: <span class="cm-variable-3">Square</span> = <span class="cm-variable-2">Shape::</span><span class="cm-variable">new</span>(<span class="cm-variable">area</span>);
+</pre>
+
 <h2 id="bounded-type-parameters-and-static-method-dispatch"><a href="#TOC"><span class="header-section-number">16.3</span> Bounded type parameters and static method dispatch</a></h2>
 <p>Traits give us a language for defining predicates on types, or abstract properties that types can have. We can use this language to define <em>bounds</em> on type parameters, so that we can then operate on generic types.</p>
-<pre><code># trait Printable { fn print(&amp;self); }
-fn print_all&lt;T: Printable&gt;(printable_things: ~[T]) {
-    for printable_things.each |thing| {
-        thing.print();
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">print_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Printable</span>&gt;(<span class="cm-def">printable_things</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
+    <span class="cm-keyword">for</span> <span class="cm-def">printable_things</span>.<span class="cm-variable">each</span> |<span class="cm-variable">thing</span>| {
+        <span class="cm-variable">thing</span>.<span class="cm-variable">print</span>();
     }
-}</code></pre>
+}
+</pre>
+
 <p>Declaring <code>T</code> as conforming to the <code>Printable</code> trait (as we earlier did with <code>Copy</code>) makes it possible to call methods from that trait on values of type <code>T</code> inside the function. It will also cause a compile-time error when anyone tries to call <code>print_all</code> on an array whose element type does not have a <code>Printable</code> implementation.</p>
 <p>Type parameters can have multiple bounds by separating them with <code>+</code>, as in this version of <code>print_all</code> that copies elements.</p>
-<pre><code># trait Printable { fn print(&amp;self); }
-fn print_all&lt;T: Printable + Copy&gt;(printable_things: ~[T]) {
-    let mut i = 0;
-    while i &lt; printable_things.len() {
-        let copy_of_thing = printable_things[i];
-        copy_of_thing.print();
-        i += 1;
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">print_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Printable</span> + <span class="cm-variable-3">Copy</span>&gt;(<span class="cm-def">printable_things</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">i</span> = <span class="cm-number">0</span>;
+    <span class="cm-keyword">while</span> <span class="cm-variable">i</span> &lt; <span class="cm-variable">printable_things</span>.<span class="cm-variable">len</span>() {
+        <span class="cm-keyword">let</span> <span class="cm-def">copy_of_thing</span> = <span class="cm-variable">printable_things</span>[<span class="cm-variable">i</span>];
+        <span class="cm-variable">copy_of_thing</span>.<span class="cm-variable">print</span>();
+        <span class="cm-variable">i</span> += <span class="cm-number">1</span>;
     }
-}</code></pre>
+}
+</pre>
+
 <p>Method calls to bounded type parameters are <em>statically dispatched</em>, imposing no more overhead than normal function invocation, so are the preferred way to use traits polymorphically.</p>
 <p>This usage of traits is similar to Haskell type classes.</p>
 <h2 id="trait-objects-and-dynamic-method-dispatch"><a href="#TOC"><span class="header-section-number">16.4</span> Trait objects and dynamic method dispatch</a></h2>
 <p>The above allows us to define functions that polymorphically act on values of a single unknown type that conforms to a given trait. However, consider this function:</p>
-<pre><code># type Circle = int; type Rectangle = int;
-# impl Drawable for int { fn draw(&amp;self) {} }
-# fn new_circle() -&gt; int { 1 }
-trait Drawable { fn draw(&amp;self); }
+<pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Drawable</span> { <span class="cm-keyword">fn</span> <span class="cm-def">draw</span>(&amp;<span class="cm-keyword">self</span>); }
 
-fn draw_all&lt;T: Drawable&gt;(shapes: ~[T]) {
-    for shapes.each |shape| { shape.draw(); }
+<span class="cm-keyword">fn</span> <span class="cm-def">draw_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Drawable</span>&gt;(<span class="cm-def">shapes</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
+    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">each</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
 }
-# let c: Circle = new_circle();
-# draw_all(~[c]);</code></pre>
+</pre>
+
 <p>You can call that on an array of circles, or an array of rectangles (assuming those have suitable <code>Drawable</code> traits defined), but not on an array containing both circles and rectangles. When such behavior is needed, a trait name can alternately be used as a type, called an <em>object</em>.</p>
-<pre><code># trait Drawable { fn draw(&amp;self); }
-fn draw_all(shapes: &amp;[@Drawable]) {
-    for shapes.each |shape| { shape.draw(); }
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">draw_all</span>(<span class="cm-def">shapes</span>: &amp;[@<span class="cm-variable-3">Drawable</span>]) {
+    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">each</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
+}
+</pre>
+
 <p>In this example, there is no type parameter. Instead, the <code>@Drawable</code> type denotes any managed box value that implements the <code>Drawable</code> trait. To construct such a value, you use the <code>as</code> operator to cast a value to an object:</p>
-<pre><code># type Circle = int; type Rectangle = bool;
-# trait Drawable { fn draw(&amp;self); }
-# fn new_circle() -&gt; Circle { 1 }
-# fn new_rectangle() -&gt; Rectangle { true }
-# fn draw_all(shapes: &amp;[@Drawable]) {}
+<pre class="cm-s-default">
+<span class="cm-keyword">impl</span> <span class="cm-def">Drawable</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">Circle</span> { <span class="cm-keyword">fn</span> <span class="cm-def">draw</span>(&amp;<span class="cm-keyword">self</span>) { ... } }
+<span class="cm-keyword">impl</span> <span class="cm-def">Drawable</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">Rectangle</span> { <span class="cm-keyword">fn</span> <span class="cm-def">draw</span>(&amp;<span class="cm-keyword">self</span>) { ... } }
 
-impl Drawable for Circle { fn draw(&amp;self) { ... } }
-impl Drawable for Rectangle { fn draw(&amp;self) { ... } }
+<span class="cm-keyword">let</span> <span class="cm-def">c</span>: @<span class="cm-variable-3">Circle</span> = @<span class="cm-variable">new_circle</span>();
+<span class="cm-keyword">let</span> <span class="cm-def">r</span>: @<span class="cm-variable-3">Rectangle</span> = @<span class="cm-variable">new_rectangle</span>();
+<span class="cm-variable">draw_all</span>([<span class="cm-variable">c</span> <span class="cm-keyword">as</span> @<span class="cm-variable">Drawable</span>, <span class="cm-variable">r</span> <span class="cm-keyword">as</span> @<span class="cm-variable">Drawable</span>]);
+</pre>
 
-let c: @Circle = @new_circle();
-let r: @Rectangle = @new_rectangle();
-draw_all([c as @Drawable, r as @Drawable]);</code></pre>
 <p>We omit the code for <code>new_circle</code> and <code>new_rectangle</code>; imagine that these just return <code>Circle</code>s and <code>Rectangle</code>s with a default size. Note that, like strings and vectors, objects have dynamic size and may only be referred to via one of the pointer types. Other pointer types work as well. Casts to traits may only be done with compatible pointers so, for example, an <code>@Circle</code> may not be cast to an <code>~Drawable</code>.</p>
-<pre><code># type Circle = int; type Rectangle = int;
-# trait Drawable { fn draw(&amp;self); }
-# impl Drawable for int { fn draw(&amp;self) {} }
-# fn new_circle() -&gt; int { 1 }
-# fn new_rectangle() -&gt; int { 2 }
-// A managed object
-let boxy: @Drawable = @new_circle() as @Drawable;
-// An owned object
-let owny: ~Drawable = ~new_circle() as ~Drawable;
-// A borrowed object
-let stacky: &amp;Drawable = &amp;new_circle() as &amp;Drawable;</code></pre>
+<pre class="cm-s-default"><span class="cm-comment">// A managed object</span>
+<span class="cm-keyword">let</span> <span class="cm-def">boxy</span>: @<span class="cm-variable-3">Drawable</span> = @<span class="cm-variable">new_circle</span>() <span class="cm-keyword">as</span> @<span class="cm-variable">Drawable</span>;
+<span class="cm-comment">// An owned object</span>
+<span class="cm-keyword">let</span> <span class="cm-def">owny</span>: <span class="cm-variable-3">~Drawable</span> = <span class="cm-variable">~new_circle</span>() <span class="cm-keyword">as</span> <span class="cm-variable">~Drawable</span>;
+<span class="cm-comment">// A borrowed object</span>
+<span class="cm-keyword">let</span> <span class="cm-def">stacky</span>: &amp;<span class="cm-variable-3">Drawable</span> = &amp;<span class="cm-variable">new_circle</span>() <span class="cm-keyword">as</span> &amp;<span class="cm-variable">Drawable</span>;
+</pre>
+
 <p>Method calls to trait types are <em>dynamically dispatched</em>. Since the compiler doesn't know specifically which functions to call at compile time, it uses a lookup table (also known as a vtable or dictionary) to select the method to call at runtime.</p>
 <p>This usage of traits is similar to Java interfaces.</p>
 <h2 id="trait-inheritance"><a href="#TOC"><span class="header-section-number">16.5</span> Trait inheritance</a></h2>
 <p>We can write a trait declaration that <em>inherits</em> from other traits, called <em>supertraits</em>. Types that implement a trait must also implement its supertraits. For example, we can define a <code>Circle</code> trait that inherits from <code>Shape</code>.</p>
-<pre><code>trait Shape { fn area(&amp;self) -&gt; float; }
-trait Circle : Shape { fn radius(&amp;self) -&gt; float; }</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Shape</span> { <span class="cm-keyword">fn</span> <span class="cm-def">area</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span>; }
+<span class="cm-keyword">trait</span> <span class="cm-def">Circle</span> : <span class="cm-variable">Shape</span> { <span class="cm-keyword">fn</span> <span class="cm-def">radius</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span>; }
+</pre>
+
 <p>Now, we can implement <code>Circle</code> on a type only if we also implement <code>Shape</code>.</p>
-<pre><code># use core::float::consts::pi;
-# use core::float::sqrt;
-# trait Shape { fn area(&amp;self) -&gt; float; }
-# trait Circle : Shape { fn radius(&amp;self) -&gt; float; }
-# struct Point { x: float, y: float }
-# fn square(x: float) -&gt; float { x * x }
-struct CircleStruct { center: Point, radius: float }
-impl Circle for CircleStruct {
-    fn radius(&amp;self) -&gt; float { sqrt(self.area() / pi) }
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">CircleStruct</span> { <span class="cm-variable">center</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
+<span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">CircleStruct</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">radius</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { <span class="cm-variable">sqrt</span>(<span class="cm-keyword">self</span>.<span class="cm-variable">area</span>() <span class="cm-variable">/</span> <span class="cm-variable">pi</span>) }
 }
-impl Shape for CircleStruct {
-    fn area(&amp;self) -&gt; float { pi * square(self.radius) }
-}</code></pre>
+<span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">CircleStruct</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">area</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { <span class="cm-variable">pi</span> * <span class="cm-variable">square</span>(<span class="cm-keyword">self</span>.<span class="cm-variable">radius</span>) }
+}
+</pre>
+
 <p>Notice that methods of <code>Circle</code> can call methods on <code>Shape</code>, as our <code>radius</code> implementation calls the <code>area</code> method. This is a silly way to compute the radius of a circle (since we could just return the <code>radius</code> field), but you get the idea.</p>
 <p>In type-parameterized functions, methods of the supertrait may be called on values of subtrait-bound type parameters. Refering to the previous example of <code>trait Circle : Shape</code>:</p>
-<pre><code># trait Shape { fn area(&amp;self) -&gt; float; }
-# trait Circle : Shape { fn radius(&amp;self) -&gt; float; }
-fn radius_times_area&lt;T: Circle&gt;(c: T) -&gt; float {
-    // `c` is both a Circle and a Shape
-    c.radius() * c.area()
-}</code></pre>
-<p>Likewise, supertrait methods may also be called on trait objects.</p>
-<pre class="xfail-test"><code># use core::float::consts::pi;
-# use core::float::sqrt;
-# trait Shape { fn area(&amp;self) -&gt; float; }
-# trait Circle : Shape { fn radius(&amp;self) -&gt; float; }
-# struct Point { x: float, y: float }
-# struct CircleStruct { center: Point, radius: float }
-# impl Circle for CircleStruct { fn radius(&amp;self) -&gt; float { sqrt(self.area() / pi) } }
-# impl Shape for CircleStruct { fn area(&amp;self) -&gt; float { pi * square(self.radius) } }
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">radius_times_area</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Circle</span>&gt;(<span class="cm-def">c</span>: <span class="cm-variable-3">T</span>) -&gt; <span class="cm-keyword">float</span> {
+    <span class="cm-comment">// `c` is both a Circle and a Shape</span>
+    <span class="cm-variable">c</span>.<span class="cm-variable">radius</span>() * <span class="cm-variable">c</span>.<span class="cm-variable">area</span>()
+}
+</pre>
 
-let concrete = @CircleStruct{center:Point{x:3f,y:4f},radius:5f};
-let mycircle: Circle = concrete as @Circle;
-let nonsense = mycircle.radius() * mycircle.area();</code></pre>
+<p>Likewise, supertrait methods may also be called on trait objects.</p>
+<pre class="cm-s-default">
+<span class="cm-keyword">let</span> <span class="cm-def">concrete</span> = @<span class="cm-variable">CircleStruct</span>{<span class="cm-variable">center</span>:<span class="cm-variable">Point</span>{<span class="cm-variable">x</span>:<span class="cm-number">3</span><span class="cm-variable">f</span>,<span class="cm-variable">y</span>:<span class="cm-number">4</span><span class="cm-variable">f</span>},<span class="cm-def">radius</span>:<span class="cm-number">5</span><span class="cm-def">f</span>};
+<span class="cm-keyword">let</span> <span class="cm-def">mycircle</span>: <span class="cm-variable-3">Circle</span> = <span class="cm-variable">concrete</span> <span class="cm-keyword">as</span> @<span class="cm-variable">Circle</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">nonsense</span> = <span class="cm-variable">mycircle</span>.<span class="cm-variable">radius</span>() * <span class="cm-variable">mycircle</span>.<span class="cm-variable">area</span>();
+</pre>
+
 <blockquote>
 <p><strong><em>Note:</em></strong> Trait inheritance does not actually work with objects yet</p>
 </blockquote>
 <h1 id="modules-and-crates"><a href="#TOC"><span class="header-section-number">17</span> Modules and crates</a></h1>
 <p>The Rust namespace is arranged in a hierarchy of modules. Each source (.rs) file represents a single module and may in turn contain additional modules.</p>
-<pre><code>mod farm {
-    pub fn chicken() -&gt; &amp;str { &quot;cluck cluck&quot; }
-    pub fn cow() -&gt; &amp;str { &quot;mooo&quot; }
+<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() -&gt; &amp;<span class="cm-keyword">str</span> { <span class="cm-string">&quot;cluck cluck&quot;</span> }
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() -&gt; &amp;<span class="cm-keyword">str</span> { <span class="cm-string">&quot;mooo&quot;</span> }
 }
 
-fn main() {
-    io::println(farm::chicken());
-}</code></pre>
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>());
+}
+</pre>
+
 <p>The contents of modules can be imported into the current scope with the <code>use</code> keyword, optionally giving it an alias. <code>use</code> may appear at the beginning of crates, <code>mod</code>s, <code>fn</code>s, and other blocks.</p>
-<pre><code># mod farm { pub fn chicken() { } }
-# fn main() {
-// Bring `chicken` into scope
-use farm::chicken;
+<pre class="cm-s-default"><span class="cm-comment">// Bring `chicken` into scope</span>
+<span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>;
 
-fn chicken_farmer() {
-    // The same, but name it `my_chicken`
-    use my_chicken = farm::chicken;
+<span class="cm-keyword">fn</span> <span class="cm-def">chicken_farmer</span>() {
+    <span class="cm-comment">// The same, but name it `my_chicken`</span>
+    <span class="cm-keyword">use</span> <span class="cm-variable">my_chicken</span> = <span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>;
     ...
-# my_chicken();
 }
-# chicken();
-# }</code></pre>
+</pre>
+
 <p>These farm animal functions have a new keyword, <code>pub</code>, attached to them. The <code>pub</code> keyword modifies an item's visibility, making it visible outside its containing module. An expression with <code>::</code>, like <code>farm::chicken</code>, can name an item outside of its containing module. Items, such as those declared with <code>fn</code>, <code>struct</code>, <code>enum</code>, <code>type</code>, or <code>static</code>, are module-private by default.</p>
 <p>Visibility restrictions in Rust exist only at module boundaries. This is quite different from most object-oriented languages that also enforce restrictions on objects themselves. That's not to say that Rust doesn't support encapsulation: both struct fields and methods can be private. But this encapsulation is at the module level, not the struct level. Note that fields and methods are <em>public</em> by default.</p>
-<pre><code>pub mod farm {
-# pub type Chicken = int;
-# type Cow = int;
-# struct Human(int);
-# impl Human { fn rest(&amp;self) { } }
-# pub fn make_me_a_farm() -&gt; Farm { Farm { chickens: ~[], cows: ~[], farmer: Human(0) } }
-    pub struct Farm {
-        priv chickens: ~[Chicken],
-        priv cows: ~[Cow],
-        farmer: Human
+<pre class="cm-s-default"><span class="cm-keyword">pub</span> <span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">struct</span> <span class="cm-variable">Farm</span> {
+        <span class="cm-keyword">priv</span> <span class="cm-variable">chickens</span>: <span class="cm-variable">~</span>[<span class="cm-variable">Chicken</span>],
+        <span class="cm-keyword">priv</span> <span class="cm-variable">cows</span>: <span class="cm-variable">~</span>[<span class="cm-variable">Cow</span>],
+        <span class="cm-variable">farmer</span>: <span class="cm-variable">Human</span>
     }
 
-    impl Farm {
-        priv fn feed_chickens(&amp;self) { ... }
-        priv fn feed_cows(&amp;self) { ... }
-        pub fn add_chicken(&amp;self, c: Chicken) { ... }
+    <span class="cm-keyword">impl</span> <span class="cm-def">Farm</span> {
+        <span class="cm-keyword">priv</span> <span class="cm-keyword">fn</span> <span class="cm-def">feed_chickens</span>(&amp;<span class="cm-keyword">self</span>) { ... }
+        <span class="cm-keyword">priv</span> <span class="cm-keyword">fn</span> <span class="cm-def">feed_cows</span>(&amp;<span class="cm-keyword">self</span>) { ... }
+        <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">add_chicken</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">c</span>: <span class="cm-variable-3">Chicken</span>) { ... }
     }
 
-    pub fn feed_animals(farm: &amp;Farm) {
-        farm.feed_chickens();
-        farm.feed_cows();
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">feed_animals</span>(<span class="cm-def">farm</span>: &amp;<span class="cm-variable-3">Farm</span>) {
+        <span class="cm-variable">farm</span>.<span class="cm-variable">feed_chickens</span>();
+        <span class="cm-variable">farm</span>.<span class="cm-variable">feed_cows</span>();
     }
 }
 
-fn main() {
-     let f = make_me_a_farm();
-     f.add_chicken(make_me_a_chicken());
-     farm::feed_animals(&amp;f);
-     f.farmer.rest();
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+     <span class="cm-keyword">let</span> <span class="cm-def">f</span> = <span class="cm-variable">make_me_a_farm</span>();
+     <span class="cm-variable">f</span>.<span class="cm-variable">add_chicken</span>(<span class="cm-variable">make_me_a_chicken</span>());
+     <span class="cm-variable-2">farm::</span><span class="cm-variable">feed_animals</span>(&amp;<span class="cm-variable">f</span>);
+     <span class="cm-variable">f</span>.<span class="cm-variable">farmer</span>.<span class="cm-variable">rest</span>();
 }
-# fn make_me_a_farm() -&gt; farm::Farm { farm::make_me_a_farm() }
-# fn make_me_a_chicken() -&gt; farm::Chicken { 0 }</code></pre>
+</pre>
+
 <h2 id="crates"><a href="#TOC"><span class="header-section-number">17.1</span> Crates</a></h2>
 <p>The unit of independent compilation in Rust is the crate: rustc compiles a single crate at a time, from which it produces either a library or an executable.</p>
 <p>When compiling a single <code>.rs</code> source file, the file acts as the whole crate. You can compile it with the <code>--lib</code> compiler switch to create a shared library, or without, provided that your file contains a <code>fn main</code> somewhere, to create an executable.</p>
 <p>Larger crates typically span multiple files and are, by convention, compiled from a source file with the <code>.rc</code> extension, called a <em>crate file</em>. The crate file extension distinguishes source files that represent crates from those that do not, but otherwise source files and crate files are identical.</p>
 <p>A typical crate file declares attributes associated with the crate that may affect how the compiler processes the source. Crate attributes specify metadata used for locating and linking crates, the type of crate (library or executable), and control warning and error behavior, among other things. Crate files additionally declare the external crates they depend on as well as any modules loaded from other files.</p>
-<pre class="xfail-test"><code>// Crate linkage metadata
-#[link(name = &quot;farm&quot;, vers = &quot;2.5&quot;, author = &quot;mjh&quot;)];
+<pre class="cm-s-default"><span class="cm-comment">// Crate linkage metadata</span>
+#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>, <span class="cm-variable">author</span> = <span class="cm-string">&quot;mjh&quot;</span>)];
 
-// Make a library (&quot;bin&quot; is the default)
-#[crate_type = &quot;lib&quot;];
+<span class="cm-comment">// Make a library (&quot;bin&quot; is the default)</span>
+#[<span class="cm-variable">crate_type</span> = <span class="cm-string">&quot;lib&quot;</span>];
 
-// Turn on a warning
-#[warn(non_camel_case_types)]
+<span class="cm-comment">// Turn on a warning</span>
+#[<span class="cm-variable">warn</span>(<span class="cm-variable">non_camel_case_types</span>)]
 
-// Link to the standard library
-extern mod std;
+<span class="cm-comment">// Link to the standard library</span>
+<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">std</span>;
 
-// Load some modules from other files
-mod cow;
-mod chicken;
-mod horse;
+<span class="cm-comment">// Load some modules from other files</span>
+<span class="cm-keyword">mod</span> <span class="cm-def">cow</span>;
+<span class="cm-keyword">mod</span> <span class="cm-def">chicken</span>;
+<span class="cm-keyword">mod</span> <span class="cm-def">horse</span>;
 
-fn main() {
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
     ...
-}</code></pre>
+}
+</pre>
+
 <p>Compiling this file will cause <code>rustc</code> to look for files named <code>cow.rs</code>, <code>chicken.rs</code>, and <code>horse.rs</code> in the same directory as the <code>.rc</code> file, compile them all together, and, based on the presence of the <code>crate_type = &quot;lib&quot;</code> attribute, output a shared library or an executable. (If the line <code>#[crate_type = &quot;lib&quot;];</code> was omitted, <code>rustc</code> would create an executable.)</p>
 <p>The <code>#[link(...)]</code> attribute provides meta information about the module, which other crates can use to load the right module. More about that later.</p>
 <p>To have a nested directory structure for your source files, you can nest mods:</p>
-<pre class="ignore"><code>mod poultry {
-    mod chicken;
-    mod turkey;
-}</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">poultry</span> {
+    <span class="cm-keyword">mod</span> <span class="cm-def">chicken</span>;
+    <span class="cm-keyword">mod</span> <span class="cm-def">turkey</span>;
+}
+</pre>
+
 <p>The compiler will now look for <code>poultry/chicken.rs</code> and <code>poultry/turkey.rs</code>, and export their content in <code>poultry::chicken</code> and <code>poultry::turkey</code>. You can also provide a <code>poultry.rs</code> to add content to the <code>poultry</code> module itself.</p>
 <h2 id="using-other-crates"><a href="#TOC"><span class="header-section-number">17.2</span> Using other crates</a></h2>
 <p>The <code>extern mod</code> directive lets you use a crate (once it's been compiled into a library) from inside another crate. <code>extern mod</code> can appear at the top of a crate file or at the top of modules. It will cause the compiler to look in the library search path (which you can extend with the <code>-L</code> switch) for a compiled Rust library with the right name, then add a module with that crate's name into the local scope.</p>
 <p>For example, <code>extern mod std</code> links the <a href="std/index.html">standard library</a>.</p>
 <p>When a comma-separated list of name/value pairs appears after <code>extern mod</code>, the compiler front-end matches these pairs against the attributes provided in the <code>link</code> attribute of the crate file. The front-end will only select this crate for use if the actual pairs match the declared attributes. You can provide a <code>name</code> value to override the name used to search for the crate.</p>
 <p>Our example crate declared this set of <code>link</code> attributes:</p>
-<pre><code>#[link(name = &quot;farm&quot;, vers = &quot;2.5&quot;, author = &quot;mjh&quot;)];</code></pre>
+<pre class="cm-s-default">#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>, <span class="cm-variable">author</span> = <span class="cm-string">&quot;mjh&quot;</span>)];
+</pre>
+
 <p>Which you can then link with any (or all) of the following:</p>
-<pre class="xfail-test"><code>extern mod farm;
-extern mod my_farm (name = &quot;farm&quot;, vers = &quot;2.5&quot;);
-extern mod my_auxiliary_farm (name = &quot;farm&quot;, author = &quot;mjh&quot;);</code></pre>
+<pre class="cm-s-default"><span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">farm</span>;
+<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">my_farm</span> (<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>);
+<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">my_auxiliary_farm</span> (<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">author</span> = <span class="cm-string">&quot;mjh&quot;</span>);
+</pre>
+
 <p>If any of the requested metadata do not match, then the crate will not be compiled successfully.</p>
 <h2 id="a-minimal-example"><a href="#TOC"><span class="header-section-number">17.3</span> A minimal example</a></h2>
 <p>Now for something that you can actually compile yourself. We have these two files:</p>
-<pre><code>// world.rs
-#[link(name = &quot;world&quot;, vers = &quot;1.0&quot;)];
-pub fn explore() -&gt; &amp;str { &quot;world&quot; }</code></pre>
-<pre class="xfail-test"><code>// main.rs
-extern mod world;
-fn main() { io::println(~&quot;hello &quot; + world::explore()); }</code></pre>
+<pre class="cm-s-default"><span class="cm-comment">// world.rs</span>
+#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;world&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;1.0&quot;</span>)];
+<span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">explore</span>() -&gt; &amp;<span class="cm-keyword">str</span> { <span class="cm-string">&quot;world&quot;</span> }
+</pre>
+
+<pre class="cm-s-default"><span class="cm-comment">// main.rs</span>
+<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">world</span>;
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() { <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hello &quot;</span> + <span class="cm-variable-2">world::</span><span class="cm-variable">explore</span>()); }
+</pre>
+
 <p>Now compile and run like this (adjust to your platform if necessary):</p>
 <pre class="notrust"><code>&gt; rustc --lib world.rs  # compiles libworld-94839cbfe144198-1.0.so
 &gt; rustc main.rs -L .    # compiles main
