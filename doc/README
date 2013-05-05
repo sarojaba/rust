@@ -2,7 +2,7 @@ The markdown 문서는 node가 설치되어 있는 상태에서 make 명령을 �
 불행히도 markdown을 위한 진짜 표준은 없고, 모든 도구는 다르게 동작한다. pandoc은 잘 동작하는 것 중에 하나이다.
 
 문서의 html 버전을 생성하려면 다음의 명령을 수행한다:
-pandoc --toc --number-sections -c rust.css tutorial.md -o tutorial.html
+nodejs prep.js --highlight -o tutorial-temp.md tutorial.md && pandoc --toc --number-sections -c rust.css tutorial-temp.md -o tutorial.html && rm tutorial-temp.md
 
 pandoc 스타일의 markdown 문법은 다음에서 찾을 수 있다:
 http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
