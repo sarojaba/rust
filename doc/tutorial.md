@@ -227,24 +227,15 @@ Rust는 `float`, `f32`, 그리고 `f64`의 세가지 부동소수점 타입이 �
 
 `()`로 적히는 nil 타입은 똑같이 `()`라고 쓰는 하나의 값만 가진다.
 
-## Operators
+## 연산자
 
-Rust's set of operators contains very few surprises. Arithmetic is done with
-`*`, `/`, `%`, `+`, and `-` (multiply, quotient, remainder, add, and subtract). `-` is
-also a unary prefix operator that negates numbers. As in C, the bitwise operators
-`>>`, `<<`, `&`, `|`, and `^` are also supported.
+Rust의 연산자의 세트는 몇가지 놀라움을 가지고 있다. 산술연산은 `*`, `/`, `%`, `+`, `-` (곱하기, 나누기, 나머지, 더하기, 빼기)로 구성된다. 또 `-`는 음수를 표현하는 단항 접미 연산. C와 마찬가지로, the 비트 연산자 `>>`, `<<`, `&`, `|`, `^`도 지원된다.
 
-Note that, if applied to an integer value, `!` flips all the bits (like `~` in
-C).
+정수 값에 `!`를 적용하면, 모든 비트를 뒤집는다는 것을 명심하자(C의 `~` 처럼).
 
-The comparison operators are the traditional `==`, `!=`, `<`, `>`,
-`<=`, and `>=`. Short-circuiting (lazy) boolean operators are written
-`&&` (and) and `||` (or).
+비교 연산자는 전통적인 `==`, `!=`, `<`, `>`,`<=`, and `>=` 이다. 단락 회로 (게으른) 논리 연산자는 `&&` (and) 그리고 `||` (or)가 있다.
 
-For type casting, Rust uses the binary `as` operator.  It takes an
-expression on the left side and a type on the right side and will,
-if a meaningful conversion exists, convert the result of the
-expression to the given type.
+타입 캐스팅을 위해, Rust는 `as`라는 이항 연산자를 사용한다. 좌측에 표현식은 좌측에, 타입은 우측에 놓고, 의미있는 변환이라면, 표현식의 결과는 주어진 타입으로 변한다.
 
 ~~~~
 let x: float = 4.0;
