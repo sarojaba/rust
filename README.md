@@ -54,6 +54,6 @@ LICENSE-APACHE, LICENSE-MIT, 그리고 COPYRIGHT 자세히 보시길 바랍니�
 
 ## 더보기
 
-[tutorial]은 출발점으로 좋습니다.
+[튜토리얼]은 출발점으로 좋습니다.
 
-[tutorial]: http://sarojaba.github.io/rust-doc-korean/doc/tutorial.html
+[튜토리얼]: http://sarojaba.github.io/rust-doc-korean/doc/tutorial.html
