@@ -264,13 +264,11 @@ io::println(fmt!("what is this thing: %?", mystery_object));
 
 [macros]: tutorial-macros.html
 
-# Control structures
+# 제어 구조
 
-## Conditionals
+## 조건
 
-We've seen `if` expressions a few times already. To recap, braces are
-compulsory, an `if` can have an optional `else` clause, and multiple
-`if`/`else` constructs can be chained together:
+우리는 이미 여러번 `if` 표현식을 보았다. 다시 떠올려보면, 중괄호는 필수적이고, `if`는 선택적으로 `else` 절을 가질 수 있고, `if`/`else`는 여러번 이을 수 있다:
 
 ~~~~
 if false {
@@ -282,10 +280,7 @@ if false {
 }
 ~~~~
 
-The condition given to an `if` construct *must* be of type `bool` (no
-implicit conversion happens). If the arms are blocks that have a
-value, this value must be of the same type for every arm in which
-control reaches the end of the block:
+`if` 구조에 주어진 조건은 *무조건* `bool` 타입이어야 한다. (은연중의 변환은 발생하진 않는다). 만약 분기가 값을 가지는 블록이면, 모든 분기에 블록의 끝의 값은 동일한 타입이어야 한다.
 
 ~~~~
 fn signum(x: int) -> int {
