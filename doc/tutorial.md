@@ -290,13 +290,9 @@ fn signum(x: int) -> int {
 }
 ~~~~
 
-## Pattern matching
+## 패턴 매칭
 
-Rust's `match` construct is a generalized, cleaned-up version of C's
-`switch` construct. You provide it with a value and a number of
-*arms*, each labelled with a pattern, and the code compares the value
-against each pattern in order until one matches. The matching pattern
-executes its corresponding arm.
+Rust의 `match` 구조는 C의 `switch` 구조의 일반화되고, 깔끔한 버전이다. 값과 다수의 *분기*로 구성되고, 각 분기는 패턴으로 이름지어지고, 코드는 값과 각 패턴을 순서대로 하나라도 일치할 때까지 비교한다. 일치된 패턴은 대응하는 분기를 실행한다.
 
 ~~~~
 # let my_number = 1;
@@ -308,24 +304,11 @@ match my_number {
 }
 ~~~~
 
-Unlike in C, there is no "falling through" between arms: only one arm
-executes, and it doesn't have to explicitly `break` out of the
-construct when it is finished.
+C와는 다르게, 분기 사이에 "내려가기(falling through)"가 없다. 단지 하나의 분기만 실행하고, 분기가 끝났을 때 명시적으로 `break`를 이용해 구조를 빠져나갈 필요가 없다.
 
-A `match` arm consists of a *pattern*, then an arrow `=>`, followed by
-an *action* (expression). Literals are valid patterns and match only
-their own value. A single arm may match multiple different patterns by
-combining them with the pipe operator (`|`), so long as every pattern
-binds the same set of variables. Ranges of numeric literal patterns
-can be expressed with two dots, as in `M..N`. The underscore (`_`) is
-a wildcard pattern that matches any single value. The asterisk (`*`)
-is a different wildcard that can match one or more fields in an `enum`
-variant.
+A `match` 분기는 *패턴*, 화살표 `=>`, *액션* (표현식)순으로 구성된다. 리터럴은 유효한 패턴이고, 자신의 값만 일치한다. 모든 패턴이 동일한 변수의 집합과 결합한다면 하나의 분기는 파이프 연산자 (`|`)로 결합하여 다수의 서로 다른 패턴과 대응할 수도 있다. 숫자 리터럴 범위 패턴은 `M..N`처럼 두개의 점을 이용해 표현한다. 밑줄(`_`)은 어떠한 하나의 값에 대응하는 와일드카드 패턴이다. 별표(`*`)는 `enum` variant 에서 하나 혹은 여러 필드와 일치하는 독특한 와일드카드이다.
 
-The patterns in a match arm are followed by a fat arrow, `=>`, then an
-expression to evaluate. Each case is separated by commas. It's often
-convenient to use a block expression for each case, in which case the
-commas are optional.
+매칭된 분기에 있는 패턴 뒤에 두꺼운 화살표 `=>`가 따라오고, 그 다음은 평가되는 표현식이다. 각 케이스는 쉼표로 구분된다. 쉼표는 선택적이고, 각 케이스에 대해 블록 표현식을 사용하는 것보다 종종 편리하다.
 
 ~~~
 # let my_number = 1;
@@ -335,18 +318,11 @@ match my_number {
 }
 ~~~
 
-`match` constructs must be *exhaustive*: they must have an arm
-covering every possible case. For example, the typechecker would
-reject the previous example if the arm with the wildcard pattern was
-omitted.
+`match` 구조는 *소모적(모든 가능한 경우를 다루는 분기를 가지고 있음)* 이어야 한다. 예를 들어, 와일드카드 패턴을 가지고 있는 분기가 생략되었다면 타입 판별기는 앞의 예제를 거부할 것이다.
 
-A powerful application of pattern matching is *destructuring*:
-matching in order to bind names to the contents of data
-types.
+패턴 매칭의 강력한 응용은 *디스트럭처링*이다. 이름을 데이터 타입의 내용에 대응하기위해 매칭하는 것.
 
-> ***Note:*** The following code makes use of tuples (`(float, float)`) which
-> are explained in section 5.3. For now you can think of tuples as a list of
-> items.
+> ***노트:*** 다음의 코드는 섹션 5.3에서 설명되는 튜플(`(float, float)`)을 사용한다. 이제 아이템의 목록으로서의 튜플을 떠올릴 수 있다.
 
 ~~~~
 fn angle(vector: (float, float)) -> float {
@@ -359,11 +335,7 @@ fn angle(vector: (float, float)) -> float {
 }
 ~~~~
 
-A variable name in a pattern matches any value, *and* binds that name
-to the value of the matched value inside of the arm's action. Thus, `(0f,
-y)` matches any tuple whose first element is zero, and binds `y` to
-the second element. `(x, y)` matches any two-element tuple, and binds both
-elements to variables.
+A 패턴에서 변할 수 있는 이름은 어떤 값과 일치하고, 그리고 분기의 행동 내부의 매치된 값의 값으로 대응된다. 그래서, `(0f, y)` matches 첫번째 요소는 0이고 두번째 요소로 `y`와 엮이는 어떤 튜플과 일치한다. `(x, y)`는 두 요소를 가진 어떤 튜플과 일치하고, 두 요소는 변수와 엮인다.
 
 Any `match` arm can have a guard clause (written `if EXPR`), called a
 *pattern guard*, which is an expression of type `bool` that
