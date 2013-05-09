@@ -30,7 +30,7 @@
 </ul></li>
 <li><a href="#제어-구조"><span class="toc-section-number">4</span> 제어 구조</a><ul>
 <li><a href="#조건"><span class="toc-section-number">4.1</span> 조건</a></li>
-<li><a href="#pattern-matching"><span class="toc-section-number">4.2</span> Pattern matching</a></li>
+<li><a href="#패턴-매칭"><span class="toc-section-number">4.2</span> 패턴 매칭</a></li>
 <li><a href="#loops"><span class="toc-section-number">4.3</span> Loops</a></li>
 </ul></li>
 <li><a href="#data-structures"><span class="toc-section-number">5</span> Data structures</a><ul>
@@ -271,8 +271,8 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<h2 id="pattern-matching"><a href="#TOC"><span class="header-section-number">4.2</span> Pattern matching</a></h2>
-<p>Rust's <code>match</code> construct is a generalized, cleaned-up version of C's <code>switch</code> construct. You provide it with a value and a number of <em>arms</em>, each labelled with a pattern, and the code compares the value against each pattern in order until one matches. The matching pattern executes its corresponding arm.</p>
+<h2 id="패턴-매칭"><a href="#TOC"><span class="header-section-number">4.2</span> 패턴 매칭</a></h2>
+<p>Rust의 <code>match</code> 구조는 C의 <code>switch</code> 구조의 일반화되고, 깔끔한 버전이다. 값과 다수의 <em>분기</em>로 구성되고, 각 분기는 패턴으로 이름지어지고, 코드는 값과 각 패턴을 순서대로 하나라도 일치할 때까지 비교한다. 일치된 패턴은 대응하는 분기를 실행한다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">my_number</span> {
   <span class="cm-number">0</span>     =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>),
   <span class="cm-number">1</span> | <span class="cm-number">2</span> =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;one or two&quot;</span>),
@@ -281,19 +281,19 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>Unlike in C, there is no &quot;falling through&quot; between arms: only one arm executes, and it doesn't have to explicitly <code>break</code> out of the construct when it is finished.</p>
-<p>A <code>match</code> arm consists of a <em>pattern</em>, then an arrow <code>=&gt;</code>, followed by an <em>action</em> (expression). Literals are valid patterns and match only their own value. A single arm may match multiple different patterns by combining them with the pipe operator (<code>|</code>), so long as every pattern binds the same set of variables. Ranges of numeric literal patterns can be expressed with two dots, as in <code>M..N</code>. The underscore (<code>_</code>) is a wildcard pattern that matches any single value. The asterisk (<code>*</code>) is a different wildcard that can match one or more fields in an <code>enum</code> variant.</p>
-<p>The patterns in a match arm are followed by a fat arrow, <code>=&gt;</code>, then an expression to evaluate. Each case is separated by commas. It's often convenient to use a block expression for each case, in which case the commas are optional.</p>
+<p>C와는 다르게, 분기 사이에 &quot;내려가기(falling through)&quot;가 없다. 단지 하나의 분기만 실행하고, 분기가 끝났을 때 명시적으로 <code>break</code>를 이용해 구조를 빠져나갈 필요가 없다.</p>
+<p>A <code>match</code> 분기는 <em>패턴</em>, 화살표 <code>=&gt;</code>, <em>액션</em> (표현식)순으로 구성된다. 리터럴은 유효한 패턴이고, 자신의 값만 일치한다. 모든 패턴이 동일한 변수의 집합과 결합한다면 하나의 분기는 파이프 연산자 (<code>|</code>)로 결합하여 다수의 서로 다른 패턴과 대응할 수도 있다. 숫자 리터럴 범위 패턴은 <code>M..N</code>처럼 두개의 점을 이용해 표현한다. 밑줄(<code>_</code>)은 어떠한 하나의 값에 대응하는 와일드카드 패턴이다. 별표(<code>*</code>)는 <code>enum</code> variant 에서 하나 혹은 여러 필드와 일치하는 독특한 와일드카드이다.</p>
+<p>매칭된 분기에 있는 패턴 뒤에 두꺼운 화살표 <code>=&gt;</code>가 따라오고, 그 다음은 평가되는 표현식이다. 각 케이스는 쉼표로 구분된다. 쉼표는 선택적이고, 각 케이스에 대해 블록 표현식을 사용하는 것보다 종종 편리하다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">my_number</span> {
   <span class="cm-number">0</span> =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>) }
   <span class="cm-def">_</span> =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;something else&quot;</span>) }
 }
 </pre>
 
-<p><code>match</code> constructs must be <em>exhaustive</em>: they must have an arm covering every possible case. For example, the typechecker would reject the previous example if the arm with the wildcard pattern was omitted.</p>
-<p>A powerful application of pattern matching is <em>destructuring</em>: matching in order to bind names to the contents of data types.</p>
+<p><code>match</code> 구조는 <em>소모적(모든 가능한 경우를 다루는 분기를 가지고 있음)</em> 이어야 한다. 예를 들어, 와일드카드 패턴을 가지고 있는 분기가 생략되었다면 타입 판별기는 앞의 예제를 거부할 것이다.</p>
+<p>패턴 매칭의 강력한 응용은 <em>디스트럭처링</em>이다. 이름을 데이터 타입의 내용에 대응하기위해 매칭하는 것.</p>
 <blockquote>
-<p><strong><em>Note:</em></strong> The following code makes use of tuples (<code>(float, float)</code>) which are explained in section 5.3. For now you can think of tuples as a list of items.</p>
+<p><strong><em>노트:</em></strong> 다음의 코드는 섹션 5.3에서 설명되는 튜플(<code>(float, float)</code>)을 사용한다. 이제 아이템의 목록으로서의 튜플을 떠올릴 수 있다.</p>
 </blockquote>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">angle</span>(<span class="cm-def">vector</span>: (<span class="cm-keyword">float</span>, <span class="cm-keyword">float</span>)) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">let</span> <span class="cm-def">pi</span> = <span class="cm-variable-2">float::consts::</span><span class="cm-variable">pi</span>;
@@ -305,7 +305,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>A variable name in a pattern matches any value, <em>and</em> binds that name to the value of the matched value inside of the arm's action. Thus, <code>(0f, y)</code> matches any tuple whose first element is zero, and binds <code>y</code> to the second element. <code>(x, y)</code> matches any two-element tuple, and binds both elements to variables.</p>
+<p>A 패턴에서 변할 수 있는 이름은 어떤 값과 일치하고, 그리고 분기의 행동 내부의 매치된 값의 값으로 대응된다. 그래서, <code>(0f, y)</code> matches 첫번째 요소는 0이고 두번째 요소로 <code>y</code>와 엮이는 어떤 튜플과 일치한다. <code>(x, y)</code>는 두 요소를 가진 어떤 튜플과 일치하고, 두 요소는 변수와 엮인다.</p>
 <p>Any <code>match</code> arm can have a guard clause (written <code>if EXPR</code>), called a <em>pattern guard</em>, which is an expression of type <code>bool</code> that determines, after the pattern is found to match, whether the arm is taken or not. The variables bound by the pattern are in scope in this guard expression. The first arm in the <code>angle</code> example shows an example of a pattern guard.</p>
 <p>You've already seen simple <code>let</code> bindings, but <code>let</code> is a little fancier than you've been led to believe. It, too, supports destructuring patterns. For example, you can write this to extract the fields from a tuple, introducing two variables at once: <code>a</code> and <code>b</code>.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> (<span class="cm-def">a</span>, <span class="cm-def">b</span>) = <span class="cm-variable">get_tuple_of_two_ints</span>();
