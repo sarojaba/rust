@@ -337,26 +337,16 @@ fn angle(vector: (float, float)) -> float {
 
 A 패턴에서 변할 수 있는 이름은 어떤 값과 일치하고, 그리고 분기의 행동 내부의 매치된 값의 값으로 대응된다. 그래서, `(0f, y)` matches 첫번째 요소는 0이고 두번째 요소로 `y`와 엮이는 어떤 튜플과 일치한다. `(x, y)`는 두 요소를 가진 어떤 튜플과 일치하고, 두 요소는 변수와 엮인다.
 
-Any `match` arm can have a guard clause (written `if EXPR`), called a
-*pattern guard*, which is an expression of type `bool` that
-determines, after the pattern is found to match, whether the arm is
-taken or not. The variables bound by the pattern are in scope in this
-guard expression. The first arm in the `angle` example shows an
-example of a pattern guard.
+`match` 분기는 패턴과 일치하는 것을 찾은 뒤, 분기를 수행할지 말지 결정하는 `bool` 타입의 표현식인 *패턴 가드*라는 이름의 가드 구문(`if EXPR`라고 적히는)을 가질 수 있다. 패턴에 엮인 변수의 범위는 이 가드 표현식 안에 있다. `angle` 예제의 첫번째 분기는 패턴 가드의 예를 보여준다.
 
-You've already seen simple `let` bindings, but `let` is a little
-fancier than you've been led to believe. It, too, supports destructuring
-patterns. For example, you can write this to extract the fields from a
-tuple, introducing two variables at once: `a` and `b`.
+앞서 단순 `let` 바인딩을 이미 보았지만, `let`는 당신이 생각하는 것보다 더 근사하다. 또한 디스트럭처링 패턴을 지원한다. 예를 들어, 튜플로부터 필드의 두 변수 `a`와 `b` 를 한번에 추출하기위해 다음처럼 쓸 수 있다.
 
 ~~~~
 # fn get_tuple_of_two_ints() -> (int, int) { (1, 1) }
 let (a, b) = get_tuple_of_two_ints();
 ~~~~
 
-Let bindings only work with _irrefutable_ patterns: that is, patterns
-that can never fail to match. This excludes `let` from matching
-literals and most `enum` variants.
+Let 바인딩은 단지 _반박할 수 없는_ 패턴만으로 동작한다. 즉, 매칭에 실패할 수 없는 패턴이다. 이것은 일치한 리터럴과 대부분의 `enum` 변형으로부터 `let`을 제외한다.
 
 ## Loops
 
