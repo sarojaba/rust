@@ -348,12 +348,9 @@ let (a, b) = get_tuple_of_two_ints();
 
 Let 바인딩은 단지 _반박할 수 없는_ 패턴만으로 동작한다. 즉, 매칭에 실패할 수 없는 패턴이다. 이것은 일치한 리터럴과 대부분의 `enum` 변형으로부터 `let`을 제외한다.
 
-## Loops
+## 루프
 
-`while` denotes a loop that iterates as long as its given condition
-(which must have type `bool`) evaluates to `true`. Inside a loop, the
-keyword `break` aborts the loop, and `loop` aborts the current
-iteration and continues with the next.
+`while`은 주어진 조건(`bool` 타입이어야함)이 `true`로 평가되는 동안 반복하는 루프를 의미한다. 루프 내에, 키워드 `break`는 루프를 중지하고, `loop`는 현재의 반복을 중지하고 다음 반복을 계속한다.
 
 ~~~~
 let mut cake_amount = 8;
@@ -362,7 +359,7 @@ while cake_amount > 0 {
 }
 ~~~~
 
-`loop` denotes an infinite loop, and is the preferred way of writing `while true`:
+`loop`는 무한 루프를 의미하고, `while true`라고 적는것보다 선호되는 방법이다.
 
 ~~~~
 let mut x = 5;
@@ -373,11 +370,9 @@ loop {
 }
 ~~~~
 
-This code prints out a weird sequence of numbers and stops as soon as
-it finds one that can be divided by five.
+이 코드는 기묘한 수열을 출력하고 5로 나뉠 수 있는 수를 찾자마자 멈춘다.
 
-For more involved iteration, such as enumerating the elements of a
-collection, Rust uses [higher-order functions](#closures).
+Rust에서 컬렉션의 요소를 하나하나 세는 등의 반복은 [higher-order functions](#closures)를 사용한다.
 
 # Data structures
 
