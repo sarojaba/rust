@@ -374,18 +374,13 @@ loop {
 
 Rust에서 컬렉션의 요소를 하나하나 세는 등의 반복은 [higher-order functions](#closures)를 사용한다.
 
-# Data structures
+# 자료 구조
 
-## Structs
+## 구조체
 
-Rust struct types must be declared before they are used using the `struct`
-syntax: `struct Name { field1: T1, field2: T2 [, ...] }`, where `T1`, `T2`,
-... denote types. To construct a struct, use the same syntax, but leave off
-the `struct`: for example: `Point { x: 1.0, y: 2.0 }`.
+Rust의 구조체 타입은 `struct` 예약어를 사용한 뒤에 선언된다: `struct Name { field1: T1, field2: T2 [, ...] }`, 에서 `T1`, `T2`, ... 는 타입을 의미한다. 구조체를 만들기위해, 동일한 문법을 사용해야하나, `struct` 예약어를 제거해도 된다. 예를 들어 `Point { x: 1.0, y: 2.0 }`.
 
-Structs are quite similar to C structs and are even laid out the same way in
-memory (so you can read from a Rust struct in C, and vice-versa). Use the dot
-operator to access struct fields, as in `mypoint.x`.
+구조체는 C의 구조체와 아주 비슷하고 메모리에 같은 방식으로 적재된다.(그래서 C에서 Rust의 구조체를 읽을 수 있고, 반대의 경우도 가능하다.). `mypoint.x` 처럼 구조체 필드에 접근하기 위해 마침표 연산자를 사용한다.
 
 ~~~~
 struct Point {
@@ -394,13 +389,9 @@ struct Point {
 }
 ~~~~
 
-Inherited mutability means that any field of a struct may be mutable, if the
-struct is in a mutable slot (or a field of a struct in a mutable slot, and
-so forth).
+상속된 변화성은 만약 구조체가 변할 수 있는 슬롯에 있다면 (또는 구조체의 필드가 변할 수 있는 슬롯에 있던지 등) 구조체의 어떤 필드 하나라도 값이 변할 수 있다는 것을 뜻한다.
 
-With a value (say, `mypoint`) of such a type in a mutable location, you can do
-`mypoint.y += 1.0`. But in an immutable location, such an assignment to a
-struct without inherited mutability would result in a type error.
+(`mypoint`를 보면) 변할 수 있는 위치에서는 타입의 값, `mypoint.y += 1.0`을 할 수 있다. 그러나 변할 수 없는 위치에서는, 상속된 변화성이 없는 구조체의 할당은 타입 오류를 일으킨다.
 
 ~~~~ {.xfail-test}
 # struct Point { x: float, y: float }
@@ -411,8 +402,7 @@ mypoint.y += 1.0; // mypoint is mutable, and its fields as well
 origin.y += 1.0; // ERROR: assigning to immutable field
 ~~~~
 
-`match` patterns destructure structs. The basic syntax is
-`Name { fieldname: pattern, ... }`:
+`match` 패턴은 구조체의 구조를 파괴한다. 기본 문법은 `Name { fieldname: pattern, ... }`이다.
 
 ~~~~
 # struct Point { x: float, y: float }
@@ -423,12 +413,7 @@ match mypoint {
 }
 ~~~~
 
-In general, the field names of a struct do not have to appear in the same
-order they appear in the type. When you are not interested in all
-the fields of a struct, a struct pattern may end with `, _` (as in
-`Name { field1, _ }`) to indicate that you're ignoring all other fields.
-Additionally, struct fields have a shorthand matching form that simply
-reuses the field name as the binding name.
+일반적으로, 구조체의 필드 이름은 같은 순서로 나타날 필요가 없다. 구조체의 모든 필드에 관심이 없으면, 구조체 패턴은 다른 모든 필드를 무시하는 것을 가리키기위해 `, _`(`Name { field1, _ }`처럼)로 끝낼 수 있다. 추가적으로, 구조체 필드는 단순히 필드 이름을 바인딩 이름으로 재사용하는 축약 매칭 형식을 가진다.
 
 ~~~
 # struct Point { x: float, y: float }
