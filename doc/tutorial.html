@@ -31,10 +31,10 @@
 <li><a href="#제어-구조"><span class="toc-section-number">4</span> 제어 구조</a><ul>
 <li><a href="#조건"><span class="toc-section-number">4.1</span> 조건</a></li>
 <li><a href="#패턴-매칭"><span class="toc-section-number">4.2</span> 패턴 매칭</a></li>
-<li><a href="#loops"><span class="toc-section-number">4.3</span> Loops</a></li>
+<li><a href="#루프"><span class="toc-section-number">4.3</span> 루프</a></li>
 </ul></li>
-<li><a href="#data-structures"><span class="toc-section-number">5</span> Data structures</a><ul>
-<li><a href="#structs"><span class="toc-section-number">5.1</span> Structs</a></li>
+<li><a href="#자료-구조"><span class="toc-section-number">5</span> 자료 구조</a><ul>
+<li><a href="#구조체"><span class="toc-section-number">5.1</span> 구조체</a></li>
 <li><a href="#enums"><span class="toc-section-number">5.2</span> Enums</a></li>
 <li><a href="#tuples"><span class="toc-section-number">5.3</span> Tuples</a></li>
 <li><a href="#tuple-structs"><span class="toc-section-number">5.4</span> Tuple structs</a></li>
@@ -306,21 +306,21 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>A 패턴에서 변할 수 있는 이름은 어떤 값과 일치하고, 그리고 분기의 행동 내부의 매치된 값의 값으로 대응된다. 그래서, <code>(0f, y)</code> matches 첫번째 요소는 0이고 두번째 요소로 <code>y</code>와 엮이는 어떤 튜플과 일치한다. <code>(x, y)</code>는 두 요소를 가진 어떤 튜플과 일치하고, 두 요소는 변수와 엮인다.</p>
-<p>Any <code>match</code> arm can have a guard clause (written <code>if EXPR</code>), called a <em>pattern guard</em>, which is an expression of type <code>bool</code> that determines, after the pattern is found to match, whether the arm is taken or not. The variables bound by the pattern are in scope in this guard expression. The first arm in the <code>angle</code> example shows an example of a pattern guard.</p>
-<p>You've already seen simple <code>let</code> bindings, but <code>let</code> is a little fancier than you've been led to believe. It, too, supports destructuring patterns. For example, you can write this to extract the fields from a tuple, introducing two variables at once: <code>a</code> and <code>b</code>.</p>
+<p><code>match</code> 분기는 패턴과 일치하는 것을 찾은 뒤, 분기를 수행할지 말지 결정하는 <code>bool</code> 타입의 표현식인 <em>패턴 가드</em>라는 이름의 가드 구문(<code>if EXPR</code>라고 적히는)을 가질 수 있다. 패턴에 엮인 변수의 범위는 이 가드 표현식 안에 있다. <code>angle</code> 예제의 첫번째 분기는 패턴 가드의 예를 보여준다.</p>
+<p>앞서 단순 <code>let</code> 바인딩을 이미 보았지만, <code>let</code>는 당신이 생각하는 것보다 더 근사하다. 또한 디스트럭처링 패턴을 지원한다. 예를 들어, 튜플로부터 필드의 두 변수 <code>a</code>와 <code>b</code> 를 한번에 추출하기위해 다음처럼 쓸 수 있다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> (<span class="cm-def">a</span>, <span class="cm-def">b</span>) = <span class="cm-variable">get_tuple_of_two_ints</span>();
 </pre>
 
-<p>Let bindings only work with <em>irrefutable</em> patterns: that is, patterns that can never fail to match. This excludes <code>let</code> from matching literals and most <code>enum</code> variants.</p>
-<h2 id="loops"><a href="#TOC"><span class="header-section-number">4.3</span> Loops</a></h2>
-<p><code>while</code> denotes a loop that iterates as long as its given condition (which must have type <code>bool</code>) evaluates to <code>true</code>. Inside a loop, the keyword <code>break</code> aborts the loop, and <code>loop</code> aborts the current iteration and continues with the next.</p>
+<p>Let 바인딩은 단지 <em>반박할 수 없는</em> 패턴만으로 동작한다. 즉, 매칭에 실패할 수 없는 패턴이다. 이것은 일치한 리터럴과 대부분의 <code>enum</code> 변형으로부터 <code>let</code>을 제외한다.</p>
+<h2 id="루프"><a href="#TOC"><span class="header-section-number">4.3</span> 루프</a></h2>
+<p><code>while</code>은 주어진 조건(<code>bool</code> 타입이어야함)이 <code>true</code>로 평가되는 동안 반복하는 루프를 의미한다. 루프 내에, 키워드 <code>break</code>는 루프를 중지하고, <code>loop</code>는 현재의 반복을 중지하고 다음 반복을 계속한다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">cake_amount</span> = <span class="cm-number">8</span>;
 <span class="cm-keyword">while</span> <span class="cm-variable">cake_amount</span> &gt; <span class="cm-number">0</span> {
     <span class="cm-variable">cake_amount</span> -= <span class="cm-number">1</span>;
 }
 </pre>
 
-<p><code>loop</code> denotes an infinite loop, and is the preferred way of writing <code>while true</code>:</p>
+<p><code>loop</code>는 무한 루프를 의미하고, <code>while true</code>라고 적는것보다 선호되는 방법이다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-number">5</span>;
 <span class="cm-keyword">loop</span> {
     <span class="cm-variable">x</span> += <span class="cm-variable">x</span> - <span class="cm-number">3</span>;
@@ -329,20 +329,20 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>This code prints out a weird sequence of numbers and stops as soon as it finds one that can be divided by five.</p>
-<p>For more involved iteration, such as enumerating the elements of a collection, Rust uses <a href="#closures">higher-order functions</a>.</p>
-<h1 id="data-structures"><a href="#TOC"><span class="header-section-number">5</span> Data structures</a></h1>
-<h2 id="structs"><a href="#TOC"><span class="header-section-number">5.1</span> Structs</a></h2>
-<p>Rust struct types must be declared before they are used using the <code>struct</code> syntax: <code>struct Name { field1: T1, field2: T2 [, ...] }</code>, where <code>T1</code>, <code>T2</code>, ... denote types. To construct a struct, use the same syntax, but leave off the <code>struct</code>: for example: <code>Point { x: 1.0, y: 2.0 }</code>.</p>
-<p>Structs are quite similar to C structs and are even laid out the same way in memory (so you can read from a Rust struct in C, and vice-versa). Use the dot operator to access struct fields, as in <code>mypoint.x</code>.</p>
+<p>이 코드는 기묘한 수열을 출력하고 5로 나뉠 수 있는 수를 찾자마자 멈춘다.</p>
+<p>Rust에서 컬렉션의 요소를 하나하나 세는 등의 반복은 <a href="#closures">higher-order functions</a>를 사용한다.</p>
+<h1 id="자료-구조"><a href="#TOC"><span class="header-section-number">5</span> 자료 구조</a></h1>
+<h2 id="구조체"><a href="#TOC"><span class="header-section-number">5.1</span> 구조체</a></h2>
+<p>Rust의 구조체 타입은 <code>struct</code> 예약어를 사용한 뒤에 선언된다: <code>struct Name { field1: T1, field2: T2 [, ...] }</code>, 에서 <code>T1</code>, <code>T2</code>, ... 는 타입을 의미한다. 구조체를 만들기위해, 동일한 문법을 사용해야하나, <code>struct</code> 예약어를 제거해도 된다. 예를 들어 <code>Point { x: 1.0, y: 2.0 }</code>.</p>
+<p>구조체는 C의 구조체와 아주 비슷하고 메모리에 같은 방식으로 적재된다.(그래서 C에서 Rust의 구조체를 읽을 수 있고, 반대의 경우도 가능하다.). <code>mypoint.x</code> 처럼 구조체 필드에 접근하기 위해 마침표 연산자를 사용한다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {
     <span class="cm-variable">x</span>: <span class="cm-variable">float</span>,
     <span class="cm-variable">y</span>: <span class="cm-variable">float</span>
 }
 </pre>
 
-<p>Inherited mutability means that any field of a struct may be mutable, if the struct is in a mutable slot (or a field of a struct in a mutable slot, and so forth).</p>
-<p>With a value (say, <code>mypoint</code>) of such a type in a mutable location, you can do <code>mypoint.y += 1.0</code>. But in an immutable location, such an assignment to a struct without inherited mutability would result in a type error.</p>
+<p>상속된 변화성은 만약 구조체가 변할 수 있는 슬롯에 있다면 (또는 구조체의 필드가 변할 수 있는 슬롯에 있던지 등) 구조체의 어떤 필드 하나라도 값이 변할 수 있다는 것을 뜻한다.</p>
+<p>(<code>mypoint</code>를 보면) 변할 수 있는 위치에서는 타입의 값, <code>mypoint.y += 1.0</code>을 할 수 있다. 그러나 변할 수 없는 위치에서는, 상속된 변화성이 없는 구조체의 할당은 타입 오류를 일으킨다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">mypoint</span> = <span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">1.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">1.0</span> };
 <span class="cm-keyword">let</span> <span class="cm-def">origin</span> = <span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">0.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">0.0</span> };
 
@@ -350,14 +350,14 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-variable">origin</span>.<span class="cm-variable">y</span> += <span class="cm-number">1.0</span>; <span class="cm-comment">// ERROR: assigning to immutable field</span>
 </pre>
 
-<p><code>match</code> patterns destructure structs. The basic syntax is <code>Name { fieldname: pattern, ... }</code>:</p>
+<p><code>match</code> 패턴은 구조체의 구조를 파괴한다. 기본 문법은 <code>Name { fieldname: pattern, ... }</code>이다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">mypoint</span> {
     <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">0.0</span>, <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>());                     }
     <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-variable">xx</span>,  <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">xx</span>.<span class="cm-variable">to_str</span>() + <span class="cm-string">&quot; &quot;</span> + <span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>()); }
 }
 </pre>
 
-<p>In general, the field names of a struct do not have to appear in the same order they appear in the type. When you are not interested in all the fields of a struct, a struct pattern may end with <code>, _</code> (as in <code>Name { field1, _ }</code>) to indicate that you're ignoring all other fields. Additionally, struct fields have a shorthand matching form that simply reuses the field name as the binding name.</p>
+<p>일반적으로, 구조체의 필드 이름은 같은 순서로 나타날 필요가 없다. 구조체의 모든 필드에 관심이 없으면, 구조체 패턴은 다른 모든 필드를 무시하는 것을 가리키기위해 <code>, _</code>(<code>Name { field1, _ }</code>처럼)로 끝낼 수 있다. 추가적으로, 구조체 필드는 단순히 필드 이름을 바인딩 이름으로 재사용하는 축약 매칭 형식을 가진다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">mypoint</span> {
     <span class="cm-def">Point</span> { <span class="cm-variable">x</span>, <span class="cm-variable">_</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">x</span>.<span class="cm-variable">to_str</span>()) }
 }
