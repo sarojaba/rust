@@ -423,10 +423,9 @@ match mypoint {
 }
 ~~~
 
-## Enums
+## 열거형
 
-Enums are datatypes that have several alternate representations. For
-example, consider the type shown earlier:
+열거형은 몇가지 대표값을 갖는 데이터 타입이다. 예를들어, 앞서 봤던 타입을 보자.
 
 ~~~~
 # struct Point { x: float, y: float }
@@ -436,20 +435,11 @@ enum Shape {
 }
 ~~~~
 
-A value of this type is either a `Circle`, in which case it contains a
-`Point` struct and a float, or a `Rectangle`, in which case it contains
-two `Point` structs. The run-time representation of such a value
-includes an identifier of the actual form that it holds, much like the
-"tagged union" pattern in C, but with better static guarantees.
+이 타입의 값은 하나의 `Point` 구조체와 하나의 부동소수점을 포함하는 `Circle`, 또는 두 개의 `Point` 구조체를 갖는 `Rectangle` 이다. 실행시간 중의 특정 대표값은 C의 "tagged union" 패턴처럼 타입이 가지고 있는 실제 형식의 식별자를 포함하지만, 더 정적인 보증을 한다.
 
-The above declaration will define a type `Shape` that can refer to
-such shapes, and two functions, `Circle` and `Rectangle`, which can be
-used to construct values of the type (taking arguments of the
-specified types). So `Circle(Point { x: 0f, y: 0f }, 10f)` is the way to
-create a new circle.
+위 선언은 특정 모양을 가리킬 수 있는 `Shape` 타입을 정의할 것이고, 두 개의 함수 `Circle`과 `Rectangle`은 (명시된 타입의 인자가 취해지는)타입의 값을 구성하는데 사용될 수 있다. 그래서 `Circle(Point { x: 0f, y: 0f }, 10f)`은 새로운 원 모양을 생성하는 방법이다.
 
-Enum variants need not have parameters. This `enum` declaration,
-for example, is equivalent to a C enum:
+열거형 값들은 파라미터를 가질 필요가 없다. 예를 들어, 다음의 `enum` 선언은 C의 열거형과 동일하다.
 
 ~~~~
 enum Direction {
@@ -460,12 +450,9 @@ enum Direction {
 }
 ~~~~
 
-This declaration defines `North`, `East`, `South`, and `West` as constants,
-all of which have type `Direction`.
+이 선언에서 상수로 정의된 `North`, `East`, `South`, 그리고 `West`는`Direction` 타입을 가진다.
 
-When an enum is C-like (that is, when none of the variants have
-parameters), it is possible to explicitly set the discriminator values
-to a constant value:
+C 스타일의 열거형이라면(즉, 파라미터를 가지는 열거형 값이 없는 경우), 식별 값을  상수 값으로 명시적으로 설정하는 것이 가능하다.
 
 ~~~~
 enum Color {
@@ -475,10 +462,7 @@ enum Color {
 }
 ~~~~
 
-If an explicit discriminator is not specified for a variant, the value
-defaults to the value of the previous variant plus one. If the first
-variant does not have a discriminator, it defaults to 0. For example,
-the value of `North` is 0, `East` is 1, `South` is 2, and `West` is 3.
+만약 열거형 값에 식별값이 명시되어 있지 않으면, 기본 값은 앞의 열거형 값에 1을 더한 값이 된다. 만약 첫번째 열거형 값에 식별 값이 없다면, 기본 값은 0이다. 예를 들어, `North`의 값은 0, `East`는 1, `South`는 2, 그리고 `West`는 3이다.
 
 When an enum is C-like, you can apply the `as` cast operator to
 convert it to its discriminator value as an `int`.
