@@ -464,12 +464,9 @@ enum Color {
 
 만약 열거형 값에 식별값이 명시되어 있지 않으면, 기본 값은 앞의 열거형 값에 1을 더한 값이 된다. 만약 첫번째 열거형 값에 식별 값이 없다면, 기본 값은 0이다. 예를 들어, `North`의 값은 0, `East`는 1, `South`는 2, 그리고 `West`는 3이다.
 
-When an enum is C-like, you can apply the `as` cast operator to
-convert it to its discriminator value as an `int`.
+C와 비슷한 열거형이면, `int`의 식별값으로 변환하기 위해 `as` 형변환 연산자를 적용할 수 있다.
 
-For enum types with multiple variants, destructuring is the only way to
-get at their contents. All variant constructors can be used as
-patterns, as in this definition of `area`:
+복수의 열거값을 가지는 열거형 타입에 대해, 구조파괴는 내용을 얻기위한 유일한 방법이다. `area`의 정의에서 모든 열거값 생성자는 패턴으로 사용될 수 있다.
 
 ~~~~
 # struct Point {x: float, y: float}
@@ -482,10 +479,7 @@ fn area(sh: Shape) -> float {
 }
 ~~~~
 
-You can write a lone `_` to ignore an individual field, and can
-ignore all fields of a variant like: `Circle(*)`. As in their
-introduction form, nullary enum patterns are written without
-parentheses.
+개별의 필드를 무시하기 위해 `_` 하나를 적을 수 있고, `Circle(*)` 처럼 열거값의 모든 필드를 무시할 수 있다. 간략 형식으로, null의 열거형 패턴은 중괄호없이 적는다.
 
 ~~~~
 # struct Point { x: float, y: float }
@@ -500,7 +494,7 @@ fn point_from_direction(dir: Direction) -> Point {
 }
 ~~~~
 
-Enum variants may also be structs. For example:
+열거값은 구조체가 될 수 있다. 다음을 살펴보자.
 
 ~~~~
 # use core::float;
@@ -520,12 +514,9 @@ fn area(sh: Shape) -> float {
 }
 ~~~~
 
-## Tuples
+## 튜플
 
-Tuples in Rust behave exactly like structs, except that their fields
-do not have names. Thus, you cannot access their fields with dot notation.
-Tuples can have any arity except for 0 (though you may consider
-unit, `()`, as the empty tuple if you like).
+Rust에서 튜플은 필드가 이름을 갖지 않는 것만 제외하면 정확히 구조체처럼 행동한다. 그래서, 점 표기로 필드에 접근할 수 없다. 튜플은 0을 제외한 어떤 숫자라도 인자로 받을 수 있다. (n개를 생각하더라도, 원한다면 빈 튜플 `()`로도 만들 수 있다).
 
 ~~~~
 let mytup: (int, int, float) = (10, 20, 30.0);
@@ -534,14 +525,11 @@ match mytup {
 }
 ~~~~
 
-## Tuple structs
+## 튜플 구조체
 
-Rust also has _tuple structs_, which behave like both structs and tuples,
-except that, unlike tuples, tuple structs have names (so `Foo(1, 2)` has a
-different type from `Bar(1, 2)`), and tuple structs' _fields_ do not have
-names.
+또한 Rust는 구조체와 튜플로 행동하는 _tuple structs_를 가진다, except that, 튜플과 다르게, 튜플 구조체는 이름을 가지고(그래서 `Foo(1, 2)`는 `Bar(1, 2)`와 서로 다른 타입이다.), 튜플 구조체의 _필드_는 이름을 가지지 않는다.
 
-For example:
+예제.
 ~~~~
 struct MyTup(int, int, float);
 let mytup: MyTup = MyTup(10, 20, 30.0);
