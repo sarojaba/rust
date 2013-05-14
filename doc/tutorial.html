@@ -37,8 +37,8 @@
 <li><a href="#자료-구조"><span class="toc-section-number">5</span> 자료 구조</a><ul>
 <li><a href="#구조체"><span class="toc-section-number">5.1</span> 구조체</a></li>
 <li><a href="#열거형"><span class="toc-section-number">5.2</span> 열거형</a></li>
-<li><a href="#tuples"><span class="toc-section-number">5.3</span> Tuples</a></li>
-<li><a href="#tuple-structs"><span class="toc-section-number">5.4</span> Tuple structs</a></li>
+<li><a href="#튜플"><span class="toc-section-number">5.3</span> 튜플</a></li>
+<li><a href="#튜플-구조체"><span class="toc-section-number">5.4</span> 튜플 구조체</a></li>
 </ul></li>
 <li><a href="#functions"><span class="toc-section-number">6</span> Functions</a></li>
 <li><a href="#destructors"><span class="toc-section-number">7</span> Destructors</a></li>
@@ -391,8 +391,8 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>만약 열거형 값에 식별값이 명시되어 있지 않으면, 기본 값은 앞의 열거형 값에 1을 더한 값이 된다. 만약 첫번째 열거형 값에 식별 값이 없다면, 기본 값은 0이다. 예를 들어, <code>North</code>의 값은 0, <code>East</code>는 1, <code>South</code>는 2, 그리고 <code>West</code>는 3이다.</p>
-<p>When an enum is C-like, you can apply the <code>as</code> cast operator to convert it to its discriminator value as an <code>int</code>.</p>
-<p>For enum types with multiple variants, destructuring is the only way to get at their contents. All variant constructors can be used as patterns, as in this definition of <code>area</code>:</p>
+<p>C와 비슷한 열거형이면, <code>int</code>의 식별값으로 변환하기 위해 <code>as</code> 형변환 연산자를 적용할 수 있다.</p>
+<p>복수의 열거값을 가지는 열거형 타입에 대해, 구조파괴는 내용을 얻기위한 유일한 방법이다. <code>area</code>의 정의에서 모든 열거값 생성자는 패턴으로 사용될 수 있다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">area</span>(<span class="cm-def">sh</span>: <span class="cm-variable-3">Shape</span>) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">match</span> <span class="cm-variable">sh</span> {
         <span class="cm-def">Circle</span>(<span class="cm-def">_</span>, <span class="cm-def">size</span>) =&gt; <span class="cm-variable-2">float::consts::</span><span class="cm-def">pi</span> * <span class="cm-def">size</span> * <span class="cm-def">size</span>,
@@ -401,7 +401,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>You can write a lone <code>_</code> to ignore an individual field, and can ignore all fields of a variant like: <code>Circle(*)</code>. As in their introduction form, nullary enum patterns are written without parentheses.</p>
+<p>개별의 필드를 무시하기 위해 <code>_</code> 하나를 적을 수 있고, <code>Circle(*)</code> 처럼 열거값의 모든 필드를 무시할 수 있다. 간략 형식으로, null의 열거형 패턴은 중괄호없이 적는다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">point_from_direction</span>(<span class="cm-def">dir</span>: <span class="cm-variable-3">Direction</span>) -&gt; <span class="cm-variable-3">Point</span> {
     <span class="cm-keyword">match</span> <span class="cm-variable">dir</span> {
         <span class="cm-def">North</span> =&gt; <span class="cm-def">Point</span> { <span class="cm-variable">x</span>:  <span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>:  <span class="cm-number">1</span><span class="cm-variable">f</span> },
@@ -412,7 +412,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>Enum variants may also be structs. For example:</p>
+<p>열거값은 구조체가 될 수 있다. 다음을 살펴보자.</p>
 <pre class="cm-s-default"><span class="cm-keyword">enum</span> <span class="cm-def">Shape</span> {
     <span class="cm-def">Circle</span> { <span class="cm-def">center</span>: <span class="cm-def">Point</span>, <span class="cm-def">radius</span>: <span class="cm-def">float</span> },
     <span class="cm-variable">Rectangle</span> { <span class="cm-variable">top_left</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">bottom_right</span>: <span class="cm-variable">Point</span> }
@@ -427,17 +427,17 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<h2 id="tuples"><a href="#tuples"><span class="header-section-number">5.3</span> Tuples</a></h2>
-<p>Tuples in Rust behave exactly like structs, except that their fields do not have names. Thus, you cannot access their fields with dot notation. Tuples can have any arity except for 0 (though you may consider unit, <code>()</code>, as the empty tuple if you like).</p>
+<h2 id="튜플"><a href="#튜플"><span class="header-section-number">5.3</span> 튜플</a></h2>
+<p>Rust에서 튜플은 필드가 이름을 갖지 않는 것만 제외하면 정확히 구조체처럼 행동한다. 그래서, 점 표기로 필드에 접근할 수 없다. 튜플은 0을 제외한 어떤 숫자라도 인자로 받을 수 있다. (n개를 생각하더라도, 원한다면 빈 튜플 <code>()</code>로도 만들 수 있다).</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mytup</span>: (<span class="cm-keyword">int</span>, <span class="cm-keyword">int</span>, <span class="cm-keyword">float</span>) = (<span class="cm-number">10</span>, <span class="cm-number">20</span>, <span class="cm-number">30.0</span>);
 <span class="cm-keyword">match</span> <span class="cm-variable">mytup</span> {
   (<span class="cm-def">a</span>, <span class="cm-def">b</span>, <span class="cm-def">c</span>) =&gt; <span class="cm-def">info</span>!(<span class="cm-def">a</span> + <span class="cm-variable">b</span> + (<span class="cm-variable">c</span> <span class="cm-keyword">as</span> <span class="cm-variable">int</span>))
 }
 </pre>
 
-<h2 id="tuple-structs"><a href="#tuple-structs"><span class="header-section-number">5.4</span> Tuple structs</a></h2>
-<p>Rust also has <em>tuple structs</em>, which behave like both structs and tuples, except that, unlike tuples, tuple structs have names (so <code>Foo(1, 2)</code> has a different type from <code>Bar(1, 2)</code>), and tuple structs' <em>fields</em> do not have names.</p>
-For example:
+<h2 id="튜플-구조체"><a href="#튜플-구조체"><span class="header-section-number">5.4</span> 튜플 구조체</a></h2>
+<p>또한 Rust는 구조체와 튜플로 행동하는 <em>tuple structs</em>를 가진다, except that, 튜플과 다르게, 튜플 구조체는 이름을 가지고(그래서 <code>Foo(1, 2)</code>는 <code>Bar(1, 2)</code>와 서로 다른 타입이다.), 튜플 구조체의 <em>필드</em>는 이름을 가지지 않는다.</p>
+예제.
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">MyTup</span>(<span class="cm-variable">int</span>, <span class="cm-variable">int</span>, <span class="cm-variable">float</span>);
 <span class="cm-keyword">let</span> <span class="cm-def">mytup</span>: <span class="cm-variable-3">MyTup</span> = <span class="cm-variable">MyTup</span>(<span class="cm-number">10</span>, <span class="cm-number">20</span>, <span class="cm-number">30.0</span>);
 <span class="cm-keyword">match</span> <span class="cm-variable">mytup</span> {
