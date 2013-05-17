@@ -529,7 +529,6 @@ match mytup {
 
 또한 Rust는 구조체와 튜플로 행동하는 _tuple structs_를 가진다, except that, 튜플과 다르게, 튜플 구조체는 이름을 가지고(그래서 `Foo(1, 2)`는 `Bar(1, 2)`와 서로 다른 타입이다.), 튜플 구조체의 _필드_는 이름을 가지지 않는다.
 
-예제.
 ~~~~
 struct MyTup(int, int, float);
 let mytup: MyTup = MyTup(10, 20, 30.0);
@@ -540,17 +539,13 @@ match mytup {
 
 <a name="newtype"></a>
 
-There is a special case for tuple structs with a single field, which are
-sometimes called "newtypes" (after Haskell's "newtype" feature). These are
-used to define new types in such a way that the new name is not just a
-synonym for an existing type but is rather its own distinct type.
+때때로 "newtypes"라고 불리는 하나의 필드를 가지는 튜플 구조체를 위한 특수한 경우가 있다.  (Haskell의 "newtype" 기능에서 영향을 받음). 새로운 이름은 기존 타입의 동의어뿐만 아니라 오히려 자신의 독특한 타입을 가지는 방식으로 새로운 타입을 정의하곤 했다.
 
 ~~~~
 struct GizmoId(int);
 ~~~~
 
-For convenience, you can extract the contents of such a struct with the
-dereference (`*`) unary operator:
+편의상, 역참조 (`*`) 단항 연산자를 이용해 구조체의 내용을 추출할 수 있다.
 
 ~~~~
 # struct GizmoId(int);
@@ -558,26 +553,18 @@ let my_gizmo_id: GizmoId = GizmoId(10);
 let id_int: int = *my_gizmo_id;
 ~~~~
 
-Types like this can be useful to differentiate between data that have
-the same type but must be used in different ways.
+이와같은 타입은 동일한 타입을 가지는 데이터 사이를 구분하기 유용할 수 있지만, 다른 방법이 사용되어야 한다.
 
 ~~~~
 struct Inches(int);
 struct Centimeters(int);
 ~~~~
 
-The above definitions allow for a simple way for programs to avoid
-confusing numbers that correspond to different units.
+위의 정의는 프로그램에서 다른 단위에 해당하는 혼란스러운 숫자를 피하도록 허용하는 단순한 방법이다.
 
 # Functions
 
-We've already seen several function definitions. Like all other static
-declarations, such as `type`, functions can be declared both at the
-top level and inside other functions (or in modules, which we'll come
-back to [later](#modules-and-crates)). The `fn` keyword introduces a
-function. A function has an argument list, which is a parenthesized
-list of `expr: type` pairs separated by commas. An arrow `->`
-separates the argument list and the function's return type.
+우리는 이미 몇가지 함수 정의를 보았다. `type`과 같이 다른 모든 정적인 선언처럼, 함수는 최상위와 다른 함수 내부 (또는 모듈 내부, [뒤에서](#modules-and-crates) 살펴볼 것임)에서 선언될 수 있다. `fn` 키워드는 함수를 뜻한다. 함수는 괄호 안에 쉼표로 구분된 `expr: type` 쌍의 인자 목록을 가진다. 화살표 `->`는 인자 목록과 함수의 반환 타입을 구분한다.
 
 ~~~~
 fn line(a: int, b: int, x: int) -> int {
@@ -585,10 +572,7 @@ fn line(a: int, b: int, x: int) -> int {
 }
 ~~~~
 
-The `return` keyword immediately returns from the body of a function. It
-is optionally followed by an expression to return. A function can
-also return a value by having its top-level block produce an
-expression.
+`return` 키워드는 함수의 몸통에서 즉시 반환한다. 선택적으로 반환하기 위한 표현식이 따라온다. 함수는 표현식을 생성하는 함수의 최상위 블록을 가짐으로써 값을 반환할 수 있다.
 
 ~~~~
 fn line(a: int, b: int, x: int) -> int {
@@ -596,12 +580,7 @@ fn line(a: int, b: int, x: int) -> int {
 }
 ~~~~
 
-It's better Rust style to write a return value this way instead of
-writing an explicit `return`. The utility of `return` comes in when
-returning early from a function. Functions that do not return a value
-are said to return nil, `()`, and both the return type and the return
-value may be omitted from the definition. The following two functions
-are equivalent.
+반환값을 적기위한 방식으로는 명식적으로 `return`이라고 적는 것보다 Rust 스타일이 더 낫다. `return`은 함수에서 일찍 반환할때 활용된다. 값을 반환하지 않는 함수는 nil `()`이 반환된다고 하고, 반환 타입과 반환 값 둘다 정의에서 생략될 수 있다. 다음의 두 함수는 동일하다.
 
 ~~~~
 fn do_nothing_the_hard_way() -> () { return (); }
@@ -609,7 +588,7 @@ fn do_nothing_the_hard_way() -> () { return (); }
 fn do_nothing_the_easy_way() { }
 ~~~~
 
-Ending the function with a semicolon like so is equivalent to returning `()`.
+함수의 끝에 있는 세미콜론은 `()`을 반환하는 것과 같다.
 
 ~~~~
 fn line(a: int, b: int, x: int) -> int { a * x + b  }
@@ -619,9 +598,7 @@ assert!(8 == line(5, 3, 1));
 assert!(() == oops(5, 3, 1));
 ~~~~
 
-As with `match` expressions and `let` bindings, function arguments support
-pattern destructuring. Like `let`, argument patterns must be irrefutable,
-as in this example that unpacks the first value from a tuple and returns it.
+`match` 표현식과 `let` 바인딩으로, 함수 인자는 구조파괴 패턴을 지원한다. 튜플로부터 처음 값을 풀고 반환하는 이 예제를 보면 `let`처럼, 인자 패턴은 반박될 수 없다.
 
 ~~~
 fn first((value, _): (int, float)) -> int { value }
