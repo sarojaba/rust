@@ -562,7 +562,7 @@ struct Centimeters(int);
 
 위의 정의는 프로그램에서 다른 단위에 해당하는 혼란스러운 숫자를 피하도록 허용하는 단순한 방법이다.
 
-# Functions
+# 함수
 
 우리는 이미 몇가지 함수 정의를 보았다. `type`과 같이 다른 모든 정적인 선언처럼, 함수는 최상위와 다른 함수 내부 (또는 모듈 내부, [뒤에서](#modules-and-crates) 살펴볼 것임)에서 선언될 수 있다. `fn` 키워드는 함수를 뜻한다. 함수는 괄호 안에 쉼표로 구분된 `expr: type` 쌍의 인자 목록을 가진다. 화살표 `->`는 인자 목록과 함수의 반환 타입을 구분한다.
 
@@ -604,17 +604,13 @@ assert!(() == oops(5, 3, 1));
 fn first((value, _): (int, float)) -> int { value }
 ~~~
 
-# Destructors
+# 소멸자
 
-A *destructor* is a function responsible for cleaning up the resources used by
-an object when it is no longer accessible. Destructors can be defined to handle
-the release of resources like files, sockets and heap memory.
+*소멸자*는 객체에 더 이상 접근할 수 없을때, 객체에서 사용된 자원을 정리하는 것을 담당하는 함수이다. 소멸자는 파일, 소켓 그리고 힙 메모리와 같은 자원의 해제를 처리하는 내용이 정의될 수 있다.
 
-Objects are never accessible after their destructor has been called, so there
-are no dynamic failures from accessing freed resources. When a task fails, the
-destructors of all objects in the task are called.
+객체는 자신의 소멸자가 호출된 이후에는 접근할 수 없기 때문에, 해제된 자원에 접근하는 동적인 실패가 없다. 작업이 실패했을 때, 태스크 내부의 모든 객체의 소멸자가 호출된다.
 
-The `~` sigil represents a unique handle for a memory allocation on the heap:
+`~`는 힙에서 메모리 할당을 위한 유일한 처리를 나타낸다.
 
 ~~~~
 {
@@ -624,81 +620,54 @@ The `~` sigil represents a unique handle for a memory allocation on the heap:
 // the destructor frees the heap memory as soon as `y` goes out of scope
 ~~~~
 
-Rust includes syntax for heap memory allocation in the language since it's
-commonly used, but the same semantics can be implemented by a type with a
-custom destructor.
+흔하게 사용되기 때문에 Rust는 언어 차원에서 힙 메모리 할당을 위한 문법을 포함하지만, 동일한 의미로 타입에 따른 맞춤 소멸자가 구현될 수 있다.
 
-# Ownership
+# 소유권
 
-Rust formalizes the concept of object ownership to delegate management of an
-object's lifetime to either a variable or a task-local garbage collector. An
-object's owner is responsible for managing the lifetime of the object by
-calling the destructor, and the owner determines whether the object is mutable.
+Rust는 변수나 태스크에 국한된 가비지 컬렉터에 대한 객체의 생명주기의 관리를 위임하는 객체 소유권의 개념을 형식화한다. 객체의 소유자는 소멸자를 호출하여 객체의 생명주기를 관리하고, 객체가 변할 수 있는지 판단할 책임이 있다.
 
-Ownership is recursive, so mutability is inherited recursively and a destructor
-destroys the contained tree of owned objects. Variables are top-level owners
-and destroy the contained object when they go out of scope. A box managed by
-the garbage collector starts a new ownership tree, and the destructor is called
-when it is collected.
+소유권은 재귀적이기 때문에, 변화성은 재귀적으로 상속되고 소멸자는 소유된 객체 트리가 가지고 있는 것들을 파괴한다. 변수는 최상위 소유자이고 포함된 객체가 스코프를 벗어낫을 때 파괴된다. 가비지 컬렉터에 의해 관리되는 박스는 새로운 소유권 트리를 시작하고, 소멸자는 수집될 때 호출된다.
 
 ~~~~
-// the struct owns the objects contained in the `x` and `y` fields
+// 구조체는 `x`와 `y` 필드에 포함된 객체를 소유한다.
 struct Foo { x: int, y: ~int }
 
 {
-    // `a` is the owner of the struct, and thus the owner of the struct's fields
+    // `a`는 구조체의 소유자이고, 그래서 구조체의 필드의 소유자이다.
     let a = Foo { x: 5, y: ~10 };
 }
-// when `a` goes out of scope, the destructor for the `~int` in the struct's
-// field is called
+// `a`가 스코프를 벗어나면, 구조체 필드의 `~int` 소멸자가 호출된다.
 
-// `b` is mutable, and the mutability is inherited by the objects it owns
+// `b`는 값이 변경될 수 있고, 값의 변경성은 객체의 소유권에 따라 상속된다.
 let mut b = Foo { x: 5, y: ~10 };
 b.x = 10;
 ~~~~
 
-If an object doesn't contain garbage-collected boxes, it consists of a single
-ownership tree and is given the `Owned` trait which allows it to be sent
-between tasks. Custom destructors can only be implemented directly on types
-that are `Owned`, but garbage-collected boxes can still *contain* types with
-custom destructors.
+객체가 쓰레기가 수집된 박스를 가지지 않으면, 객체는 하나의 소유권 트리로 구성되고 태스크 사이로 전달되는 것을 허용하는 `Owned` 특징이 주어진다. 맞춤 소멸자는 `Owned` 타입에만 직접적으로 구현될 수 있으나, 쓰레기 수집된 박스는 맞춤 소멸자를 갖는 타입을 여전히 *포함*할 수 있다.
 
-# Boxes
+# 박스
 
-Many modern languages represent values as pointers to heap memory by
-default. In contrast, Rust, like C and C++, represents such types directly.
-Another way to say this is that aggregate data in Rust are *unboxed*. This
-means that if you `let x = Point { x: 1f, y: 1f };`, you are creating a struct
-on the stack. If you then copy it into a data structure, you copy the entire
-struct, not just a pointer.
+기본적으로 많은 현대의 언어들은 값을 힙 메모리를 가리키는 포인터로 나타낸다. 대조적으로, Rust는 C와 C++처럼 직접적으로 해당 타입을 나타낸다. 달리 말하자면 Rust에서 데이터를 모으는 것은 *unboxed*라고 한다. 이는 `let x = Point { x: 1f, y: 1f };`라고 하면, 스택상에 구조체를 생성함을 뜻한다. 자료 구조로 복사한다면, 포인터가 아닌 구조체 전체를 복사한다.
 
-For small structs like `Point`, this is usually more efficient than allocating
-memory and indirecting through a pointer. But for big structs, or mutable
-state, it can be useful to have a single copy on the stack or on the heap, and
-refer to that through a pointer.
+일반적으로 `Point`와 같은 작은 구조체에서는 메모리에 할당하는 것과 포인터를 통해 간접적으로 가리키는것 보다 더 호율적이다. 그러나 큰 구조체나 변경될 수 있는 상태에서는, 스택이나 힙 상에서 단일 복사하고, 포인터를 통해 가리키는 것이 유용할 수 있다.
 
-## Owned boxes
+## 소유된 박스
 
-An owned box (`~`) is a uniquely owned allocation on the heap. It inherits the
-mutability and lifetime of the owner as it would if there was no box:
+소유된 박스(`~`)는 힙 상에서 유일하게 소유된 할당이다. 박스가 없으면 변경가능성과 소유자의 생명주기를 상속받는다.
 
 ~~~~
-let x = 5; // immutable
-let mut y = 5; // mutable
+let x = 5; // 변경 불가능
+let mut y = 5; // 변경 가능
 y += 2;
 
-let x = ~5; // immutable
-let mut y = ~5; // mutable
-*y += 2; // the * operator is needed to access the contained value
+let x = ~5; // 변경 불가능
+let mut y = ~5; // 변경 가능
+*y += 2; // * 연산자는 가지고 있는 값에 접근하기 위해 필요하다.
 ~~~~
 
-The purpose of an owned box is to add a layer of indirection in order to create
-recursive data structures or cheaply pass around an object larger than a
-pointer. Since an owned box has a unique owner, it can only be used to
-represent a tree data structure.
+소유된 박스의 목적은 재귀적인 자료 구조를 생성하거나 포인터보다 더 큰 객체를 싸게 전달하기 위해 간접 층을 추가하는 것이다. 소유된 box는 유일한 소유주를 갖기 때문에, 트리 자료 구조로 나타내어질 수 있었다.
 
-The following struct won't compile, because the lack of indirection would mean
-it has an infinite size:
+다음의 구조체는 컴파일되지 않을것이다. 왜냐하면 간접의 누락은 구조체가 무한 크기를 갖는다는 것을 의미할 것이기 때문이다.
 
 ~~~~ {.xfail-test}
 struct Foo {
@@ -706,13 +675,9 @@ struct Foo {
 }
 ~~~~
 
-> ***Note:*** The `Option` type is an enum that represents an *optional* value.
-> It's comparable to a nullable pointer in many other languages, but stores the
-> contained value unboxed.
+> ***노트:*** `Option` 타입은 *선택적* 값을 나타내는 열거형이다. 이는 많은 다른 언어에서의 null이 가능한 포인터와 비교되지만, contained value unboxed 를 저장한다.
 
-Adding indirection with an owned pointer allocates the child outside of the
-struct on the heap, which makes it a finite size and won't result in a
-compile-time error:
+간접이 포함된 소유된 포인터는 힙 상에서 구조체의 외부에 자식을 할당한다, which 유한한 크기를 가지고 컴파일 타임에 오류가 발생하지 않는:
 
 ~~~~
 struct Foo {
@@ -720,38 +685,29 @@ struct Foo {
 }
 ~~~~
 
-## Managed boxes
+## 관리되는 박스
 
-A managed box (`@`) is a heap allocation with the lifetime managed by a
-task-local garbage collector. It will be destroyed at some point after there
-are no references left to the box, no later than the end of the task. Managed
-boxes lack an owner, so they start a new ownership tree and don't inherit
-mutability. They do own the contained object, and mutability is defined by the
-type of the shared box (`@` or `@mut`). An object containing a managed box is
-not `Owned`, and can't be sent between tasks.
+관리되는 박스(`@`)는 태스크 로컬 쓰레기 수집기에 의해 관리되는 생명주기를 포함한 힙 할당이다. 태스크가 끝나기 전에 박스로 남은 참조가 없으면 어떤 포인터는 소멸될 것이다. 관리되는 박스는 소유자가 없고, 그래서 새로운 소유권 트리를 시작하고 변경가능성을 상속하지 않는다. 관리되는 박스는 포함된 객체를 소유하고, 변경가능성은 공유되는 박스(`@` 또는 `@mut`)의 타입에 의해 정의된다. 관리되는 박스에 포함된 객체는 `Owned`가 아니고, 태스크 간에 전송될 수 없다.
 
 ~~~~
-let a = @5; // immutable
+let a = @5; // 변경 불가
 
-let mut b = @5; // mutable variable, immutable box
+let mut b = @5; // 변경 가능한 변수, 변경 불가능한 박스
 b = @10;
 
-let c = @mut 5; // immutable variable, mutable box
+let c = @mut 5; // 변경 불가능한 변수, 변경 가능한 박스
 *c = 10;
 
-let mut d = @mut 5; // mutable variable, mutable box
+let mut d = @mut 5; // 변경 가능한 변수, 변경 가능한 박스
 *d += 5;
 d = @mut 15;
 ~~~~
 
-A mutable variable and an immutable variable can refer to the same box, given 
-that their types are compatible. Mutability of a box is a property of its type, 
-however, so for example a mutable handle to an immutable box cannot be 
-assigned a reference to a mutable box.
+변경가능한 변수와 변경불가능한 변수는 타입이 호환된다면 같은 박스를 가리킬 수 있다. 박스의 변경가능성은 그 타입의 속성이지만, 가변의 핸들 예제에서 불변의 박스가 가변의 박스로의 참조는 할당될 수 없다.
 
 ~~~~
-let a = @1;     // immutable box
-let b = @mut 2; // mutable box
+let a = @1;     // 불변 박스
+let b = @mut 2; // 가변 박스
 
 let mut c : @int;       // declare a variable with type managed immutable int
 let mut d : @mut int;   // and one of type managed mutable int
