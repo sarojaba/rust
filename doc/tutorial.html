@@ -58,7 +58,6 @@
 <li><a href="#owned-closures"><span class="toc-section-number">14.2</span> Owned closures</a></li>
 <li><a href="#closure-compatibility"><span class="toc-section-number">14.3</span> Closure compatibility</a></li>
 <li><a href="#do-syntax"><span class="toc-section-number">14.4</span> Do syntax</a></li>
-<li><a href="#for-loops"><span class="toc-section-number">14.5</span> For loops</a></li>
 </ul></li>
 <li><a href="#methods"><span class="toc-section-number">15</span> Methods</a></li>
 <li><a href="#generics"><span class="toc-section-number">16</span> Generics</a><ul>
@@ -67,13 +66,14 @@
 <li><a href="#bounded-type-parameters-and-static-method-dispatch"><span class="toc-section-number">16.3</span> Bounded type parameters and static method dispatch</a></li>
 <li><a href="#trait-objects-and-dynamic-method-dispatch"><span class="toc-section-number">16.4</span> Trait objects and dynamic method dispatch</a></li>
 <li><a href="#trait-inheritance"><span class="toc-section-number">16.5</span> Trait inheritance</a></li>
+<li><a href="#deriving-implementations-for-traits"><span class="toc-section-number">16.6</span> Deriving implementations for traits</a></li>
 </ul></li>
 <li><a href="#modules-and-crates"><span class="toc-section-number">17</span> Modules and crates</a><ul>
 <li><a href="#crates"><span class="toc-section-number">17.1</span> Crates</a></li>
 <li><a href="#using-other-crates"><span class="toc-section-number">17.2</span> Using other crates</a></li>
 <li><a href="#a-minimal-example"><span class="toc-section-number">17.3</span> A minimal example</a></li>
-<li><a href="#the-core-library"><span class="toc-section-number">17.4</span> The core library</a><ul>
-<li><a href="#core-injection-and-the-rust-prelude"><span class="toc-section-number">17.4.1</span> Core injection and the Rust prelude</a></li>
+<li><a href="#the-standard-library"><span class="toc-section-number">17.4</span> The standard library</a><ul>
+<li><a href="#standard-library-injection-and-the-rust-prelude"><span class="toc-section-number">17.4.1</span> Standard Library injection and the Rust prelude</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#what-next"><span class="toc-section-number">18</span> What next?</a></li>
@@ -99,7 +99,7 @@
 <p><strong><em>경고:</em></strong> Rust 계속 개발중인 언어이다. 언어의 잠재적인 변화, 구현 부족, 그리고 정지에 대해 알고있어야한다.</p>
 </blockquote>
 <h1 id="시작하기"><a href="#시작하기"><span class="header-section-number">2</span> 시작하기</a></h1>
-<p>현재 Rust 컴파일러는 <a href="http://static.rust-lang.org/dist/rust-0.6.tar.gz">tarball</a>로 제작되고, Windows의 경우는 <a href="http://static.rust-lang.org/dist/rust-0.6-install.exe">installer</a> 사용을 추천한다.</p>
+<p>현재 Rust 컴파일러는 <a href="http://static.rust-lang.org/dist/rust-0.7.tar.gz">tarball</a>로 제작되고, Windows의 경우는 <a href="http://static.rust-lang.org/dist/rust-0.7-install.exe">installer</a> 사용을 추천한다.</p>
 <p>컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 &quot;snapshot&quot; 버전으로 만들어진다(개발 초기 단계에). 이처럼, 소스를 빌드하려면 스냅샷을 받아오기 위해 인터넷 연결과 유효한 스냅샷 바이너리를 실행할 수 있는 OS가 필요하다.</p>
 <p>현재 스냅샷 바이너리는 아래의 플랫폼들에서 제작되고 테스트된다:</p>
 <ul>
@@ -120,9 +120,9 @@
 <li>curl</li>
 </ul>
 <p>만약 충분히 필요 조건을 만족한다면, 다음의 명령들을 수행하면 된다.</p>
-<pre class="notrust"><code>$ curl -O http://static.rust-lang.org/dist/rust-0.6.tar.gz
-$ tar -xzf rust-0.6.tar.gz
-$ cd rust-0.6
+<pre class="notrust"><code>$ curl -O http://static.rust-lang.org/dist/rust-0.7.tar.gz
+$ tar -xzf rust-0.7.tar.gz
+$ cd rust-0.7
 $ ./configure
 $ make &amp;&amp; make install</code></pre>
 <p>만약 목표 디렉토리를 수정할 권한을 가지고 있지 않다면 <code>sudo make install</code>을 사용해야 할 수도 있다. 설치 장소는 <code>configure</code> 명령의 인자로 <code>--prefix</code>를 전달하여 조정할 수 있다. 다양한 다른 옵션들도 지원되고 <code>--help</code> 인자를 통해 더 자세한 정보를 얻을 수 있습니다.</p>
@@ -130,14 +130,14 @@ $ make &amp;&amp; make install</code></pre>
 <h2 id="자신의-첫-프로그램-컴파일하기"><a href="#자신의-첫-프로그램-컴파일하기"><span class="header-section-number">2.1</span> 자신의 첫 프로그램 컴파일하기</a></h2>
 <p>관습적으로 Rust 프로그램 파일은 <code>.rs</code>라는 확장자를 가진다. 아래의 프로그램을 가지는 <code>hello.rs</code> 파일을 만들어보자.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;hello?&quot;</span>);
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;hello?&quot;</span>);
 }
 </pre>
 
 <p>만약 Rust 컴파일러가 성공적으로 설치되었다면, <code>rustc hello.rs</code>라고 실행하면 <code>hello</code> 라는 실행파일이 생성되고(윈도우즈에서는 <code>hello.exe</code>), 실행하면 원하는 결과가 정확히 실행될 것이다.</p>
-<p>The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, <code>io:println</code> 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.</p>
-<pre class="notrust"><code>hello.rs:2:4: 2:16 error: unresolved name: io::print_with_unicorns
-hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
+<p>The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, <code>println</code> 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.</p>
+<pre class="notrust"><code>hello.rs:2:4: 2:16 error: unresolved name: print_with_unicorns
+hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
                ^~~~~~~~~~~~~~~~~~~~~~~</code></pre>
 <p>최대한 단순화하면, Rust 프로그램은 몇 개의 타입과 함수를 가지고 있는 <code>.rs</code> 파일이다. 만약 <code>main</code> 함수를 가지고 있으면, 실행되도록 컴파일 될 수 있다. Rust는 파일의 최상위 레벨에서 선언된 코드를 허용하지 않는다. 모든 구문은 함수 안에 존재해야 한다. Rust 프로그램은 다른 프로그램에 포함되는 라이브러리로서 컴파일 될 수 있다.</p>
 <h2 id="rust-도구-사용하기"><a href="#rust-도구-사용하기"><span class="header-section-number">2.2</span> rust 도구 사용하기</a></h2>
@@ -166,14 +166,14 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">count</span> = <span class="cm-number">0</span>;
 
 <span class="cm-keyword">while</span> <span class="cm-variable">count</span> &lt; <span class="cm-number">10</span> {
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;count: %?&quot;</span>, <span class="cm-variable">count</span>));
+    <span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;count: %?&quot;</span>, <span class="cm-variable">count</span>));
     <span class="cm-variable">count</span> += <span class="cm-number">1</span>;
 }
 </pre>
 
 <p>Rust는 지역 변수의 타입을 거의 항상 추론할 수 있지만, 콜론 다음에 타입의 이름을 적어줌으로써 변수의 타입을 명시해줄 수 있다. 반대로, 정적 아이템은 타입 주석이 항상 필요하다.</p>
-<pre class="cm-s-default"><span class="cm-variable">static</span> <span class="cm-variable">monster_factor</span>: <span class="cm-variable">float</span> = <span class="cm-number">57.8</span>;
-<span class="cm-keyword">let</span> <span class="cm-def">monster_size</span> = <span class="cm-variable">monster_factor</span> * <span class="cm-number">10.0</span>;
+<pre class="cm-s-default"><span class="cm-variable">static</span> <span class="cm-variable">MONSTER_FACTOR</span>: <span class="cm-variable">float</span> = <span class="cm-number">57.8</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">monster_size</span> = <span class="cm-variable">MONSTER_FACTOR</span> * <span class="cm-number">10.0</span>;
 <span class="cm-keyword">let</span> <span class="cm-def">monster_size</span>: <span class="cm-keyword">int</span> = <span class="cm-number">50</span>;
 </pre>
 
@@ -230,7 +230,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <p><code>char</code> 타입인 문자의 리터럴은 <code>'x'</code>와 같이 작은 따옴표 사이에 4 바이트 유니코드 코드포인트를 적는다. C와 동일하게, Rust는 <code>\n</code>, <code>\r</code>, <code>\t</code> 같이 백슬러시 문자를 사용하는 다양한 탈출 문자를 이해한다. 문자열 리터럴은 쌍따옴표 사이에 적고, 동일한 탈출 문자를 허용한다. 문자열에 대해 더 알고싶으면 <a href="#vectors-and-strings">later</a>.</p>
 <p><code>()</code>로 적히는 nil 타입은 똑같이 <code>()</code>라고 쓰는 하나의 값만 가진다.</p>
 <h2 id="연산자"><a href="#연산자"><span class="header-section-number">3.3</span> 연산자</a></h2>
-<p>Rust의 연산자의 세트는 몇가지 놀라움을 가지고 있다. 산술연산은 <code>*</code>, <code>/</code>, <code>%</code>, <code>+</code>, <code>-</code> (곱하기, 나누기, 나머지, 더하기, 빼기)로 구성된다. 또 <code>-</code>는 음수를 표현하는 단항 접미 연산. C와 마찬가지로, the 비트 연산자 <code>&gt;&gt;</code>, <code>&lt;&lt;</code>, <code>&amp;</code>, <code>|</code>, <code>^</code>도 지원된다.</p>
+<p>Rust의 연산자의 세트는 몇가지 놀라움을 가지고 있다. 산술연산은 <code>*</code>, <code>/</code>, <code>%</code>, <code>+</code>, <code>-</code> (곱하기, 몫, 나머지, 더하기, 빼기)로 구성된다. 또 <code>-</code>는 음수를 표현하는 단항 접미 연산. C와 마찬가지로, the 비트 연산자 <code>&gt;&gt;</code>, <code>&lt;&lt;</code>, <code>&amp;</code>, <code>|</code>, <code>^</code>도 지원된다.</p>
 <p>정수 값에 <code>!</code>를 적용하면, 모든 비트를 뒤집는다는 것을 명심하자(C의 <code>~</code> 처럼).</p>
 <p>비교 연산자는 전통적인 <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>,<code>&lt;=</code>, and <code>&gt;=</code> 이다. 단락 회로 (게으른) 논리 연산자는 <code>&amp;&amp;</code> (and) 그리고 <code>||</code> (or)가 있다.</p>
 <p>타입 캐스팅을 위해, Rust는 <code>as</code>라는 이항 연산자를 사용한다. 좌측에 표현식은 좌측에, 타입은 우측에 놓고, 의미있는 변환이라면, 표현식의 결과는 주어진 타입으로 변한다.</p>
@@ -243,10 +243,10 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <p><em>문법 확장</em>은 언어 안에 포함되지 않은 특별한 형식이지만, 대신 라이브러리로 제공된다. 어떤 이름이 문법 확장을 가리키는 것을 독자에게 더 명확히 하기위해, 모든 문법 확장의 이름은 <code>!</code>으로 끝난다. 표준 라이브러리는 앞으로 예제에서 종종 보게될 <code>sprintf</code> 스타일의 텍스트 형식지정자인 <code>fmt!</code>와 같이 가장 유용한 몇개의 문법 확장을 정의한다.</p>
 <p><code>fmt!</code>는 <a href="http://en.cppreference.com/w/cpp/io/c/fprintf">printf</a>가 지원하는 대부분의 지시자를 지원하지만, printf와 다르게, 지시자의 타입이 인자의 타입과 일치하지 않는 경우 컴파일 시간에 오류를 뱉는다.</p>
 <pre class="cm-s-default">
-<span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%s is %d&quot;</span>, <span class="cm-string">&quot;the answer&quot;</span>, <span class="cm-number">43</span>));
+<span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%s is %d&quot;</span>, <span class="cm-string">&quot;the answer&quot;</span>, <span class="cm-number">43</span>));
 
 <span class="cm-comment">// %? will conveniently print any type</span>
-<span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;what is this thing: %?&quot;</span>, <span class="cm-variable">mystery_object</span>));
+<span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;what is this thing: %?&quot;</span>, <span class="cm-variable">mystery_object</span>));
 </pre>
 
 <p>매크로 시스템을 통해 자신만의 문법 확장을 정의할 수 있다. 자세한 사항은 <a href="tutorial-macros.html">macro tutorial</a>를 참고하세요.</p>
@@ -254,11 +254,11 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <h2 id="조건"><a href="#조건"><span class="header-section-number">4.1</span> 조건</a></h2>
 <p>우리는 이미 여러번 <code>if</code> 표현식을 보았다. 다시 떠올려보면, 중괄호는 필수적이고, <code>if</code>는 선택적으로 <code>else</code> 절을 가질 수 있고, <code>if</code>/<code>else</code>는 여러번 이을 수 있다:</p>
 <pre class="cm-s-default"><span class="cm-keyword">if</span> <span class="cm-atom">false</span> {
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;that's odd&quot;</span>);
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;that's odd&quot;</span>);
 } <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> <span class="cm-atom">true</span> {
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;right&quot;</span>);
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;right&quot;</span>);
 } <span class="cm-keyword">else</span> {
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;neither true nor false&quot;</span>);
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;neither true nor false&quot;</span>);
 }
 </pre>
 
@@ -273,10 +273,10 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <h2 id="패턴-매칭"><a href="#패턴-매칭"><span class="header-section-number">4.2</span> 패턴 매칭</a></h2>
 <p>Rust의 <code>match</code> 구조는 C의 <code>switch</code> 구조의 일반화되고, 깔끔한 버전이다. 값과 다수의 <em>분기</em>로 구성되고, 각 분기는 패턴으로 이름지어지고, 코드는 값과 각 패턴을 순서대로 하나라도 일치할 때까지 비교한다. 일치된 패턴은 대응하는 분기를 실행한다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">my_number</span> {
-  <span class="cm-number">0</span>     =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>),
-  <span class="cm-number">1</span> | <span class="cm-number">2</span> =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;one or two&quot;</span>),
-  <span class="cm-number">3..10</span> =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;three to ten&quot;</span>),
-  <span class="cm-def">_</span>     =&gt; <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;something else&quot;</span>)
+  <span class="cm-number">0</span>     =&gt; <span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>),
+  <span class="cm-number">1</span> | <span class="cm-number">2</span> =&gt; <span class="cm-def">println</span>(<span class="cm-string">&quot;one or two&quot;</span>),
+  <span class="cm-number">3..10</span> =&gt; <span class="cm-def">println</span>(<span class="cm-string">&quot;three to ten&quot;</span>),
+  <span class="cm-def">_</span>     =&gt; <span class="cm-def">println</span>(<span class="cm-string">&quot;something else&quot;</span>)
 }
 </pre>
 
@@ -284,8 +284,8 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <p>A <code>match</code> 분기는 <em>패턴</em>, 화살표 <code>=&gt;</code>, <em>액션</em> (표현식)순으로 구성된다. 리터럴은 유효한 패턴이고, 자신의 값만 일치한다. 모든 패턴이 동일한 변수의 집합과 결합한다면 하나의 분기는 파이프 연산자 (<code>|</code>)로 결합하여 다수의 서로 다른 패턴과 대응할 수도 있다. 숫자 리터럴 범위 패턴은 <code>M..N</code>처럼 두개의 점을 이용해 표현한다. 밑줄(<code>_</code>)은 어떠한 하나의 값에 대응하는 와일드카드 패턴이다. 별표(<code>*</code>)는 <code>enum</code> variant 에서 하나 혹은 여러 필드와 일치하는 독특한 와일드카드이다.</p>
 <p>매칭된 분기에 있는 패턴 뒤에 두꺼운 화살표 <code>=&gt;</code>가 따라오고, 그 다음은 평가되는 표현식이다. 각 케이스는 쉼표로 구분된다. 쉼표는 선택적이고, 각 케이스에 대해 블록 표현식을 사용하는 것보다 종종 편리하다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">my_number</span> {
-  <span class="cm-number">0</span> =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>) }
-  <span class="cm-def">_</span> =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-string">&quot;something else&quot;</span>) }
+  <span class="cm-number">0</span> =&gt; { <span class="cm-def">println</span>(<span class="cm-string">&quot;zero&quot;</span>) }
+  <span class="cm-def">_</span> =&gt; { <span class="cm-def">println</span>(<span class="cm-string">&quot;something else&quot;</span>) }
 }
 </pre>
 
@@ -299,7 +299,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
     <span class="cm-keyword">match</span> <span class="cm-variable">vector</span> {
       (<span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-def">y</span>) <span class="cm-keyword">if</span> <span class="cm-def">y</span> &lt; <span class="cm-number">0</span><span class="cm-def">f</span> =&gt; <span class="cm-number">1.5</span> * <span class="cm-def">pi</span>,
       (<span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-def">y</span>) =&gt; <span class="cm-number">0.5</span> * <span class="cm-def">pi</span>,
-      (<span class="cm-def">x</span>, <span class="cm-def">y</span>) =&gt; <span class="cm-variable-2">float::</span><span class="cm-def">atan</span>(<span class="cm-def">y</span> <span class="cm-variable">/</span> <span class="cm-variable">x</span>)
+      (<span class="cm-def">x</span>, <span class="cm-def">y</span>) =&gt; <span class="cm-def">atan</span>(<span class="cm-def">y</span> <span class="cm-variable">/</span> <span class="cm-variable">x</span>)
     }
 }
 </pre>
@@ -324,12 +324,12 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">loop</span> {
     <span class="cm-variable">x</span> += <span class="cm-variable">x</span> - <span class="cm-number">3</span>;
     <span class="cm-keyword">if</span> <span class="cm-variable">x</span> % <span class="cm-number">5</span> == <span class="cm-number">0</span> { <span class="cm-keyword">break</span>; }
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable-2">int::</span><span class="cm-variable">to_str</span>(<span class="cm-variable">x</span>));
+    <span class="cm-variable">println</span>(<span class="cm-variable-2">int::</span><span class="cm-variable">to_str</span>(<span class="cm-variable">x</span>));
 }
 </pre>
 
 <p>이 코드는 기묘한 수열을 출력하고 5로 나뉠 수 있는 수를 찾자마자 멈춘다.</p>
-<p>Rust에서 컬렉션의 요소를 하나하나 세는 등의 반복은 <a href="#closures">higher-order functions</a>를 사용한다.</p>
+<p>또한 Rust는 <code>for</code> construct를 가지고 있다. C의 <code>for</code>와는 다르고 컬렉션을 반복할 때 가장 좋다. <code>for</code>와 컬렉션의 요소를 세는 고차함수를 사용하는 방법을 알고 싶다면 <a href="#closures">closures</a> 섹션을 보아라.</p>
 <h1 id="자료-구조"><a href="#자료-구조"><span class="header-section-number">5</span> 자료 구조</a></h1>
 <h2 id="구조체"><a href="#구조체"><span class="header-section-number">5.1</span> 구조체</a></h2>
 <p>Rust의 구조체 타입은 <code>struct</code> 예약어를 사용한 뒤에 선언된다: <code>struct Name { field1: T1, field2: T2 [, ...] }</code>, 에서 <code>T1</code>, <code>T2</code>, ... 는 타입을 의미한다. 구조체를 만들기위해, 동일한 문법을 사용해야하나, <code>struct</code> 예약어를 제거해도 된다. 예를 들어 <code>Point { x: 1.0, y: 2.0 }</code>.</p>
@@ -351,14 +351,14 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 
 <p><code>match</code> 패턴은 구조체의 구조를 파괴한다. 기본 문법은 <code>Name { fieldname: pattern, ... }</code>이다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">mypoint</span> {
-    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">0.0</span>, <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>());                     }
-    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-variable">xx</span>,  <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">xx</span>.<span class="cm-variable">to_str</span>() + <span class="cm-string">&quot; &quot;</span> + <span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>()); }
+    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">0.0</span>, <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-def">println</span>(<span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>());                     }
+    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-variable">xx</span>,  <span class="cm-variable">y</span>: <span class="cm-variable">yy</span> } =&gt; { <span class="cm-def">println</span>(<span class="cm-variable">xx</span>.<span class="cm-variable">to_str</span>() + <span class="cm-string">&quot; &quot;</span> + <span class="cm-variable">yy</span>.<span class="cm-variable">to_str</span>()); }
 }
 </pre>
 
 <p>일반적으로, 구조체의 필드 이름은 같은 순서로 나타날 필요가 없다. 구조체의 모든 필드에 관심이 없으면, 구조체 패턴은 다른 모든 필드를 무시하는 것을 가리키기위해 <code>, _</code>(<code>Name { field1, _ }</code>처럼)로 끝낼 수 있다. 추가적으로, 구조체 필드는 단순히 필드 이름을 바인딩 이름으로 재사용하는 축약 매칭 형식을 가진다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">match</span> <span class="cm-variable">mypoint</span> {
-    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>, <span class="cm-variable">_</span> } =&gt; { <span class="cm-variable-2">io::</span><span class="cm-def">println</span>(<span class="cm-variable">x</span>.<span class="cm-variable">to_str</span>()) }
+    <span class="cm-def">Point</span> { <span class="cm-variable">x</span>, <span class="cm-variable">_</span> } =&gt; { <span class="cm-def">println</span>(<span class="cm-variable">x</span>.<span class="cm-variable">to_str</span>()) }
 }
 </pre>
 
@@ -499,10 +499,10 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
     <span class="cm-comment">// an integer allocated on the heap</span>
     <span class="cm-keyword">let</span> <span class="cm-def">y</span> = <span class="cm-variable">~10</span>;
 }
-<span class="cm-comment">// the destructor frees the heap memory as soon as `y` goes out of scope</span>
+<span class="cm-comment">// 소멸자는 `y`가 범위를 벗어나자마자 힙 메모리를 해제한다.</span>
 </pre>
 
-<p>흔하게 사용되기 때문에 Rust는 언어 차원에서 힙 메모리 할당을 위한 문법을 포함하지만, 동일한 의미로 타입에 따른 맞춤 소멸자가 구현될 수 있다.</p>
+<p>Rust는 언어 차원에서 힙 메모리 할당을 위한 문법이 흔하게 사용되기 때문에 포함하지만, 동일한 의미로 타입에 따른 맞춤 소멸자가 구현될 수 있다.</p>
 <h1 id="소유권"><a href="#소유권"><span class="header-section-number">8</span> 소유권</a></h1>
 <p>Rust는 변수나 태스크에 국한된 가비지 컬렉터에 대한 객체의 생명주기의 관리를 위임하는 객체 소유권의 개념을 형식화한다. 객체의 소유자는 소멸자를 호출하여 객체의 생명주기를 관리하고, 객체가 변할 수 있는지 판단할 책임이 있다.</p>
 <p>소유권은 재귀적이기 때문에, 변화성은 재귀적으로 상속되고 소멸자는 소유된 객체 트리가 가지고 있는 것들을 파괴한다. 변수는 최상위 소유자이고 포함된 객체가 스코프를 벗어낫을 때 파괴된다. 가비지 컬렉터에 의해 관리되는 박스는 새로운 소유권 트리를 시작하고, 소멸자는 수집될 때 호출된다.</p>
@@ -535,7 +535,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 *<span class="cm-variable">y</span> += <span class="cm-number">2</span>; <span class="cm-comment">// * 연산자는 가지고 있는 값에 접근하기 위해 필요하다.</span>
 </pre>
 
-<p>소유된 박스의 목적은 재귀적인 자료 구조를 생성하거나 포인터보다 더 큰 객체를 싸게 전달하기 위해 간접 층을 추가하는 것이다. 소유된 box는 유일한 소유주를 갖기 때문에, 트리 자료 구조로 나타내어질 수 있었다.</p>
+<p>소유된 박스의 목적은 재귀적인 자료 구조를 생성하거나 포인터보다 더 큰 객체를 싸게 전달하기 위해 간접 층을 추가하는 것이다. 소유된 box는 유일한 소유주를 갖기 때문에, 트리 자료 구조로만 나타내어질 수 있다.</p>
 <p>다음의 구조체는 컴파일되지 않을것이다. 왜냐하면 간접의 누락은 구조체가 무한 크기를 갖는다는 것을 의미할 것이기 때문이다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Foo</span> {
     <span class="cm-variable">child</span>: <span class="cm-variable">Option</span>&lt;<span class="cm-variable">Foo</span>&gt;
@@ -610,7 +610,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">let</span> <span class="cm-def">owned_box</span>    : <span class="cm-variable-3">~Point</span> = <span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">7.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">9.0</span> };
 </pre>
 
-<p>Suppose we wanted to write a procedure that computed the distance between any two points, no matter where they were stored. For example, we might like to compute the distance between <code>on_the_stack</code> and <code>managed_box</code>, or between <code>managed_box</code> and <code>owned_box</code>. One option is to define a function that takes two arguments of type point—that is, it takes the points by value. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive or, worse, if there are mutable fields, they can change the semantics of your program. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
+<p>Suppose we want to write a procedure that computes the distance between any two points, no matter where they are stored. For example, we might like to compute the distance between <code>on_the_stack</code> and <code>managed_box</code>, or between <code>managed_box</code> and <code>owned_box</code>. One option is to define a function that takes two arguments of type point—that is, it takes the points by value. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive or, worse, if there are mutable fields, they can change the semantics of your program. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">compute_distance</span>(<span class="cm-def">p1</span>: &amp;<span class="cm-variable-3">Point</span>, <span class="cm-def">p2</span>: &amp;<span class="cm-variable-3">Point</span>) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">let</span> <span class="cm-def">x_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">x</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">x</span>;
     <span class="cm-keyword">let</span> <span class="cm-def">y_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">y</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">y</span>;
@@ -681,9 +681,9 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">let</span> <span class="cm-def">area</span> = <span class="cm-variable">rect</span>.<span class="cm-variable">area</span>();
 </pre>
 
-<p>You can write an expression that dereferences any number of pointers automatically. For example, if you felt inclined, you could write something silly like</p>
+<p>You can write an expression that dereferences any number of pointers automatically. For example, if you feel inclined, you could write something silly like</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">point</span> = &amp;@<span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">10</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">20</span><span class="cm-variable">f</span> };
-<span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%f&quot;</span>, <span class="cm-variable">point</span>.<span class="cm-variable">x</span>));
+<span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%f&quot;</span>, <span class="cm-variable">point</span>.<span class="cm-variable">x</span>));
 </pre>
 
 <p>The indexing operator (<code>[]</code>) also auto-dereferences.</p>
@@ -710,9 +710,9 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-comment">// Add two vectors to create a new one</span>
 <span class="cm-keyword">let</span> <span class="cm-def">our_crayons</span> = <span class="cm-variable">my_crayons</span> + <span class="cm-variable">your_crayons</span>;
 
-<span class="cm-comment">// += will append to a vector, provided it lives in a mutable slot</span>
+<span class="cm-comment">// .push_all() will append to a vector, provided it lives in a mutable slot</span>
 <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">my_crayons</span> = <span class="cm-variable">my_crayons</span>;
-<span class="cm-variable">my_crayons</span> += <span class="cm-variable">your_crayons</span>;
+<span class="cm-variable">my_crayons</span>.<span class="cm-variable">push_all</span>(<span class="cm-variable">your_crayons</span>);
 </pre>
 
 <blockquote>
@@ -767,7 +767,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">let</span> <span class="cm-def">exchange_crayons</span>: <span class="cm-variable-3">~str</span> = <span class="cm-variable">~</span><span class="cm-string">&quot;Black, BlizzardBlue, Blue&quot;</span>;
 </pre>
 
-<p>Both vectors and strings support a number of useful <a href="#functions-and-methods">methods</a>, defined in <a href="core/vec.html"><code>core::vec</code></a> and <a href="core/str.html"><code>core::str</code></a>. Here are some examples.</p>
+<p>Both vectors and strings support a number of useful <a href="#functions-and-methods">methods</a>, defined in <a href="std/vec.html"><code>std::vec</code></a> and <a href="std/str.html"><code>std::str</code></a>. Here are some examples.</p>
 <pre class="cm-s-default">
 <span class="cm-keyword">let</span> <span class="cm-def">crayons</span> = [<span class="cm-variable">Almond</span>, <span class="cm-variable">AntiqueBrass</span>, <span class="cm-variable">Apricot</span>];
 
@@ -776,13 +776,14 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">assert</span>!(!<span class="cm-variable">crayons</span>.<span class="cm-variable">is_empty</span>());
 
 <span class="cm-comment">// Iterate over a vector, obtaining a pointer to each element</span>
-<span class="cm-keyword">for</span> <span class="cm-def">crayons</span>.<span class="cm-variable">each</span> |<span class="cm-variable">crayon</span>| {
+<span class="cm-comment">// (`for` is explained in the next section)</span>
+<span class="cm-keyword">for</span> <span class="cm-def">crayons</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">crayon</span>| {
     <span class="cm-keyword">let</span> <span class="cm-def">delicious_crayon_wax</span> = <span class="cm-variable">unwrap_crayon</span>(*<span class="cm-variable">crayon</span>);
     <span class="cm-variable">eat_crayon_wax</span>(<span class="cm-variable">delicious_crayon_wax</span>);
 }
 
 <span class="cm-comment">// Map vector elements</span>
-<span class="cm-keyword">let</span> <span class="cm-variable">crayon_names</span> = <span class="cm-variable">crayons</span>.<span class="cm-variable">map</span>(|<span class="cm-variable">v</span>| <span class="cm-variable">crayon_to_str</span>(*<span class="cm-variable">v</span>));
+<span class="cm-keyword">let</span> <span class="cm-def">crayon_names</span> = <span class="cm-variable">crayons</span>.<span class="cm-variable">map</span>(|<span class="cm-variable">v</span>| <span class="cm-variable">crayon_to_str</span>(*<span class="cm-variable">v</span>));
 <span class="cm-keyword">let</span> <span class="cm-def">favorite_crayon_name</span> = <span class="cm-variable">crayon_names</span>[<span class="cm-number">0</span>];
 
 <span class="cm-comment">// Remove whitespace from before and after the string</span>
@@ -790,7 +791,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 
 <span class="cm-keyword">if</span> <span class="cm-variable">favorite_crayon_name</span>.<span class="cm-variable">len</span>() &gt; <span class="cm-number">5</span> {
    <span class="cm-comment">// Create a substring</span>
-   <span class="cm-variable">println</span>(<span class="cm-variable">favorite_crayon_name</span>.<span class="cm-variable">substr</span>(<span class="cm-number">0</span>, <span class="cm-number">5</span>));
+   <span class="cm-variable">println</span>(<span class="cm-variable">favorite_crayon_name</span>.<span class="cm-variable">slice_chars</span>(<span class="cm-number">0</span>, <span class="cm-number">5</span>));
 }
 </pre>
 
@@ -812,7 +813,8 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-variable">call_closure_with_ten</span>(<span class="cm-variable">closure</span>);
 </pre>
 
-<p>Closures begin with the argument list between vertical bars and are followed by a single expression. The types of the arguments are generally omitted, as is the return type, because the compiler can almost always infer them. In the rare case where the compiler needs assistance, though, the arguments and return types may be annotated.</p>
+<p>Closures begin with the argument list between vertical bars and are followed by a single expression. Remember that a block, <code>{ &lt;expr1&gt;; &lt;expr2&gt;; ... }</code>, is considered a single expression: it evaluates to the result of the last expression it contains if that expression is not followed by a semicolon, otherwise the block evaluates to <code>()</code>.</p>
+<p>The types of the arguments are generally omitted, as is the return type, because the compiler can almost always infer them. In the rare case where the compiler needs assistance, though, the arguments and return types may be annotated.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">square</span> = |<span class="cm-variable">x</span>: <span class="cm-variable">int</span>| -&gt; <span class="cm-variable">uint</span> { <span class="cm-variable">x</span> * <span class="cm-variable">x</span> <span class="cm-keyword">as</span> <span class="cm-variable">uint</span> };
 </pre>
 
@@ -833,7 +835,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 
 <span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
     <span class="cm-keyword">let</span> <span class="cm-def">shout</span> = <span class="cm-variable">mk_appender</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;!&quot;</span>);
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">shout</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hey ho, let's go&quot;</span>));
+    <span class="cm-variable">println</span>(<span class="cm-variable">shout</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hey ho, let's go&quot;</span>));
 }
 </pre>
 
@@ -863,7 +865,6 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>As an aside, the reason we pass in a <em>pointer</em> to an integer rather than the integer itself is that this is how the actual <code>each()</code> function for vectors works. <code>vec::each</code> though is a <a href="#generics">generic</a> function, so must be efficient to use for all types. Passing the elements by pointer avoids copying potentially large objects.</p>
 <p>As a caller, if we use a closure to provide the final operator argument, we can write it in a way that has a pleasant, block-like structure.</p>
 <pre class="cm-s-default"><span class="cm-variable">each</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>], |<span class="cm-variable">n</span>| {
     <span class="cm-variable">do_some_work</span>(<span class="cm-variable">n</span>);
@@ -878,7 +879,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 
 <p>The call is prefixed with the keyword <code>do</code> and, instead of writing the final closure inside the argument list, it appears outside of the parentheses, where it looks more like a typical block of code.</p>
 <p><code>do</code> is a convenient way to create tasks with the <code>task::spawn</code> function. <code>spawn</code> has the signature <code>spawn(fn: ~fn())</code>. In other words, it is a function that takes an owned closure that takes no arguments.</p>
-<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">core::task::</span><span class="cm-variable">spawn</span>;
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::task::</span><span class="cm-variable">spawn</span>;
 
 <span class="cm-keyword">do</span> <span class="cm-variable">spawn</span>() || {
     <span class="cm-variable">debug</span>!(<span class="cm-string">&quot;I'm a task, whatever&quot;</span>);
@@ -892,57 +893,6 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>If you want to see the output of <code>debug!</code> statements, you will need to turn on <code>debug!</code> logging. To enable <code>debug!</code> logging, set the RUST_LOG environment variable to the name of your crate, which, for a file named <code>foo.rs</code>, will be <code>foo</code> (e.g., with bash, <code>export RUST_LOG=foo</code>).</p>
-<h2 id="for-loops"><a href="#for-loops"><span class="header-section-number">14.5</span> For loops</a></h2>
-<p>The most common way to express iteration in Rust is with a <code>for</code> loop. Like <code>do</code>, <code>for</code> is a nice syntax for describing control flow with closures. Additionally, within a <code>for</code> loop, <code>break</code>, <code>loop</code>, and <code>return</code> work just as they do with <code>while</code> and <code>loop</code>.</p>
-<p>Consider again our <code>each</code> function, this time improved to break early when the iteratee returns <code>false</code>:</p>
-<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">each</span>(<span class="cm-def">v</span>: &amp;[<span class="cm-keyword">int</span>], <span class="cm-def">op</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">bool</span>) {
-   <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">n</span> = <span class="cm-number">0</span>;
-   <span class="cm-keyword">while</span> <span class="cm-variable">n</span> &lt; <span class="cm-variable">v</span>.<span class="cm-variable">len</span>() {
-       <span class="cm-keyword">if</span> !<span class="cm-variable">op</span>(&amp;<span class="cm-variable">v</span>[<span class="cm-variable">n</span>]) {
-           <span class="cm-keyword">break</span>;
-       }
-       <span class="cm-variable">n</span> += <span class="cm-number">1</span>;
-   }
-}
-</pre>
-
-<p>And using this function to iterate over a vector:</p>
-<pre class="cm-s-default"><span class="cm-variable">each</span>([<span class="cm-number">2</span>, <span class="cm-number">4</span>, <span class="cm-number">8</span>, <span class="cm-number">5</span>, <span class="cm-number">16</span>], |<span class="cm-variable">n</span>| {
-    <span class="cm-keyword">if</span> *<span class="cm-variable">n</span> % <span class="cm-number">2</span> != <span class="cm-number">0</span> {
-        <span class="cm-variable">println</span>(<span class="cm-string">&quot;found odd number!&quot;</span>);
-        <span class="cm-atom">false</span>
-    } <span class="cm-keyword">else</span> { <span class="cm-atom">true</span> }
-});
-</pre>
-
-<p>With <code>for</code>, functions like <code>each</code> can be treated more like built-in looping structures. When calling <code>each</code> in a <code>for</code> loop, instead of returning <code>false</code> to break out of the loop, you just write <code>break</code>. To skip ahead to the next iteration, write <code>loop</code>.</p>
-<pre class="cm-s-default"><span class="cm-keyword">for</span> <span class="cm-def">each</span>([<span class="cm-number">2</span>, <span class="cm-number">4</span>, <span class="cm-number">8</span>, <span class="cm-number">5</span>, <span class="cm-number">16</span>]) |<span class="cm-variable">n</span>| {
-    <span class="cm-keyword">if</span> *<span class="cm-variable">n</span> % <span class="cm-number">2</span> != <span class="cm-number">0</span> {
-        <span class="cm-variable">println</span>(<span class="cm-string">&quot;found odd number!&quot;</span>);
-        <span class="cm-keyword">break</span>;
-    }
-}
-</pre>
-
-<p>As an added bonus, you can use the <code>return</code> keyword, which is not normally allowed in closures, in a block that appears as the body of a <code>for</code> loop: the meaning of <code>return</code> in such a block is to return from the enclosing function, not just the loop body.</p>
-<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">contains</span>(<span class="cm-def">v</span>: &amp;[<span class="cm-keyword">int</span>], <span class="cm-def">elt</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">bool</span> {
-    <span class="cm-keyword">for</span> <span class="cm-def">each</span>(<span class="cm-variable">v</span>) |<span class="cm-variable">x</span>| {
-        <span class="cm-keyword">if</span> (*<span class="cm-variable">x</span> == <span class="cm-variable">elt</span>) { <span class="cm-keyword">return</span> <span class="cm-atom">true</span>; }
-    }
-    <span class="cm-atom">false</span>
-}
-</pre>
-
-<p>Notice that, because <code>each</code> passes each value by borrowed pointer, the iteratee needs to dereference it before using it. In these situations it can be convenient to lean on Rust's argument patterns to bind <code>x</code> to the actual value, not the pointer.</p>
-<pre class="cm-s-default">    <span class="cm-keyword">for</span> <span class="cm-def">each</span>(<span class="cm-variable">v</span>) |&amp;<span class="cm-variable">x</span>| {
-        <span class="cm-keyword">if</span> (<span class="cm-variable">x</span> == <span class="cm-variable">elt</span>) { <span class="cm-keyword">return</span> <span class="cm-atom">true</span>; }
-    }
-</pre>
-
-<p><code>for</code> syntax only works with stack closures.</p>
-<blockquote>
-<p><strong><em>Note:</em></strong> This is, essentially, a special loop protocol: the keywords <code>break</code>, <code>loop</code>, and <code>return</code> work, in varying degree, with <code>while</code>, <code>loop</code>, <code>do</code>, and <code>for</code> constructs.</p>
-</blockquote>
 <h1 id="methods"><a href="#methods"><span class="header-section-number">15</span> Methods</a></h1>
 <p>Methods are like functions except that they always begin with a special argument, called <code>self</code>, which has the type of the method's receiver. The <code>self</code> argument is like <code>this</code> in C++ and many other languages. Methods are called with dot notation, as in <code>my_vec.len()</code>.</p>
 <p><em>Implementations</em>, written with the <code>impl</code> keyword, can define methods on most Rust types, including structs and enums. As an example, let's define a <code>draw</code> method on our <code>Shape</code> enum.</p>
@@ -987,7 +937,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>Methods typically take a borrowed pointer self type, so the compiler will go to great lengths to convert a callee to a borrowed pointer.</p>
-<pre class="cm-s-default"><span class="cm-comment">// As with typical function arguments, managed and unique pointers</span>
+<pre class="cm-s-default"><span class="cm-comment">// As with typical function arguments, managed and owned pointers</span>
 <span class="cm-comment">// are automatically converted to borrowed pointers</span>
 
 (@<span class="cm-variable">s</span>).<span class="cm-variable">draw_borrowed</span>();
@@ -1004,7 +954,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 (&amp;@<span class="cm-variable">~s</span>).<span class="cm-variable">draw_borrowed</span>();
 </pre>
 
-<p>Implementations may also define standalone (sometimes called &quot;static&quot;) methods. The absence of a <code>self</code> paramater distinguishes such methods. These methods are the preferred way to define constructor functions.</p>
+<p>Implementations may also define standalone (sometimes called &quot;static&quot;) methods. The absence of a <code>self</code> parameter distinguishes such methods. These methods are the preferred way to define constructor functions.</p>
 <pre class="cm-s-default"><span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> {
     <span class="cm-keyword">fn</span> <span class="cm-def">area</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { ... }
     <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { ... }
@@ -1014,7 +964,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <p>To call such a method, just prefix it with the type name and a double colon:</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
 <span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">sqrt</span>(<span class="cm-variable">area</span> <span class="cm-variable">/</span> <span class="cm-variable">pi</span>) } }
+    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: (<span class="cm-variable">area</span> <span class="cm-variable">/</span> <span class="cm-variable">pi</span>).<span class="cm-variable">sqrt</span>() } }
 }
 <span class="cm-keyword">let</span> <span class="cm-def">c</span> = <span class="cm-variable-2">Circle::</span><span class="cm-variable">new</span>(<span class="cm-number">42.5</span>);
 </pre>
@@ -1023,7 +973,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <p>Throughout this tutorial, we've been defining functions that act only on specific data types. With type parameters we can also define functions whose arguments have generic types, and which can be invoked with a variety of types. Consider a generic <code>map</code> function, which takes a function <code>function</code> and a vector <code>vector</code> and returns a new vector consisting of the result of applying <code>function</code> to each element of <code>vector</code>:</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">map</span>&lt;<span class="cm-variable-3">T</span>, <span class="cm-variable-3">U</span>&gt;(<span class="cm-def">vector</span>: &amp;[<span class="cm-variable-3">T</span>], <span class="cm-def">function</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-variable">T</span>) -&gt; <span class="cm-variable-3">U</span>) -&gt; <span class="cm-variable-3">~</span>[<span class="cm-def">U</span>] {
     <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">accumulator</span> = <span class="cm-variable">~</span>[];
-    <span class="cm-keyword">for</span> <span class="cm-variable-2">vec::</span><span class="cm-def">each</span>(<span class="cm-variable">vector</span>) |<span class="cm-variable">element</span>| {
+    <span class="cm-keyword">for</span> <span class="cm-def">vector</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">element</span>| {
         <span class="cm-variable">accumulator</span>.<span class="cm-variable">push</span>(<span class="cm-variable">function</span>(<span class="cm-variable">element</span>));
     }
     <span class="cm-keyword">return</span> <span class="cm-variable">accumulator</span>;
@@ -1066,10 +1016,10 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>However, we can tell the compiler that the <code>head</code> function is only for copyable types: that is, those that have the <code>Copy</code> trait.</p>
+<p>However, we can tell the compiler that the <code>head</code> function is only for copyable types: that is, those that have the <code>Copy</code> trait. In that case, we can explicitly create a second copy of the value we are returning using the <code>copy</code> keyword:</p>
 <pre class="cm-s-default"><span class="cm-comment">// This does</span>
 <span class="cm-keyword">fn</span> <span class="cm-def">head</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Copy</span>&gt;(<span class="cm-def">v</span>: &amp;[<span class="cm-variable-3">T</span>]) -&gt; <span class="cm-variable-3">T</span> {
-    <span class="cm-variable">v</span>[<span class="cm-number">0</span>]
+    <span class="cm-keyword">copy</span> <span class="cm-variable">v</span>[<span class="cm-number">0</span>]
 }
 </pre>
 
@@ -1083,21 +1033,21 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <blockquote>
 <p><strong><em>Note:</em></strong> These three traits were referred to as 'kinds' in earlier iterations of the language, and often still are.</p>
 </blockquote>
-<p>Additionally, the <code>Drop</code> trait is used to define destructors. This trait defines one method called <code>finalize</code>, which is automatically called when a value of the type that implements this trait is destroyed, either because the value went out of scope or because the garbage collector reclaimed it.</p>
+<p>Additionally, the <code>Drop</code> trait is used to define destructors. This trait defines one method called <code>drop</code>, which is automatically called when a value of the type that implements this trait is destroyed, either because the value went out of scope or because the garbage collector reclaimed it.</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">TimeBomb</span> {
     <span class="cm-variable">explosivity</span>: <span class="cm-variable">uint</span>
 }
 
 <span class="cm-keyword">impl</span> <span class="cm-def">Drop</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">TimeBomb</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">finalize</span>(&amp;<span class="cm-keyword">self</span>) {
-        <span class="cm-keyword">for</span> <span class="cm-variable-2">old_iter::</span><span class="cm-def">repeat</span>(<span class="cm-keyword">self</span>.<span class="cm-variable">explosivity</span>) {
-            <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;blam!&quot;</span>);
+    <span class="cm-keyword">fn</span> <span class="cm-def">drop</span>(&amp;<span class="cm-keyword">self</span>) {
+        <span class="cm-keyword">for</span> <span class="cm-keyword">self</span>.<span class="cm-variable">explosivity</span>.<span class="cm-variable">times</span> {
+            <span class="cm-variable">println</span>(<span class="cm-string">&quot;blam!&quot;</span>);
         }
     }
 }
 </pre>
 
-<p>It is illegal to call <code>finalize</code> directly. Only code inserted by the compiler may call it.</p>
+<p>It is illegal to call <code>drop</code> directly. Only code inserted by the compiler may call it.</p>
 <h2 id="declaring-and-implementing-traits"><a href="#declaring-and-implementing-traits"><span class="header-section-number">16.2</span> Declaring and implementing traits</a></h2>
 <p>A trait consists of a set of methods, without bodies, or may be empty, as is the case with <code>Copy</code>, <code>Owned</code>, and <code>Const</code>. For example, we could declare the trait <code>Printable</code> for things that can be printed to the console, with a single method:</p>
 <pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Printable</span> {
@@ -1107,26 +1057,22 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 
 <p>Traits may be implemented for specific types with <a href="#functions-and-methods">impls</a>. An impl that implements a trait includes the name of the trait at the start of the definition, as in the following impls of <code>Printable</code> for <code>int</code> and <code>~str</code>.</p>
 <pre class="cm-s-default"><span class="cm-keyword">impl</span> <span class="cm-def">Printable</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">int</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>) { <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%d&quot;</span>, *<span class="cm-keyword">self</span>)) }
+    <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>) { <span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%d&quot;</span>, *<span class="cm-keyword">self</span>)) }
 }
 
 <span class="cm-keyword">impl</span> <span class="cm-def">Printable</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">~str</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>) { <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(*<span class="cm-keyword">self</span>) }
+    <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>) { <span class="cm-variable">println</span>(*<span class="cm-keyword">self</span>) }
 }
 
 </pre>
 
 <p>Methods defined in an implementation of a trait may be called just like any other method, using dot notation, as in <code>1.print()</code>. Traits may themselves contain type parameters. A trait for generalized sequence types might look like the following:</p>
 <pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Seq</span>&lt;<span class="cm-variable-3">T</span>&gt; {
-    <span class="cm-keyword">fn</span> <span class="cm-def">len</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">uint</span>;
-    <span class="cm-keyword">fn</span> <span class="cm-def">iter</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">b</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-variable">T</span>));
+    <span class="cm-keyword">fn</span> <span class="cm-def">length</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">uint</span>;
 }
 
 <span class="cm-keyword">impl</span>&lt;<span class="cm-variable-3">T</span>&gt; <span class="cm-def">Seq</span>&lt;<span class="cm-variable-3">T</span>&gt; <span class="cm-keyword">for</span> <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>] {
-    <span class="cm-keyword">fn</span> <span class="cm-def">len</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">uint</span> { <span class="cm-variable-2">vec::</span><span class="cm-variable">len</span>(*<span class="cm-keyword">self</span>) }
-    <span class="cm-keyword">fn</span> <span class="cm-def">iter</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">b</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-variable">T</span>)) {
-        <span class="cm-keyword">for</span> <span class="cm-variable-2">vec::</span><span class="cm-def">each</span>(*<span class="cm-keyword">self</span>) |<span class="cm-variable">elt</span>| { <span class="cm-variable">b</span>(<span class="cm-variable">elt</span>); }
-    }
+    <span class="cm-keyword">fn</span> <span class="cm-def">length</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">uint</span> { <span class="cm-keyword">self</span>.<span class="cm-variable">len</span>() }
 }
 </pre>
 
@@ -1152,10 +1098,10 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">struct</span> <span class="cm-variable">Square</span> { <span class="cm-variable">length</span>: <span class="cm-variable">float</span> }
 
 <span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">Circle</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">sqrt</span>(<span class="cm-variable">area</span> <span class="cm-variable">/</span> <span class="cm-variable">pi</span>) } }
+    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: (<span class="cm-variable">area</span> <span class="cm-variable">/</span> <span class="cm-variable">pi</span>).<span class="cm-variable">sqrt</span>() } }
 }
 <span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">Square</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Square</span> { <span class="cm-variable">Square</span> { <span class="cm-variable">length</span>: <span class="cm-variable">sqrt</span>(<span class="cm-variable">area</span>) } }
+    <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Square</span> { <span class="cm-variable">Square</span> { <span class="cm-variable">length</span>: (<span class="cm-variable">area</span>).<span class="cm-variable">sqrt</span>() } }
 }
 
 <span class="cm-keyword">let</span> <span class="cm-def">area</span> = <span class="cm-number">42.5</span>;
@@ -1166,7 +1112,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <h2 id="bounded-type-parameters-and-static-method-dispatch"><a href="#bounded-type-parameters-and-static-method-dispatch"><span class="header-section-number">16.3</span> Bounded type parameters and static method dispatch</a></h2>
 <p>Traits give us a language for defining predicates on types, or abstract properties that types can have. We can use this language to define <em>bounds</em> on type parameters, so that we can then operate on generic types.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">print_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Printable</span>&gt;(<span class="cm-def">printable_things</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
-    <span class="cm-keyword">for</span> <span class="cm-def">printable_things</span>.<span class="cm-variable">each</span> |<span class="cm-variable">thing</span>| {
+    <span class="cm-keyword">for</span> <span class="cm-def">printable_things</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">thing</span>| {
         <span class="cm-variable">thing</span>.<span class="cm-variable">print</span>();
     }
 }
@@ -1177,7 +1123,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">print_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Printable</span> + <span class="cm-variable-3">Copy</span>&gt;(<span class="cm-def">printable_things</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
     <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">i</span> = <span class="cm-number">0</span>;
     <span class="cm-keyword">while</span> <span class="cm-variable">i</span> &lt; <span class="cm-variable">printable_things</span>.<span class="cm-variable">len</span>() {
-        <span class="cm-keyword">let</span> <span class="cm-def">copy_of_thing</span> = <span class="cm-variable">printable_things</span>[<span class="cm-variable">i</span>];
+        <span class="cm-keyword">let</span> <span class="cm-def">copy_of_thing</span> = <span class="cm-keyword">copy</span> <span class="cm-variable">printable_things</span>[<span class="cm-variable">i</span>];
         <span class="cm-variable">copy_of_thing</span>.<span class="cm-variable">print</span>();
         <span class="cm-variable">i</span> += <span class="cm-number">1</span>;
     }
@@ -1191,13 +1137,13 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Drawable</span> { <span class="cm-keyword">fn</span> <span class="cm-def">draw</span>(&amp;<span class="cm-keyword">self</span>); }
 
 <span class="cm-keyword">fn</span> <span class="cm-def">draw_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Drawable</span>&gt;(<span class="cm-def">shapes</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
-    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">each</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
+    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
 }
 </pre>
 
 <p>You can call that on an array of circles, or an array of rectangles (assuming those have suitable <code>Drawable</code> traits defined), but not on an array containing both circles and rectangles. When such behavior is needed, a trait name can alternately be used as a type, called an <em>object</em>.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">draw_all</span>(<span class="cm-def">shapes</span>: &amp;[@<span class="cm-variable-3">Drawable</span>]) {
-    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">each</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
+    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
 }
 </pre>
 
@@ -1231,7 +1177,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <p>Now, we can implement <code>Circle</code> on a type only if we also implement <code>Shape</code>.</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">CircleStruct</span> { <span class="cm-variable">center</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
 <span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">CircleStruct</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">radius</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { <span class="cm-variable">sqrt</span>(<span class="cm-keyword">self</span>.<span class="cm-variable">area</span>() <span class="cm-variable">/</span> <span class="cm-variable">pi</span>) }
+    <span class="cm-keyword">fn</span> <span class="cm-def">radius</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { (<span class="cm-keyword">self</span>.<span class="cm-variable">area</span>() <span class="cm-variable">/</span> <span class="cm-variable">pi</span>).<span class="cm-variable">sqrt</span>() }
 }
 <span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">CircleStruct</span> {
     <span class="cm-keyword">fn</span> <span class="cm-def">area</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { <span class="cm-variable">pi</span> * <span class="cm-variable">square</span>(<span class="cm-keyword">self</span>.<span class="cm-variable">radius</span>) }
@@ -1256,6 +1202,16 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <blockquote>
 <p><strong><em>Note:</em></strong> Trait inheritance does not actually work with objects yet</p>
 </blockquote>
+<h2 id="deriving-implementations-for-traits"><a href="#deriving-implementations-for-traits"><span class="header-section-number">16.6</span> Deriving implementations for traits</a></h2>
+<p>A small number of traits in <code>std</code> and <code>extra</code> can have implementations that can be automatically derived. These instances are specified by placing the <code>deriving</code> attribute on a data type declaration. For example, the following will mean that <code>Circle</code> has an implementation for <code>Eq</code> and can be used with the equality operators, and that a value of type <code>ABC</code> can be randomly generated and converted to a string:</p>
+<pre class="cm-s-default">#[<span class="cm-variable">deriving</span>(<span class="cm-variable">Eq</span>)]
+<span class="cm-keyword">struct</span> <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
+
+#[<span class="cm-variable">deriving</span>(<span class="cm-variable">Rand</span>, <span class="cm-variable">ToStr</span>)]
+<span class="cm-keyword">enum</span> <span class="cm-def">ABC</span> { <span class="cm-def">A</span>, <span class="cm-def">B</span>, <span class="cm-def">C</span> }
+</pre>
+
+<p>The full list of derivable traits is <code>Eq</code>, <code>TotalEq</code>, <code>Ord</code>, <code>TotalOrd</code>, <code>Encodable</code> <code>Decodable</code>, <code>Clone</code>, <code>DeepClone</code>, <code>IterBytes</code>, <code>Rand</code>, <code>Zero</code>, and <code>ToStr</code>.</p>
 <h1 id="modules-and-crates"><a href="#modules-and-crates"><span class="header-section-number">17</span> Modules and crates</a></h1>
 <p>The Rust namespace is arranged in a hierarchy of modules. Each source (.rs) file represents a single module and may in turn contain additional modules.</p>
 <pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
@@ -1264,7 +1220,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 }
 
 <span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
-    <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>());
+    <span class="cm-variable">println</span>(<span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>());
 }
 </pre>
 
@@ -1361,7 +1317,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 
 <p>If any of the requested metadata do not match, then the crate will not be compiled successfully.</p>
 <h2 id="a-minimal-example"><a href="#a-minimal-example"><span class="header-section-number">17.3</span> A minimal example</a></h2>
-<p>Now for something that you can actually compile yourself. We have these two files:</p>
+<p>Now for something that you can actually compile yourself, we have these two files:</p>
 <pre class="cm-s-default"><span class="cm-comment">// world.rs</span>
 #[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;world&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;1.0&quot;</span>)];
 <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">explore</span>() -&gt; &amp;<span class="cm-keyword">str</span> { <span class="cm-string">&quot;world&quot;</span> }
@@ -1369,7 +1325,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 
 <pre class="cm-s-default"><span class="cm-comment">// main.rs</span>
 <span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">world</span>;
-<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() { <span class="cm-variable-2">io::</span><span class="cm-variable">println</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hello &quot;</span> + <span class="cm-variable-2">world::</span><span class="cm-variable">explore</span>()); }
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() { <span class="cm-variable">println</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hello &quot;</span> + <span class="cm-variable-2">world::</span><span class="cm-variable">explore</span>()); }
 </pre>
 
 <p>Now compile and run like this (adjust to your platform if necessary):</p>
@@ -1378,15 +1334,15 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 &gt; ./main
 &quot;hello world&quot;</code></pre>
 <p>Notice that the library produced contains the version in the filename as well as an inscrutable string of alphanumerics. These are both part of Rust's library versioning scheme. The alphanumerics are a hash representing the crate metadata.</p>
-<h2 id="the-core-library"><a href="#the-core-library"><span class="header-section-number">17.4</span> The core library</a></h2>
-<p>The Rust core library provides runtime features required by the language, including the task scheduler and memory allocators, as well as library support for Rust built-in types, platform abstractions, and other commonly used features.</p>
-<p><a href="core/index.html"><code>core</code></a> includes modules corresponding to each of the integer types, each of the floating point types, the <a href="core/bool.html"><code>bool</code></a> type, <a href="core/tuple.html">tuples</a>, <a href="core/char.html">characters</a>, <a href="core/str.html">strings</a>, <a href="core/vec.html">vectors</a>, <a href="core/managed.html">managed boxes</a>, <a href="core/owned.html">owned boxes</a>, and unsafe and borrowed <a href="core/ptr.html">pointers</a>. Additionally, <code>core</code> provides some pervasive types (<a href="core/option.html"><code>option</code></a> and <a href="core/result.html"><code>result</code></a>), <a href="core/task.html">task</a> creation and <a href="core/comm.html">communication</a> primitives, platform abstractions (<a href="core/os.html"><code>os</code></a> and <a href="core/path.html"><code>path</code></a>), basic I/O abstractions (<a href="core/io.html"><code>io</code></a>), <a href="core/container.html">containers</a> like <a href="core/hashmap.html"><code>hashmap</code></a>, common traits (<a href="core/kinds.html"><code>kinds</code></a>, <a href="core/ops.html"><code>ops</code></a>, <a href="core/cmp.html"><code>cmp</code></a>, <a href="core/num.html"><code>num</code></a>, <a href="core/to_str.html"><code>to_str</code></a>, <a href="core/clone.html"><code>clone</code></a>), and complete bindings to the C standard library (<a href="core/libc.html"><code>libc</code></a>).</p>
-<h3 id="core-injection-and-the-rust-prelude"><a href="#core-injection-and-the-rust-prelude"><span class="header-section-number">17.4.1</span> Core injection and the Rust prelude</a></h3>
-<p><code>core</code> is imported at the topmost level of every crate by default, as if the first line of each crate was</p>
-<pre><code>extern mod core;</code></pre>
-<p>This means that the contents of core can be accessed from from any context with the <code>core::</code> path prefix, as in <code>use core::vec</code>, <code>use core::task::spawn</code>, etc.</p>
-<p>Additionally, <code>core</code> contains a <code>prelude</code> module that reexports many of the most common core modules, types and traits. The contents of the prelude are imported into every <em>module</em> by default. Implicitly, all modules behave as if they contained the following prologue:</p>
-<pre><code>use core::prelude::*;</code></pre>
+<h2 id="the-standard-library"><a href="#the-standard-library"><span class="header-section-number">17.4</span> The standard library</a></h2>
+<p>The Rust standard library provides runtime features required by the language, including the task scheduler and memory allocators, as well as library support for Rust built-in types, platform abstractions, and other commonly used features.</p>
+<p><a href="std/index.html"><code>std</code></a> includes modules corresponding to each of the integer types, each of the floating point types, the <a href="std/bool.html"><code>bool</code></a> type, <a href="std/tuple.html">tuples</a>, <a href="std/char.html">characters</a>, <a href="std/str.html">strings</a>, <a href="std/vec.html">vectors</a>, <a href="std/managed.html">managed boxes</a>, <a href="std/owned.html">owned boxes</a>, and unsafe and borrowed <a href="std/ptr.html">pointers</a>. Additionally, <code>std</code> provides some pervasive types (<a href="std/option.html"><code>option</code></a> and <a href="std/result.html"><code>result</code></a>), <a href="std/task.html">task</a> creation and <a href="std/comm.html">communication</a> primitives, platform abstractions (<a href="std/os.html"><code>os</code></a> and <a href="std/path.html"><code>path</code></a>), basic I/O abstractions (<a href="std/io.html"><code>io</code></a>), <a href="std/container.html">containers</a> like <a href="std/hashmap.html"><code>hashmap</code></a>, common traits (<a href="std/kinds.html"><code>kinds</code></a>, <a href="std/ops.html"><code>ops</code></a>, <a href="std/cmp.html"><code>cmp</code></a>, <a href="std/num.html"><code>num</code></a>, <a href="std/to_str.html"><code>to_str</code></a>, <a href="std/clone.html"><code>clone</code></a>), and complete bindings to the C standard library (<a href="std/libc.html"><code>libc</code></a>).</p>
+<h3 id="standard-library-injection-and-the-rust-prelude"><a href="#standard-library-injection-and-the-rust-prelude"><span class="header-section-number">17.4.1</span> Standard Library injection and the Rust prelude</a></h3>
+<p><code>std</code> is imported at the topmost level of every crate by default, as if the first line of each crate was</p>
+<pre><code>extern mod std;</code></pre>
+<p>This means that the contents of std can be accessed from from any context with the <code>std::</code> path prefix, as in <code>use std::vec</code>, <code>use std::task::spawn</code>, etc.</p>
+<p>Additionally, <code>std</code> contains a <code>prelude</code> module that reexports many of the most common standard modules, types and traits. The contents of the prelude are imported into every <em>module</em> by default. Implicitly, all modules behave as if they contained the following prologue:</p>
+<pre><code>use std::prelude::*;</code></pre>
 <h1 id="what-next"><a href="#what-next"><span class="header-section-number">18</span> What next?</a></h1>
 <p>Now that you know the essentials, check out any of the additional tutorials on individual topics.</p>
 <ul>
@@ -1394,6 +1350,7 @@ hello.rs:2     io::print_with_unicorns(&quot;hello?&quot;);
 <li><a href="tutorial-tasks.html">Tasks and communication</a></li>
 <li><a href="tutorial-macros.html">Macros</a></li>
 <li><a href="tutorial-ffi.html">The foreign function interface</a></li>
+<li><a href="tutorial-container.html">Containers and iterators</a></li>
 </ul>
 <p>There is further documentation on the <a href="https://github.com/mozilla/rust/wiki/Docs">wiki</a>.</p>
 </body>
