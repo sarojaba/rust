@@ -8,6 +8,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+
+use middle::ty::{BuiltinBounds};
 use middle::ty;
 use middle::ty::TyVar;
 use middle::typeck::check::regionmanip::replace_bound_regions_in_fn_sig;
@@ -15,17 +17,18 @@ use middle::typeck::infer::combine::*;
 use middle::typeck::infer::cres;
 use middle::typeck::infer::glb::Glb;
 use middle::typeck::infer::InferCtxt;
+use middle::typeck::infer::lattice::CombineFieldsLatticeMethods;
 use middle::typeck::infer::lub::Lub;
 use middle::typeck::infer::to_str::InferStr;
-use util::common::{indent, indenter};
+use middle::typeck::infer::{TypeTrace, Subtype};
+use util::common::{indenter};
 use util::ppaux::bound_region_to_str;
 
-use std::list::Nil;
-use std::list;
+use extra::list::Nil;
+use extra::list;
 use syntax::abi::AbiSet;
 use syntax::ast;
 use syntax::ast::{Onceness, m_const, purity};
-use syntax::codemap::span;
 
 pub struct Sub(CombineFields);  // "subtype", "subregion" etc
 
@@ -33,7 +36,7 @@ impl Combine for Sub {
     fn infcx(&self) -> @mut InferCtxt { self.infcx }
     fn tag(&self) -> ~str { ~"sub" }
     fn a_is_expected(&self) -> bool { self.a_is_expected }
-    fn span(&self) -> span { self.span }
+    fn trace(&self) -> TypeTrace { self.trace }
 
     fn sub(&self) -> Sub { Sub(**self) }
     fn lub(&self) -> Lub { Lub(**self) }
@@ -59,12 +62,8 @@ impl Combine for Sub {
                self.tag(),
                a.inf_str(self.infcx),
                b.inf_str(self.infcx));
-        do indent {
-            match self.infcx.region_vars.make_subregion(self.span, a, b) {
-              Ok(()) => Ok(a),
-              Err(ref e) => Err((*e))
-            }
-        }
+        self.infcx.region_vars.make_subregion(Subtype(self.trace), a, b);
+        Ok(a)
     }
 
     fn mts(&self, a: &ty::mt, b: &ty::mt) -> cres<ty::mt> {
@@ -97,6 +96,19 @@ impl Combine for Sub {
         self.lub().oncenesses(a, b).compare(b, || {
             ty::terr_onceness_mismatch(expected_found(self, a, b))
         })
+    }
+
+    fn bounds(&self, a: BuiltinBounds, b: BuiltinBounds) -> cres<BuiltinBounds> {
+        // More bounds is a subtype of fewer bounds.
+        //
+        // e.g., fn:Copy() <: fn(), because the former is a function
+        // that only closes over copyable things, but the latter is
+        // any function at all.
+        if a.contains(b) {
+            Ok(a)
+        } else {
+            Err(ty::terr_builtin_bounds(expected_found(self, a, b)))
+        }
     }
 
     fn tys(&self, a: ty::t, b: ty::t) -> cres<ty::t> {
@@ -154,7 +166,7 @@ impl Combine for Sub {
         // region variable.
         let (a_sig, _) =
             self.infcx.replace_bound_regions_with_fresh_regions(
-                self.span, a);
+                self.trace, a);
 
         // Second, we instantiate each bound region in the supertype with a
         // fresh concrete region.
@@ -163,7 +175,7 @@ impl Combine for Sub {
                                               None, b) |br| {
                 let skol = self.infcx.region_vars.new_skolemized(br);
                 debug!("Bound region %s skolemized to %?",
-                       bound_region_to_str(self.infcx.tcx, br),
+                       bound_region_to_str(self.infcx.tcx, "", false, br),
                        skol);
                 skol
             }
@@ -182,12 +194,12 @@ impl Combine for Sub {
         for list::each(skol_isr) |pair| {
             let (skol_br, skol) = *pair;
             let tainted = self.infcx.region_vars.tainted(snapshot, skol);
-            for tainted.each |tainted_region| {
+            for tainted.iter().advance |tainted_region| {
                 // Each skolemized should only be relatable to itself
                 // or new variables:
                 match *tainted_region {
                     ty::re_infer(ty::ReVar(ref vid)) => {
-                        if new_vars.contains(vid) { loop; }
+                        if new_vars.iter().any(|x| x == vid) { loop; }
                     }
                     _ => {
                         if *tainted_region == skol { loop; }
@@ -245,7 +257,7 @@ impl Combine for Sub {
         super_trait_stores(self, vk, a, b)
     }
 
-    fn args(&self, a: ty::arg, b: ty::arg) -> cres<ty::arg> {
+    fn args(&self, a: ty::t, b: ty::t) -> cres<ty::t> {
         super_args(self, a, b)
     }
 
@@ -269,4 +281,3 @@ impl Combine for Sub {
         super_trait_refs(self, a, b)
     }
 }
-

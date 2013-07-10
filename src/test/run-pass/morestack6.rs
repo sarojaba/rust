@@ -11,14 +11,18 @@
 // This test attempts to force the dynamic linker to resolve
 // external symbols as close to the red zone as possible.
 
+use std::rand;
+use std::task;
+
 mod rustrt {
+    use std::libc;
+
     pub extern {
         pub fn debug_get_stk_seg() -> *u8;
 
         pub fn rust_get_sched_id() -> libc::intptr_t;
         pub fn rust_get_argc() -> libc::c_int;
         pub fn get_task_id() -> libc::intptr_t;
-        pub fn rust_sched_threads();
         pub fn rust_get_task();
     }
 }
@@ -26,7 +30,6 @@ mod rustrt {
 fn calllink01() { unsafe { rustrt::rust_get_sched_id(); } }
 fn calllink02() { unsafe { rustrt::rust_get_argc(); } }
 fn calllink08() { unsafe { rustrt::get_task_id(); } }
-fn calllink09() { unsafe { rustrt::rust_sched_threads(); } }
 fn calllink10() { unsafe { rustrt::rust_get_task(); } }
 
 fn runtest(f: extern fn(), frame_backoff: u32) {
@@ -54,16 +57,15 @@ fn runtest2(f: extern fn(), frame_backoff: u32, last_stk: *u8) -> u32 {
 }
 
 pub fn main() {
-    use core::rand::Rng;
+    use std::rand::Rng;
     let fns = ~[
         calllink01,
         calllink02,
         calllink08,
-        calllink09,
         calllink10
     ];
-    let rng = rand::rng();
-    for fns.each |f| {
+    let mut rng = rand::rng();
+    for fns.iter().advance |f| {
         let f = *f;
         let sz = rng.next() % 256u32 + 256u32;
         let frame_backoff = rng.next() % 10u32 + 1u32;

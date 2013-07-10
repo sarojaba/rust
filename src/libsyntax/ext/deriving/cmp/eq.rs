@@ -8,58 +8,49 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-
 use ast::{meta_item, item, expr};
 use codemap::span;
-use ext::base::ext_ctxt;
-use ext::build;
+use ext::base::ExtCtxt;
+use ext::build::AstBuilder;
 use ext::deriving::generic::*;
 
-use core::option::Some;
-
-pub fn expand_deriving_eq(cx: @ext_ctxt,
+pub fn expand_deriving_eq(cx: @ExtCtxt,
                           span: span,
                           mitem: @meta_item,
                           in_items: ~[@item]) -> ~[@item] {
     // structures are equal if all fields are equal, and non equal, if
     // any fields are not equal or if the enum variants are different
-    fn cs_eq(cx: @ext_ctxt, span: span, substr: &Substructure) -> @expr {
-        cs_and(|cx, span, _| build::mk_bool(cx, span, false),
+    fn cs_eq(cx: @ExtCtxt, span: span, substr: &Substructure) -> @expr {
+        cs_and(|cx, span, _, _| cx.expr_bool(span, false),
                                  cx, span, substr)
     }
-    fn cs_ne(cx: @ext_ctxt, span: span, substr: &Substructure) -> @expr {
-        cs_or(|cx, span, _| build::mk_bool(cx, span, true),
+    fn cs_ne(cx: @ExtCtxt, span: span, substr: &Substructure) -> @expr {
+        cs_or(|cx, span, _, _| cx.expr_bool(span, true),
               cx, span, substr)
     }
+
     macro_rules! md (
         ($name:expr, $f:ident) => {
             MethodDef {
                 name: $name,
-                output_type: Some(~[~"bool"]),
-                nargs: 1,
+                generics: LifetimeBounds::empty(),
+                explicit_self: borrowed_explicit_self(),
+                args: ~[borrowed_self()],
+                ret_ty: Literal(Path::new(~["bool"])),
                 const_nonmatching: true,
                 combine_substructure: $f
             },
         }
-    )
+    );
 
     let trait_def = TraitDef {
-        path: ~[~"core", ~"cmp", ~"Eq"],
+        path: Path::new(~["std", "cmp", "Eq"]),
         additional_bounds: ~[],
+        generics: LifetimeBounds::empty(),
         methods: ~[
-            md!(~"eq", cs_eq),
-            md!(~"ne", cs_ne)
+            md!("eq", cs_eq),
+            md!("ne", cs_ne)
         ]
     };
-
-    expand_deriving_generic(cx, span, mitem, in_items,
-                            &trait_def)
-}
-
-pub fn expand_deriving_obsolete(cx: @ext_ctxt,
-                                span: span,
-                                _mitem: @meta_item,
-                                in_items: ~[@item]) -> ~[@item] {
-    cx.span_err(span, ~"`#[deriving_eq]` is obsolete; use `#[deriving(Eq)]` instead");
-    in_items
+    trait_def.expand(cx, span, mitem, in_items)
 }

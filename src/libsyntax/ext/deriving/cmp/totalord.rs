@@ -10,61 +10,64 @@
 
 use ast::{meta_item, item, expr};
 use codemap::span;
-use ext::base::ext_ctxt;
-use ext::build;
+use ext::base::ExtCtxt;
+use ext::build::AstBuilder;
 use ext::deriving::generic::*;
-use core::cmp::{Ordering, Equal, Less, Greater};
-use core::option::Some;
+use std::cmp::{Ordering, Equal, Less, Greater};
 
-pub fn expand_deriving_totalord(cx: @ext_ctxt,
+pub fn expand_deriving_totalord(cx: @ExtCtxt,
                                 span: span,
                                 mitem: @meta_item,
                                 in_items: ~[@item]) -> ~[@item] {
     let trait_def = TraitDef {
-        path: ~[~"core", ~"cmp", ~"TotalOrd"],
+        path: Path::new(~["std", "cmp", "TotalOrd"]),
         additional_bounds: ~[],
+        generics: LifetimeBounds::empty(),
         methods: ~[
             MethodDef {
-                name: ~"cmp",
-                output_type: Some(~[~"core", ~"cmp", ~"Ordering"]),
-                nargs: 1,
+                name: "cmp",
+                generics: LifetimeBounds::empty(),
+                explicit_self: borrowed_explicit_self(),
+                args: ~[borrowed_self()],
+                ret_ty: Literal(Path::new(~["std", "cmp", "Ordering"])),
                 const_nonmatching: false,
                 combine_substructure: cs_cmp
             }
         ]
     };
 
-    expand_deriving_generic(cx, span, mitem, in_items,
-                            &trait_def)
+    trait_def.expand(cx, span, mitem, in_items)
 }
 
 
-pub fn ordering_const(cx: @ext_ctxt, span: span, cnst: Ordering) -> @expr {
+pub fn ordering_const(cx: @ExtCtxt, span: span, cnst: Ordering) -> @expr {
     let cnst = match cnst {
-        Less => ~"Less",
-        Equal => ~"Equal",
-        Greater => ~"Greater"
+        Less => "Less",
+        Equal => "Equal",
+        Greater => "Greater"
     };
-    build::mk_path_global(cx, span,
-                          ~[cx.ident_of(~"core"),
-                            cx.ident_of(~"cmp"),
-                            cx.ident_of(cnst)])
+    cx.expr_path(
+        cx.path_global(span,
+                       ~[cx.ident_of("std"),
+                         cx.ident_of("cmp"),
+                         cx.ident_of(cnst)]))
 }
 
-pub fn cs_cmp(cx: @ext_ctxt, span: span,
+pub fn cs_cmp(cx: @ExtCtxt, span: span,
               substr: &Substructure) -> @expr {
-    let lexical_ord = ~[cx.ident_of(~"core"),
-                        cx.ident_of(~"cmp"),
-                        cx.ident_of(~"lexical_ordering")];
 
     cs_same_method_fold(
         // foldr (possibly) nests the matches in lexical_ordering better
         false,
         |cx, span, old, new| {
-            build::mk_call_global(cx, span, lexical_ord, ~[old, new])
+            cx.expr_call_global(span,
+                                ~[cx.ident_of("std"),
+                                  cx.ident_of("cmp"),
+                                  cx.ident_of("lexical_ordering")],
+                                ~[old, new])
         },
         ordering_const(cx, span, Equal),
-        |cx, span, list| {
+        |cx, span, list, _| {
             match list {
                 // an earlier nonmatching variant is Less than a
                 // later one

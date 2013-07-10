@@ -1,13 +1,13 @@
 #!/bin/sh
 
-TARG_DIR=$1 
+TARG_DIR=$1
 PREFIX=$2
 
 BINDIR=bin
 LIBDIR=lib
 
 OS=`uname -s`
-case $OS in 
+case $OS in
     ("Linux"|"FreeBSD")
 	BIN_SUF=
 	LIB_SUF=.so
@@ -43,7 +43,7 @@ fi
 
 cp ${PREFIX}/bin/rustc ${TARG_DIR}/stage0/bin/
 cp ${PREFIX}/lib/rustc/${TARG_DIR}/${LIBDIR}/* ${TARG_DIR}/stage0/${LIBDIR}/
+cp ${PREFIX}/lib/libextra*${LIB_SUF} ${TARG_DIR}/stage0/${LIBDIR}/
 cp ${PREFIX}/lib/librust*${LIB_SUF} ${TARG_DIR}/stage0/${LIBDIR}/
-cp ${PREFIX}/lib/libcore*${LIB_SUF} ${TARG_DIR}/stage0/${LIBDIR}/
 cp ${PREFIX}/lib/libstd*${LIB_SUF} ${TARG_DIR}/stage0/${LIBDIR}/
 cp ${PREFIX}/lib/libsyntax*${LIB_SUF} ${TARG_DIR}/stage0/${LIBDIR}/

@@ -10,6 +10,8 @@
 
 // error-pattern:index out of bounds
 
+use std::sys;
+
 fn main() {
 
     // This should cause a bounds-check failure, but may not if we do our
@@ -19,7 +21,7 @@ fn main() {
     // huge).
 
     let x = ~[1u,2u,3u];
-    do vec::as_imm_buf(x) |p, _len| {
+    do x.as_imm_buf |p, _len| {
         let base = p as uint;
         let idx = base / sys::size_of::<uint>();
         error!("ov1 base = 0x%x", base);

@@ -8,25 +8,19 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#[no_core];
-extern mod core(vers = "0.7-pre");
-
 #[cfg(rustpkg)]
-extern mod this(name = "rustpkg", vers = "0.7-pre");
-
-#[cfg(fuzzer)]
-extern mod this(name = "fuzzer", vers = "0.7-pre");
+extern mod this(name = "rustpkg");
 
 #[cfg(rustdoc)]
-extern mod this(name = "rustdoc", vers = "0.7-pre");
+extern mod this(name = "rustdoc");
 
 #[cfg(rusti)]
-extern mod this(name = "rusti", vers = "0.7-pre");
+extern mod this(name = "rusti");
 
 #[cfg(rust)]
-extern mod this(name = "rust", vers = "0.7-pre");
+extern mod this(name = "rust");
 
 #[cfg(rustc)]
-extern mod this(name = "rustc", vers = "0.7-pre");
+extern mod this(name = "rustc");
 
 fn main() { this::main() }

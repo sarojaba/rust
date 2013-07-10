@@ -10,6 +10,7 @@
 
 //! The document model
 
+
 use doc;
 
 pub type AstId = int;
@@ -168,9 +169,9 @@ pub struct IndexEntry {
     link: ~str
 }
 
-pub impl Doc {
-    fn CrateDoc(&self) -> CrateDoc {
-        vec::foldl(None, self.pages, |_m, page| {
+impl Doc {
+    pub fn CrateDoc(&self) -> CrateDoc {
+        self.pages.iter().fold(None, |_m, page| {
             match copy *page {
               doc::CratePage(doc) => Some(doc),
               _ => None
@@ -178,92 +179,69 @@ pub impl Doc {
         }).get()
     }
 
-    fn cratemod(&self) -> ModDoc {
+    pub fn cratemod(&self) -> ModDoc {
         copy self.CrateDoc().topmod
     }
 }
 
-/// Some helper methods on ModDoc, mostly for testing
-pub impl ModDoc {
-    fn mods(&self) -> ~[ModDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              ModTag(ModDoc) => Some(ModDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn nmods(&self) -> ~[NmodDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              NmodTag(nModDoc) => Some(nModDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn fns(&self) -> ~[FnDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              FnTag(FnDoc) => Some(FnDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn consts(&self) -> ~[ConstDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              ConstTag(ConstDoc) => Some(ConstDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn enums(&self) -> ~[EnumDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              EnumTag(EnumDoc) => Some(EnumDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn traits(&self) -> ~[TraitDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              TraitTag(TraitDoc) => Some(TraitDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn impls(&self) -> ~[ImplDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              ImplTag(ImplDoc) => Some(ImplDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn types(&self) -> ~[TyDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-              TyTag(TyDoc) => Some(TyDoc),
-              _ => None
-            }
-        }
-    }
-
-    fn structs(&self) -> ~[StructDoc] {
-        do vec::filter_mapped(self.items) |itemtag| {
-            match copy *itemtag {
-                StructTag(StructDoc) => Some(StructDoc),
+macro_rules! filt_mapper {
+    ($vec:expr, $pat:pat) => {
+        do ($vec).iter().filter_map |thing| {
+            match thing {
+                &$pat => Some(copy *x),
                 _ => None
             }
-        }
+        }.collect()
+    }
+}
+
+macro_rules! md {
+    ($id:ident) => {
+        filt_mapper!(self.items, $id(ref x))
+    }
+}
+/// Some helper methods on ModDoc, mostly for testing
+impl ModDoc {
+    pub fn mods(&self) -> ~[ModDoc] {
+        md!(ModTag)
+    }
+
+    pub fn nmods(&self) -> ~[NmodDoc] {
+        md!(NmodTag)
+    }
+
+    pub fn fns(&self) -> ~[FnDoc] {
+        md!(FnTag)
+    }
+
+    pub fn consts(&self) -> ~[ConstDoc] {
+        md!(ConstTag)
+    }
+
+    pub fn enums(&self) -> ~[EnumDoc] {
+        md!(EnumTag)
+    }
+
+    pub fn traits(&self) -> ~[TraitDoc] {
+        md!(TraitTag)
+    }
+
+    pub fn impls(&self) -> ~[ImplDoc] {
+        md!(ImplTag)
+    }
+
+    pub fn types(&self) -> ~[TyDoc] {
+        md!(TyTag)
+    }
+
+    pub fn structs(&self) -> ~[StructDoc] {
+        md!(StructTag)
+    }
+}
+
+macro_rules! pu {
+    ($id:ident) => {
+        filt_mapper!(*self, ItemPage($id(ref x)))
     }
 }
 
@@ -281,75 +259,35 @@ pub trait PageUtils {
 impl PageUtils for ~[Page] {
 
     fn mods(&self) -> ~[ModDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(ModTag(ModDoc)) => Some(ModDoc),
-              _ => None
-            }
-        }
+        pu!(ModTag)
     }
 
     fn nmods(&self) -> ~[NmodDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(NmodTag(nModDoc)) => Some(nModDoc),
-              _ => None
-            }
-        }
+        pu!(NmodTag)
     }
 
     fn fns(&self) -> ~[FnDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(FnTag(FnDoc)) => Some(FnDoc),
-              _ => None
-            }
-        }
+        pu!(FnTag)
     }
 
     fn consts(&self) -> ~[ConstDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(ConstTag(ConstDoc)) => Some(ConstDoc),
-              _ => None
-            }
-        }
+        pu!(ConstTag)
     }
 
     fn enums(&self) -> ~[EnumDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(EnumTag(EnumDoc)) => Some(EnumDoc),
-              _ => None
-            }
-        }
+        pu!(EnumTag)
     }
 
     fn traits(&self) -> ~[TraitDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(TraitTag(TraitDoc)) => Some(TraitDoc),
-              _ => None
-            }
-        }
+        pu!(TraitTag)
     }
 
     fn impls(&self) -> ~[ImplDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(ImplTag(ImplDoc)) => Some(ImplDoc),
-              _ => None
-            }
-        }
+        pu!(ImplTag)
     }
 
     fn types(&self) -> ~[TyDoc] {
-        do vec::filter_mapped(*self) |page| {
-            match copy *page {
-              ItemPage(TyTag(TyDoc)) => Some(TyDoc),
-              _ => None
-            }
-        }
+        pu!(TyTag)
     }
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2012 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2012-2013 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -8,6 +8,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+
 use metadata::csearch;
 use middle::astencode;
 use middle::ty;
@@ -16,7 +17,8 @@ use middle;
 use syntax::{ast, ast_map, ast_util, visit};
 use syntax::ast::*;
 
-use core::hashmap::{HashMap, HashSet};
+use std::float;
+use std::hashmap::{HashMap, HashSet};
 
 //
 // This pass classifies expressions by their constant-ness.
@@ -67,11 +69,11 @@ pub fn join(a: constness, b: constness) -> constness {
     }
 }
 
-pub fn join_all(cs: &[constness]) -> constness {
-    vec::foldl(integral_const, cs, |a, b| join(a, *b))
+pub fn join_all<It: Iterator<constness>>(mut cs: It) -> constness {
+    cs.fold(integral_const, |a, b| join(a, b))
 }
 
-pub fn classify(e: @expr,
+pub fn classify(e: &expr,
                 tcx: ty::ctxt)
              -> constness {
     let did = ast_util::local_def(e.id);
@@ -89,19 +91,19 @@ pub fn classify(e: @expr,
               }
 
               ast::expr_copy(inner) |
-              ast::expr_unary(_, inner) |
+              ast::expr_unary(_, _, inner) |
               ast::expr_paren(inner) => {
                 classify(inner, tcx)
               }
 
-              ast::expr_binary(_, a, b) => {
+              ast::expr_binary(_, _, a, b) => {
                 join(classify(a, tcx),
                      classify(b, tcx))
               }
 
               ast::expr_tup(ref es) |
               ast::expr_vec(ref es, ast::m_imm) => {
-                join_all(vec::map(*es, |e| classify(*e, tcx)))
+                join_all(es.iter().transform(|e| classify(*e, tcx)))
               }
 
               ast::expr_vstore(e, vstore) => {
@@ -115,12 +117,8 @@ pub fn classify(e: @expr,
               }
 
               ast::expr_struct(_, ref fs, None) => {
-                let cs = do vec::map((*fs)) |f| {
-                    if f.node.mutbl == ast::m_imm {
-                        classify(f.node.expr, tcx)
-                    } else {
-                        non_const
-                    }
+                let cs = do fs.iter().transform |f| {
+                    classify(f.node.expr, tcx)
                 };
                 join_all(cs)
               }
@@ -141,7 +139,7 @@ pub fn classify(e: @expr,
                 classify(base, tcx)
               }
 
-              ast::expr_index(base, idx) => {
+              ast::expr_index(_, base, idx) => {
                 join(classify(base, tcx),
                      classify(idx, tcx))
               }
@@ -164,9 +162,9 @@ pub fn classify(e: @expr,
     }
 }
 
-pub fn lookup_const(tcx: ty::ctxt, e: @expr) -> Option<@expr> {
+pub fn lookup_const(tcx: ty::ctxt, e: &expr) -> Option<@expr> {
     match tcx.def_map.find(&e.id) {
-        Some(&ast::def_const(def_id)) => lookup_const_by_id(tcx, def_id),
+        Some(&ast::def_static(def_id, false)) => lookup_const_by_id(tcx, def_id),
         _ => None
     }
 }
@@ -178,26 +176,23 @@ pub fn lookup_const_by_id(tcx: ty::ctxt,
         match tcx.items.find(&def_id.node) {
             None => None,
             Some(&ast_map::node_item(it, _)) => match it.node {
-                item_const(_, const_expr) => Some(const_expr),
+                item_static(_, ast::m_imm, const_expr) => Some(const_expr),
                 _ => None
             },
             Some(_) => None
         }
     } else {
         let maps = astencode::Maps {
-            mutbl_map: @mut HashSet::new(),
             root_map: @mut HashMap::new(),
-            last_use_map: @mut HashMap::new(),
             method_map: @mut HashMap::new(),
             vtable_map: @mut HashMap::new(),
             write_guard_map: @mut HashSet::new(),
-            moves_map: @mut HashSet::new(),
             capture_map: @mut HashMap::new()
         };
         match csearch::maybe_get_item_ast(tcx, def_id,
             |a, b, c, d| astencode::decode_inlined_item(a, b, maps, /*bar*/ copy c, d)) {
             csearch::found(ast::ii_item(item)) => match item.node {
-                item_const(_, const_expr) => Some(const_expr),
+                item_static(_, ast::m_imm, const_expr) => Some(const_expr),
                 _ => None
             },
             _ => None
@@ -205,7 +200,7 @@ pub fn lookup_const_by_id(tcx: ty::ctxt,
     }
 }
 
-pub fn lookup_constness(tcx: ty::ctxt, e: @expr) -> constness {
+pub fn lookup_constness(tcx: ty::ctxt, e: &expr) -> constness {
     match lookup_const(tcx, e) {
         Some(rhs) => {
             let ty = ty::expr_ty(tcx, rhs);
@@ -219,13 +214,13 @@ pub fn lookup_constness(tcx: ty::ctxt, e: @expr) -> constness {
     }
 }
 
-pub fn process_crate(crate: @ast::crate,
+pub fn process_crate(crate: &ast::crate,
                      tcx: ty::ctxt) {
     let v = visit::mk_simple_visitor(@visit::SimpleVisitor {
         visit_expr_post: |e| { classify(e, tcx); },
         .. *visit::default_simple_visitor()
     });
-    visit::visit_crate(crate, (), v);
+    visit::visit_crate(crate, ((), v));
     tcx.sess.abort_if_errors();
 }
 
@@ -237,23 +232,23 @@ pub enum const_val {
     const_float(f64),
     const_int(i64),
     const_uint(u64),
-    const_str(~str),
+    const_str(@str),
     const_bool(bool)
 }
 
-pub fn eval_const_expr(tcx: middle::ty::ctxt, e: @expr) -> const_val {
+pub fn eval_const_expr(tcx: middle::ty::ctxt, e: &expr) -> const_val {
     match eval_const_expr_partial(tcx, e) {
-        Ok(ref r) => (/*bad*/copy *r),
-        Err(ref s) => fail!(/*bad*/copy *s)
+        Ok(r) => r,
+        Err(s) => tcx.sess.span_fatal(e.span, s)
     }
 }
 
-pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: @expr)
+pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: &expr)
                             -> Result<const_val, ~str> {
     use middle::ty;
     fn fromb(b: bool) -> Result<const_val, ~str> { Ok(const_int(b as i64)) }
     match e.node {
-      expr_unary(neg, inner) => {
+      expr_unary(_, neg, inner) => {
         match eval_const_expr_partial(tcx, inner) {
           Ok(const_float(f)) => Ok(const_float(-f)),
           Ok(const_int(i)) => Ok(const_int(-i)),
@@ -263,7 +258,7 @@ pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: @expr)
           ref err => (/*bad*/copy *err)
         }
       }
-      expr_unary(not, inner) => {
+      expr_unary(_, not, inner) => {
         match eval_const_expr_partial(tcx, inner) {
           Ok(const_int(i)) => Ok(const_int(!i)),
           Ok(const_uint(i)) => Ok(const_uint(!i)),
@@ -271,7 +266,7 @@ pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: @expr)
           _ => Err(~"Not on float or string")
         }
       }
-      expr_binary(op, a, b) => {
+      expr_binary(_, op, a, b) => {
         match (eval_const_expr_partial(tcx, a),
                eval_const_expr_partial(tcx, b)) {
           (Ok(const_float(a)), Ok(const_float(b))) => {
@@ -279,7 +274,7 @@ pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: @expr)
               add => Ok(const_float(a + b)),
               subtract => Ok(const_float(a - b)),
               mul => Ok(const_float(a * b)),
-              quot => Ok(const_float(a / b)),
+              div => Ok(const_float(a / b)),
               rem => Ok(const_float(a % b)),
               eq => fromb(a == b),
               lt => fromb(a < b),
@@ -295,8 +290,8 @@ pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: @expr)
               add => Ok(const_int(a + b)),
               subtract => Ok(const_int(a - b)),
               mul => Ok(const_int(a * b)),
-              quot if b == 0 => Err(~"attempted quotient with a divisor of zero"),
-              quot => Ok(const_int(a / b)),
+              div if b == 0 => Err(~"attempted to divide by zero"),
+              div => Ok(const_int(a / b)),
               rem if b == 0 => Err(~"attempted remainder with a divisor of zero"),
               rem => Ok(const_int(a % b)),
               and | bitand => Ok(const_int(a & b)),
@@ -317,8 +312,8 @@ pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: @expr)
               add => Ok(const_uint(a + b)),
               subtract => Ok(const_uint(a - b)),
               mul => Ok(const_uint(a * b)),
-              quot if b == 0 => Err(~"attempted quotient with a divisor of zero"),
-              quot => Ok(const_uint(a / b)),
+              div if b == 0 => Err(~"attempted to divide by zero"),
+              div => Ok(const_uint(a / b)),
               rem if b == 0 => Err(~"attempted remainder with a divisor of zero"),
               rem => Ok(const_uint(a % b)),
               and | bitand => Ok(const_uint(a & b)),
@@ -408,88 +403,42 @@ pub fn eval_const_expr_partial(tcx: middle::ty::ctxt, e: @expr)
     }
 }
 
-pub fn lit_to_const(lit: @lit) -> const_val {
+pub fn lit_to_const(lit: &lit) -> const_val {
     match lit.node {
-      lit_str(s) => const_str(/*bad*/copy *s),
+      lit_str(s) => const_str(s),
       lit_int(n, _) => const_int(n),
       lit_uint(n, _) => const_uint(n),
       lit_int_unsuffixed(n) => const_int(n),
-      lit_float(n, _) => const_float(float::from_str(*n).get() as f64),
+      lit_float(n, _) => const_float(float::from_str(n).get() as f64),
       lit_float_unsuffixed(n) =>
-        const_float(float::from_str(*n).get() as f64),
+        const_float(float::from_str(n).get() as f64),
       lit_nil => const_int(0i64),
       lit_bool(b) => const_bool(b)
     }
 }
 
-pub fn compare_const_vals(a: &const_val, b: &const_val) -> int {
-  match (a, b) {
-    (&const_int(a), &const_int(b)) => {
-        if a == b {
-            0
-        } else if a < b {
-            -1
-        } else {
-            1
-        }
+fn compare_vals<T : Eq + Ord>(a: T, b: T) -> Option<int> {
+    Some(if a == b { 0 } else if a < b { -1 } else { 1 })
+}
+pub fn compare_const_vals(a: &const_val, b: &const_val) -> Option<int> {
+    match (a, b) {
+        (&const_int(a), &const_int(b)) => compare_vals(a, b),
+        (&const_uint(a), &const_uint(b)) => compare_vals(a, b),
+        (&const_float(a), &const_float(b)) => compare_vals(a, b),
+        (&const_str(a), &const_str(b)) => compare_vals(a, b),
+        (&const_bool(a), &const_bool(b)) => compare_vals(a, b),
+        _ => None
     }
-    (&const_uint(a), &const_uint(b)) => {
-        if a == b {
-            0
-        } else if a < b {
-            -1
-        } else {
-            1
-        }
-    }
-    (&const_float(a), &const_float(b)) => {
-        if a == b {
-            0
-        } else if a < b {
-            -1
-        } else {
-            1
-        }
-    }
-    (&const_str(ref a), &const_str(ref b)) => {
-        if (*a) == (*b) {
-            0
-        } else if (*a) < (*b) {
-            -1
-        } else {
-            1
-        }
-    }
-    (&const_bool(a), &const_bool(b)) => {
-        if a == b {
-            0
-        } else if a < b {
-            -1
-        } else {
-            1
-        }
-    }
-    _ => fail!(~"compare_const_vals: ill-typed comparison")
-  }
 }
 
-pub fn compare_lit_exprs(tcx: middle::ty::ctxt, a: @expr, b: @expr) -> int {
-  compare_const_vals(&eval_const_expr(tcx, a), &eval_const_expr(tcx, b))
+pub fn compare_lit_exprs(tcx: middle::ty::ctxt, a: &expr, b: &expr) -> Option<int> {
+    compare_const_vals(&eval_const_expr(tcx, a), &eval_const_expr(tcx, b))
 }
 
-pub fn lit_expr_eq(tcx: middle::ty::ctxt, a: @expr, b: @expr) -> bool {
-    compare_lit_exprs(tcx, a, b) == 0
+pub fn lit_expr_eq(tcx: middle::ty::ctxt, a: &expr, b: &expr) -> Option<bool> {
+    compare_lit_exprs(tcx, a, b).map(|&val| val == 0)
 }
 
-pub fn lit_eq(a: @lit, b: @lit) -> bool {
-    compare_const_vals(&lit_to_const(a), &lit_to_const(b)) == 0
+pub fn lit_eq(a: &lit, b: &lit) -> Option<bool> {
+    compare_const_vals(&lit_to_const(a), &lit_to_const(b)).map(|&val| val == 0)
 }
-
-
-// Local Variables:
-// mode: rust
-// fill-column: 78;
-// indent-tabs-mode: nil
-// c-basic-offset: 4
-// buffer-file-coding-system: utf-8-unix
-// End:

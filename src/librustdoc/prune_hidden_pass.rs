@@ -41,9 +41,9 @@ fn fold_mod(
     let doc = fold::default_any_fold_mod(fold, doc);
 
     doc::ModDoc {
-        items: do doc.items.filtered |ItemTag| {
-            !is_hidden(fold.ctxt.clone(), ItemTag.item())
-        },
+        items: do doc.items.iter().filter |item_tag| {
+            !is_hidden(fold.ctxt.clone(), item_tag.item())
+        }.transform(|x| copy *x).collect(),
         .. doc
     }
 }
@@ -53,7 +53,7 @@ fn is_hidden(srv: astsrv::Srv, doc: doc::ItemDoc) -> bool {
 
     let id = doc.id;
     do astsrv::exec(srv) |ctxt| {
-        let attrs = match *ctxt.ast_map.get(&id) {
+        let attrs = match ctxt.ast_map.get_copy(&id) {
           ast_map::node_item(item, _) => copy item.attrs,
           _ => ~[]
         };
@@ -77,9 +77,7 @@ mod test {
 
     #[test]
     fn should_prune_hidden_items() {
-        use core::vec;
-
         let doc = mk_doc(~"#[doc(hidden)] mod a { }");
-        assert!(vec::is_empty(doc.cratemod().mods()))
+        assert!(doc.cratemod().mods().is_empty())
     }
 }

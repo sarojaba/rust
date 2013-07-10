@@ -144,6 +144,9 @@
 #define RED_ZONE_SIZE RZ_LINUX_64
 #endif
 #ifdef __mips__
+#define RED_ZONE_SIZE RZ_MAC_32
+#endif
+#ifdef __arm__
 #define RED_ZONE_SIZE RZ_LINUX_32
 #endif
 #endif
@@ -173,6 +176,10 @@
 #endif
 #ifdef __ANDROID__
 #define RED_ZONE_SIZE RZ_MAC_32
+#endif
+
+#ifndef RED_ZONE_SIZE
+# error "Red zone not defined for this platform"
 #endif
 
 struct frame_glue_fns {
@@ -241,6 +248,11 @@ rust_task : public kernel_owned<rust_task>
     void *task_local_data;
     void (*task_local_data_cleanup)(void *data);
 
+    // Contains a ~[BorrowRecord] pointer, or NULL.
+    //
+    // Used by borrow management code in libcore/unstable/lang.rs.
+    void *borrow_list;
+
 private:
 
     // Protects state, cond, cond_name
@@ -265,9 +277,6 @@ private:
     stk_seg *c_stack;
     uintptr_t next_c_sp;
     uintptr_t next_rust_sp;
-
-    // The big stack.
-    stk_seg *big_stack;
 
     // Called when the atomic refcount reaches zero
     void delete_this();
@@ -595,14 +604,28 @@ rust_task::prev_stack() {
     // require switching to the C stack and be costly. Instead we'll just move
     // up the link list and clean up later, either in new_stack or after our
     // turn ends on the scheduler.
-    stk = stk->prev;
+    if (stk->is_big) {
+        stk_seg *ss = stk;
+        stk = stk->prev;
+
+        // Unlink the big stack.
+        if (ss->next)
+            ss->next->prev = ss->prev;
+        if (ss->prev)
+            ss->prev->next = ss->next;
+
+        sched_loop->return_big_stack(ss);
+    } else {
+        stk = stk->prev;
+    }
+
     record_stack_limit();
 }
 
 // The LLVM-generated segmented-stack function prolog compares the amount of
 // stack needed for each frame to the end-of-stack pointer stored in the
 // TCB. As an optimization, when the frame size is less than 256 bytes, it
-// will simply compare %esp to to the stack limit instead of subtracting the
+// will simply compare %esp to the stack limit instead of subtracting the
 // frame size. As a result we need our stack limit to account for those 256
 // bytes.
 const unsigned LIMIT_OFFSET = 256;

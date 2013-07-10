@@ -13,8 +13,10 @@
 // A port of task-killjoin to use a class with a dtor to manage
 // the join.
 
-use core::cell::Cell;
-use core::comm::*;
+use std::cell::Cell;
+use std::comm::*;
+use std::ptr;
+use std::task;
 
 struct notify {
     ch: Chan<bool>, v: @mut bool,
@@ -22,7 +24,7 @@ struct notify {
 
 #[unsafe_destructor]
 impl Drop for notify {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             error!("notify: task=%? v=%x unwinding=%b b=%b",
                    task::get_task(),
@@ -53,7 +55,7 @@ fn joinable(f: ~fn()) -> Port<bool> {
         *b = true;
     }
     let (p, c) = stream();
-    let c = Cell(c);
+    let c = Cell::new(c);
     do task::spawn_unlinked {
         let ccc = c.take();
         wrapper(ccc, f)
@@ -83,11 +85,3 @@ fn supervisor() {
 pub fn main() {
     join(joinable(supervisor));
 }
-
-// Local Variables:
-// mode: rust;
-// fill-column: 78;
-// indent-tabs-mode: nil
-// c-basic-offset: 4
-// buffer-file-coding-system: utf-8-unix
-// End:

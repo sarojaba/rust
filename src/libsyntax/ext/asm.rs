@@ -19,6 +19,8 @@ use ext::base::*;
 use parse;
 use parse::token;
 
+use std::vec;
+
 enum State {
     Asm,
     Outputs,
@@ -37,13 +39,13 @@ fn next_state(s: State) -> Option<State> {
     }
 }
 
-pub fn expand_asm(cx: @ext_ctxt, sp: span, tts: &[ast::token_tree])
+pub fn expand_asm(cx: @ExtCtxt, sp: span, tts: &[ast::token_tree])
                -> base::MacResult {
     let p = parse::new_parser_from_tts(cx.parse_sess(),
                                        cx.cfg(),
-                                       vec::from_slice(tts));
+                                       vec::to_owned(tts));
 
-    let mut asm = ~"";
+    let mut asm = @"";
     let mut outputs = ~[];
     let mut inputs = ~[];
     let mut cons = ~"";
@@ -77,7 +79,6 @@ pub fn expand_asm(cx: @ext_ctxt, sp: span, tts: &[ast::token_tree])
 
                     let out = @ast::expr {
                         id: cx.next_id(),
-                        callee_id: cx.next_id(),
                         span: out.span,
                         node: ast::expr_addr_of(ast::m_mutbl, out)
                     };
@@ -112,20 +113,20 @@ pub fn expand_asm(cx: @ext_ctxt, sp: span, tts: &[ast::token_tree])
                         p.eat(&token::COMMA);
                     }
 
-                    let clob = ~"~{" + *p.parse_str() + ~"}";
+                    let clob = fmt!("~{%s}", p.parse_str());
                     clobs.push(clob);
                 }
 
-                cons = str::connect(clobs, ",");
+                cons = clobs.connect(",");
             }
             Options => {
-                let option = *p.parse_str();
+                let option = p.parse_str();
 
-                if option == ~"volatile" {
+                if "volatile" == option {
                     volatile = true;
-                } else if option == ~"alignstack" {
+                } else if "alignstack" == option {
                     alignstack = true;
-                } else if option == ~"intel" {
+                } else if "intel" == option {
                     dialect = ast::asm_intel;
                 }
 
@@ -174,10 +175,9 @@ pub fn expand_asm(cx: @ext_ctxt, sp: span, tts: &[ast::token_tree])
 
     MRExpr(@ast::expr {
         id: cx.next_id(),
-        callee_id: cx.next_id(),
         node: ast::expr_inline_asm(ast::inline_asm {
-            asm: @asm,
-            clobbers: @cons,
+            asm: asm,
+            clobbers: cons.to_managed(),
             inputs: inputs,
             outputs: outputs,
             volatile: volatile,
@@ -187,15 +187,3 @@ pub fn expand_asm(cx: @ext_ctxt, sp: span, tts: &[ast::token_tree])
         span: sp
     })
 }
-
-
-
-//
-// Local Variables:
-// mode: rust
-// fill-column: 78;
-// indent-tabs-mode: nil
-// c-basic-offset: 4
-// buffer-file-coding-system: utf-8-unix
-// End:
-//

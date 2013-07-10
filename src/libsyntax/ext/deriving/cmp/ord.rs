@@ -8,119 +8,98 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-
-use ast::{meta_item, item, expr_if, expr};
+use ast;
+use ast::{meta_item, item, expr};
 use codemap::span;
-use ext::base::ext_ctxt;
-use ext::build;
+use ext::base::ExtCtxt;
+use ext::build::AstBuilder;
 use ext::deriving::generic::*;
-use core::option::Some;
 
-macro_rules! md {
-    ($name:expr, $less:expr, $equal:expr) => {
-        MethodDef {
-            name: $name,
-            output_type: Some(~[~"bool"]),
-            nargs: 1,
-            const_nonmatching: false,
-            combine_substructure: |cx, span, substr|
-                    cs_ord($less, $equal, cx, span, substr)
-        }
-    }
-}
-
-pub fn expand_deriving_ord(cx: @ext_ctxt,
+pub fn expand_deriving_ord(cx: @ExtCtxt,
                            span: span,
                            mitem: @meta_item,
                            in_items: ~[@item]) -> ~[@item] {
+    macro_rules! md (
+        ($name:expr, $op:expr, $equal:expr) => {
+            MethodDef {
+                name: $name,
+                generics: LifetimeBounds::empty(),
+                explicit_self: borrowed_explicit_self(),
+                args: ~[borrowed_self()],
+                ret_ty: Literal(Path::new(~["bool"])),
+                const_nonmatching: false,
+                combine_substructure: |cx, span, substr| cs_op($op, $equal, cx, span, substr)
+            }
+        }
+    );
+
     let trait_def = TraitDef {
-        path: ~[~"core", ~"cmp", ~"Ord"],
-        // XXX: Ord doesn't imply Eq yet
-        additional_bounds: ~[~[~"core", ~"cmp", ~"Eq"]],
+        path: Path::new(~["std", "cmp", "Ord"]),
+        additional_bounds: ~[],
+        generics: LifetimeBounds::empty(),
         methods: ~[
-            md!(~"lt", true,  false),
-            md!(~"le", true,  true),
-            md!(~"gt", false, false),
-            md!(~"ge", false, true)
+            md!("lt", true, false),
+            md!("le", true, true),
+            md!("gt", false, false),
+            md!("ge", false, true)
         ]
     };
-
-    expand_deriving_generic(cx, span, mitem, in_items,
-                            &trait_def)
+    trait_def.expand(cx, span, mitem, in_items)
 }
 
-/// `less`: is this `lt` or `le`? `equal`: is this `le` or `ge`?
-fn cs_ord(less: bool, equal: bool,
-          cx: @ext_ctxt, span: span,
-          substr: &Substructure) -> @expr {
-    let binop = if less {
-        cx.ident_of(~"lt")
-    } else {
-        cx.ident_of(~"gt")
-    };
-    let false_blk_expr = build::mk_block(cx, span,
-                                         ~[], ~[],
-                                         Some(build::mk_bool(cx, span, false)));
-    let true_blk = build::mk_simple_block(cx, span,
-                                          build::mk_bool(cx, span, true));
-    let base = build::mk_bool(cx, span, equal);
-
+/// Strict inequality.
+fn cs_op(less: bool, equal: bool, cx: @ExtCtxt, span: span, substr: &Substructure) -> @expr {
+    let op = if less {ast::lt} else {ast::gt};
     cs_fold(
         false, // need foldr,
         |cx, span, subexpr, self_f, other_fs| {
             /*
-
-            build up a series of nested ifs from the inside out to get
-            lexical ordering (hence foldr), i.e.
+            build up a series of chain ||'s and &&'s from the inside
+            out (hence foldr) to get lexical ordering, i.e. for op ==
+            `ast::lt`
 
             ```
-            if self.f1 `binop` other.f1 {
-                true
-            } else if self.f1 == other.f1 {
-                if self.f2 `binop` other.f2 {
-                    true
-                } else if self.f2 == other.f2 {
-                    `equal`
-                } else {
-                    false
-                }
-            } else {
-                false
-            }
+            self.f1 < other.f1 || (!(other.f1 < self.f1) &&
+                (self.f2 < other.f2 || (!(other.f2 < self.f2) &&
+                    (false)
+                ))
+            )
             ```
 
-            The inner "`equal`" case is only reached if the two
-            items have all fields equal.
+            The optimiser should remove the redundancy. We explicitly
+            get use the binops to avoid auto-deref derefencing too many
+            layers of pointers, if the type includes pointers.
             */
-            if other_fs.len() != 1 {
-                cx.span_bug(span, "Not exactly 2 arguments in `deriving(Ord)`");
-            }
+            let other_f = match other_fs {
+                [o_f] => o_f,
+                _ => cx.span_bug(span, "Not exactly 2 arguments in `deriving(Ord)`")
+            };
 
-            let cmp = build::mk_method_call(cx, span,
-                                            self_f, cx.ident_of(~"eq"), other_fs);
-            let subexpr = build::mk_simple_block(cx, span, subexpr);
-            let elseif = expr_if(cmp, subexpr, Some(false_blk_expr));
-            let elseif = build::mk_expr(cx, span, elseif);
+            let cmp = cx.expr_binary(span, op,
+                                     cx.expr_deref(span, self_f),
+                                     cx.expr_deref(span, other_f));
 
-            let cmp = build::mk_method_call(cx, span,
-                                            self_f, binop, other_fs);
-            let if_ = expr_if(cmp, true_blk, Some(elseif));
+            let not_cmp = cx.expr_unary(span, ast::not,
+                                        cx.expr_binary(span, op,
+                                                       cx.expr_deref(span, other_f),
+                                                       cx.expr_deref(span, self_f)));
 
-            build::mk_expr(cx, span, if_)
+            let and = cx.expr_binary(span, ast::and, not_cmp, subexpr);
+            cx.expr_binary(span, ast::or, cmp, and)
         },
-        base,
-        |cx, span, args| {
+        cx.expr_bool(span, equal),
+        |cx, span, args, _| {
             // nonmatching enums, order by the order the variants are
             // written
             match args {
                 [(self_var, _, _),
                  (other_var, _, _)] =>
-                    build::mk_bool(cx, span,
-                                   if less {
-                                       self_var < other_var
-                                   } else {
-                                       self_var > other_var
-                                   }),
+                    cx.expr_bool(span,
+                                 if less {
+                                     self_var < other_var
+                                 } else {
+                                     self_var > other_var
+                                 }),
                 _ => cx.span_bug(span, "Not exactly 2 arguments in `deriving(Ord)`")
             }
         },

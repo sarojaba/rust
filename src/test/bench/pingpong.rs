@@ -11,12 +11,15 @@
 // Compare bounded and unbounded protocol performance.
 
 // xfail-pretty
- 
-extern mod std;
 
-use core::cell::Cell;
-use core::pipes::*;
-use std::time::precise_time_s;
+extern mod extra;
+
+use extra::time::precise_time_s;
+use std::cell::Cell;
+use std::io;
+use std::os;
+use std::pipes::*;
+use std::task;
 
 proto! pingpong (
     ping: send {
@@ -79,16 +82,16 @@ endpoint. The send endpoint is returned to the caller and the receive
 endpoint is passed to the new task.
 
 */
-pub fn spawn_service<T:Owned,Tb:Owned>(
-            init: extern fn() -> (SendPacketBuffered<T, Tb>,
-                                  RecvPacketBuffered<T, Tb>),
+pub fn spawn_service<T:Send,Tb:Send>(
+            init: extern fn() -> (RecvPacketBuffered<T, Tb>,
+                                  SendPacketBuffered<T, Tb>),
             service: ~fn(v: RecvPacketBuffered<T, Tb>))
         -> SendPacketBuffered<T, Tb> {
-    let (client, server) = init();
+    let (server, client) = init();
 
     // This is some nasty gymnastics required to safely move the pipe
     // into a new task.
-    let server = Cell(server);
+    let server = Cell::new(server);
     do task::spawn {
         service(server.take());
     }
@@ -100,16 +103,16 @@ pub fn spawn_service<T:Owned,Tb:Owned>(
 receive state.
 
 */
-pub fn spawn_service_recv<T:Owned,Tb:Owned>(
-        init: extern fn() -> (RecvPacketBuffered<T, Tb>,
-                              SendPacketBuffered<T, Tb>),
+pub fn spawn_service_recv<T:Send,Tb:Send>(
+        init: extern fn() -> (SendPacketBuffered<T, Tb>,
+                              RecvPacketBuffered<T, Tb>),
         service: ~fn(v: SendPacketBuffered<T, Tb>))
         -> RecvPacketBuffered<T, Tb> {
-    let (client, server) = init();
+    let (server, client) = init();
 
     // This is some nasty gymnastics required to safely move the pipe
     // into a new task.
-    let server = Cell(server);
+    let server = Cell::new(server);
     do task::spawn {
         service(server.take())
     }
@@ -117,9 +120,10 @@ pub fn spawn_service_recv<T:Owned,Tb:Owned>(
     client
 }
 
-fn switch<T:Owned,Tb:Owned,U>(+endp: core::pipes::RecvPacketBuffered<T, Tb>,
-                      f: &fn(+v: Option<T>) -> U) -> U {
-    f(core::pipes::try_recv(endp))
+fn switch<T:Send,Tb:Send,U>(endp: std::pipes::RecvPacketBuffered<T, Tb>,
+                              f: &fn(v: Option<T>) -> U)
+                              -> U {
+    f(std::pipes::try_recv(endp))
 }
 
 // Here's the benchmark

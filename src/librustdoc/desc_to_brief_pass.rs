@@ -15,6 +15,7 @@ If the first paragraph of a long description is short enough then it
 is interpreted as the brief description.
 */
 
+
 use astsrv;
 use doc::ItemUtils;
 use doc;
@@ -22,7 +23,7 @@ use fold::Fold;
 use fold;
 use pass::Pass;
 
-use core::util;
+use std::util;
 
 pub fn mk_pass() -> Pass {
     Pass {
@@ -86,11 +87,11 @@ pub fn extract(desc: Option<~str>) -> Option<~str> {
 }
 
 fn parse_desc(desc: ~str) -> Option<~str> {
-    static max_brief_len: uint = 120u;
+    static MAX_BRIEF_LEN: uint = 120u;
 
     match first_sentence(copy desc) {
       Some(first_sentence) => {
-        if str::len(first_sentence) <= max_brief_len {
+        if first_sentence.len() <= MAX_BRIEF_LEN {
             Some(first_sentence)
         } else {
             None
@@ -104,7 +105,7 @@ fn first_sentence(s: ~str) -> Option<~str> {
     let paras = paragraphs(s);
     if !paras.is_empty() {
         let first_para = paras.head();
-        Some(str::replace(first_sentence_(*first_para), ~"\n", ~" "))
+        Some(first_sentence_(*first_para).replace("\n", " "))
     } else {
         None
     }
@@ -114,42 +115,36 @@ fn first_sentence_(s: &str) -> ~str {
     let mut dotcount = 0;
     // The index of the character following a single dot. This allows
     // Things like [0..1) to appear in the brief description
-    let idx = do str::find(s) |ch| {
+    let idx = s.find(|ch: char| {
         if ch == '.' {
             dotcount += 1;
             false
+        } else if dotcount == 1 {
+            true
         } else {
-            if dotcount == 1 {
-                true
-            } else {
-                dotcount = 0;
-                false
-            }
+            dotcount = 0;
+            false
         }
-    };
+    });
     match idx {
-        Some(idx) if idx > 2u => {
-            str::from_slice(str::slice(s, 0, idx - 1))
-        }
+        Some(idx) if idx > 2u => s.slice(0, idx - 1).to_owned(),
         _ => {
-            if str::ends_with(s, ~".") {
-                str::from_slice(s)
+            if s.ends_with(".") {
+                s.to_owned()
             } else {
-                str::from_slice(s)
+                s.to_owned()
             }
         }
     }
 }
 
 pub fn paragraphs(s: &str) -> ~[~str] {
-    let mut lines = ~[];
-    for str::each_line_any(s) |line| { lines.push(line.to_owned()); }
     let mut whitespace_lines = 0;
     let mut accum = ~"";
-    let paras = do vec::foldl(~[], lines) |paras, line| {
+    let mut paras = do s.any_line_iter().fold(~[]) |paras, line| {
         let mut res = paras;
 
-        if str::is_whitespace(*line) {
+        if line.is_whitespace() {
             whitespace_lines += 1;
         } else {
             if whitespace_lines > 0 {
@@ -161,25 +156,23 @@ pub fn paragraphs(s: &str) -> ~[~str] {
 
             whitespace_lines = 0;
 
-            accum = if str::is_empty(accum) {
-                copy *line
+            accum = if accum.is_empty() {
+                line.to_owned()
             } else {
-                accum + ~"\n" + *line
+                fmt!("%s\n%s", accum, line)
             }
         }
 
         res
     };
 
-    if !accum.is_empty() {
-        paras + ~[accum]
-    } else {
-        paras
-    }
+    if !accum.is_empty() { paras.push(accum); }
+    paras
 }
 
 #[cfg(test)]
 mod test {
+
     use astsrv;
     use attr_pass;
     use super::{extract, paragraphs, run};
@@ -197,7 +190,7 @@ mod test {
     #[test]
     fn should_promote_desc() {
         let doc = mk_doc(~"#[doc = \"desc\"] mod m { }");
-        assert!(doc.cratemod().mods()[0].brief() == Some(~"desc"));
+        assert_eq!(doc.cratemod().mods()[0].brief(), Some(~"desc"));
     }
 
     #[test]
@@ -216,21 +209,21 @@ mod test {
 
     #[test]
     fn test_paragraphs_1() {
-        let paras = paragraphs(~"1\n\n2");
-        assert!(paras == ~[~"1", ~"2"]);
+        let paras = paragraphs("1\n\n2");
+        assert_eq!(paras, ~[~"1", ~"2"]);
     }
 
     #[test]
     fn test_paragraphs_2() {
-        let paras = paragraphs(~"\n\n1\n1\n\n2\n\n");
-        assert!(paras == ~[~"1\n1", ~"2"]);
+        let paras = paragraphs("\n\n1\n1\n\n2\n\n");
+        assert_eq!(paras, ~[~"1\n1", ~"2"]);
     }
 
     #[test]
     fn should_promote_short_descs() {
         let desc = Some(~"desc");
         let brief = extract(copy desc);
-        assert!(brief == desc);
+        assert_eq!(brief, desc);
     }
 
     #[test]
@@ -244,7 +237,7 @@ Scotland in the mid 12th century, although it may have been built by
 King Henry II of England when he took control of England'snorthern
 counties.");
         let brief = extract(desc);
-        assert!(brief == None);
+        assert_eq!(brief, None);
     }
 
     #[test]

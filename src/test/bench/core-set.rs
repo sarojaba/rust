@@ -8,10 +8,15 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-extern mod std;
-use core::hashmap::HashSet;
-use std::bitv::BitvSet;
-use std::treemap::TreeSet;
+extern mod extra;
+
+use extra::bitv::BitvSet;
+use extra::treemap::TreeSet;
+use std::hashmap::HashSet;
+use std::io;
+use std::os;
+use std::rand;
+use std::uint;
 
 struct Results {
     sequential_ints: float,
@@ -24,15 +29,20 @@ struct Results {
 }
 
 fn timed(result: &mut float, op: &fn()) {
-    let start = std::time::precise_time_s();
+    let start = extra::time::precise_time_s();
     op();
-    let end = std::time::precise_time_s();
+    let end = extra::time::precise_time_s();
     *result = (end - start);
 }
 
-pub impl Results {
-    fn bench_int<T:Set<uint>, R: rand::Rng>(&mut self, rng: &R, num_keys: uint,
-                               rand_cap: uint, f: &fn() -> T) {
+impl Results {
+    pub fn bench_int<T:Set<uint>,
+                 R: rand::Rng>(
+                 &mut self,
+                 rng: &mut R,
+                 num_keys: uint,
+                 rand_cap: uint,
+                 f: &fn() -> T) {
         {
             let mut set = f();
             do timed(&mut self.sequential_ints) {
@@ -69,8 +79,12 @@ pub impl Results {
         }
     }
 
-    fn bench_str<T:Set<~str>, R: rand::Rng>(&mut self, rng: &R, num_keys: uint,
-                                            f: &fn() -> T) {
+    pub fn bench_str<T:Set<~str>,
+                 R:rand::Rng>(
+                 &mut self,
+                 rng: &mut R,
+                 num_keys: uint,
+                 f: &fn() -> T) {
         {
             let mut set = f();
             do timed(&mut self.sequential_strings) {
@@ -155,25 +169,25 @@ fn main() {
     let max = 200000;
 
     {
-        let rng = rand::IsaacRng::new_seeded(seed);
+        let mut rng = rand::IsaacRng::new_seeded(seed);
         let mut results = empty_results();
-        results.bench_int(&rng, num_keys, max, || HashSet::new::<uint>());
-        results.bench_str(&rng, num_keys, || HashSet::new::<~str>());
-        write_results("core::hashmap::HashSet", &results);
+        results.bench_int(&mut rng, num_keys, max, || HashSet::new::<uint>());
+        results.bench_str(&mut rng, num_keys, || HashSet::new::<~str>());
+        write_results("std::hashmap::HashSet", &results);
     }
 
     {
-        let rng = rand::IsaacRng::new_seeded(seed);
+        let mut rng = rand::IsaacRng::new_seeded(seed);
         let mut results = empty_results();
-        results.bench_int(&rng, num_keys, max, || TreeSet::new::<uint>());
-        results.bench_str(&rng, num_keys, || TreeSet::new::<~str>());
-        write_results("std::treemap::TreeSet", &results);
+        results.bench_int(&mut rng, num_keys, max, || TreeSet::new::<uint>());
+        results.bench_str(&mut rng, num_keys, || TreeSet::new::<~str>());
+        write_results("extra::treemap::TreeSet", &results);
     }
 
     {
-        let rng = rand::IsaacRng::new_seeded(seed);
+        let mut rng = rand::IsaacRng::new_seeded(seed);
         let mut results = empty_results();
-        results.bench_int(&rng, num_keys, max, || BitvSet::new());
-        write_results("std::bitv::BitvSet", &results);
+        results.bench_int(&mut rng, num_keys, max, || BitvSet::new());
+        write_results("extra::bitv::BitvSet", &results);
     }
 }

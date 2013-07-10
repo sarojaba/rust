@@ -10,7 +10,10 @@
 
 // xfail-fast
 
-extern mod std;
+extern mod extra;
+
+use std::comm;
+use std::task;
 
 pub fn main() { test00(); }
 
@@ -27,8 +30,9 @@ fn test00() {
     let ch = p.chan();
 
     let mut result = None;
-    do task::task().future_result(|+r| { result = Some(r); }).spawn
-          || {
+    let mut builder = task::task();
+    builder.future_result(|r| result = Some(r));
+    do builder.spawn {
         test00_start(&ch, number_of_messages);
     }
 
@@ -41,5 +45,5 @@ fn test00() {
 
     result.unwrap().recv();
 
-    assert!((sum == number_of_messages * (number_of_messages - 1) / 2));
+    assert_eq!(sum, number_of_messages * (number_of_messages - 1) / 2);
 }

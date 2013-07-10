@@ -10,7 +10,7 @@
 
 pub fn main() {
     let mut x = 0;
-    
+
     'foo: loop {
         'bar: loop {
             'quux: loop {
@@ -28,5 +28,5 @@ pub fn main() {
     }
 
     error!("%?", x);
-    assert!((x == 42));
+    assert_eq!(x, 42);
 }

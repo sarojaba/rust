@@ -1,11 +1,40 @@
+<<<<<<< HEAD
 The markdown 문서는 node가 설치되어 있는 상태에서 make 명령을 통해서만 생성된다(use `make doc`). 만약 node가 설치되지 않았으면 손수 생성할 수 있다. 
 불행히도 markdown을 위한 진짜 표준은 없고, 모든 도구는 다르게 동작한다. pandoc은 잘 동작하는 것 중에 하나이다.
 
 문서의 html 버전을 생성하려면 다음의 명령을 수행한다:
 nodejs prep.js --highlight -o tutorial-temp.md tutorial.md && pandoc --toc --number-sections -c rust.css tutorial-temp.md -o tutorial.html && rm tutorial-temp.md
+=======
+Pandoc, a universal document converter, is required to generate docs as HTML
+from Rust's source code. It's available for most platforms here:
+http://johnmacfarlane.net/pandoc/installing.html
+
+Node.js (http://nodejs.org/) is also required for generating HTML from
+the Markdown docs (reference manual, tutorials, etc.) distributed with
+this git repository.
+
+To generate all the docs, run `make docs` from the root of the repository.
+This will convert the distributed Markdown docs to HTML and generate HTML doc
+for the 'std' and 'extra' libraries.
+
+To generate HTML documentation from one source file/crate, do something like:
+
+  rustdoc --output-dir html-doc/ --output-format html ../src/libstd/path.rs
+
+(This, of course, requires that you've built/installed the `rustdoc` tool.)
+
+To generate an HTML version of a doc from Markdown, without having Node.js
+installed, do something like:
+
+  pandoc --from=markdown --to=html --number-sections -o rust.html rust.md
+>>>>>>> upstream/master
 
 pandoc 스타일의 markdown 문법은 다음에서 찾을 수 있다:
 http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
 
+<<<<<<< HEAD
 괜찮은 초간단 매뉴얼(pandoc markdown이 아닌)은 여기로:
+=======
+A nice quick reference (for non-pandoc markdown) is at:
+>>>>>>> upstream/master
 http://kramdown.rubyforge.org/quickref.html

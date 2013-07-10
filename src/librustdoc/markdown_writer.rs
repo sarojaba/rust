@@ -1,4 +1,4 @@
-// Copyright 2012 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2012-2013 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -8,14 +8,19 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+
 use config;
 use doc::ItemUtils;
 use doc;
 
-use core::libc;
-use core::run;
-use core::comm::*;
-use std::future;
+use std::comm::*;
+use std::comm;
+use std::io;
+use std::result;
+use std::run;
+use std::str;
+use std::task;
+use extra::future;
 
 pub enum WriteInstr {
     Write(~str),
@@ -26,8 +31,8 @@ pub type Writer = ~fn(v: WriteInstr);
 pub type WriterFactory = ~fn(page: doc::Page) -> Writer;
 
 pub trait WriterUtils {
-    fn put_str(&self, +str: ~str);
-    fn put_line(&self, +str: ~str);
+    fn put_str(&self, str: ~str);
+    fn put_line(&self, str: ~str);
     fn put_done(&self);
 }
 
@@ -37,7 +42,7 @@ impl WriterUtils for Writer {
     }
 
     fn put_line(&self, str: ~str) {
-        self.put_str(str + ~"\n");
+        self.put_str(str + "\n");
     }
 
     fn put_done(&self) {
@@ -58,20 +63,20 @@ pub fn make_writer_factory(config: config::Config) -> WriterFactory {
 
 fn markdown_writer_factory(config: config::Config) -> WriterFactory {
     let result: ~fn(page: doc::Page) -> Writer = |page| {
-        markdown_writer(copy config, page)
+        markdown_writer(&config, page)
     };
     result
 }
 
 fn pandoc_writer_factory(config: config::Config) -> WriterFactory {
     let result: ~fn(doc::Page) -> Writer = |page| {
-        pandoc_writer(copy config, page)
+        pandoc_writer(&config, page)
     };
     result
 }
 
 fn markdown_writer(
-    config: config::Config,
+    config: &config::Config,
     page: doc::Page
 ) -> Writer {
     let filename = make_local_filename(config, page);
@@ -81,11 +86,11 @@ fn markdown_writer(
 }
 
 fn pandoc_writer(
-    config: config::Config,
+    config: &config::Config,
     page: doc::Page
 ) -> Writer {
     assert!(config.pandoc_cmd.is_some());
-    let pandoc_cmd = (&config.pandoc_cmd).get();
+    let pandoc_cmd = copy *config.pandoc_cmd.get_ref();
     let filename = make_local_filename(config, page);
 
     let pandoc_args = ~[
@@ -98,62 +103,22 @@ fn pandoc_writer(
     ];
 
     do generic_writer |markdown| {
-        use core::io::WriterUtil;
+        use std::io::WriterUtil;
 
         debug!("pandoc cmd: %s", pandoc_cmd);
-        debug!("pandoc args: %s", str::connect(pandoc_args, ~" "));
+        debug!("pandoc args: %s", pandoc_args.connect(" "));
 
-        let pipe_in = os::pipe();
-        let pipe_out = os::pipe();
-        let pipe_err = os::pipe();
-        let pid = run::spawn_process(
-            pandoc_cmd, pandoc_args, &None, &None,
-            pipe_in.in, pipe_out.out, pipe_err.out);
+        let mut proc = run::Process::new(pandoc_cmd, pandoc_args, run::ProcessOptions::new());
 
-        let writer = io::fd_writer(pipe_in.out, false);
-        writer.write_str(markdown);
+        proc.input().write_str(markdown);
+        let output = proc.finish_with_output();
 
-        os::close(pipe_in.in);
-        os::close(pipe_out.out);
-        os::close(pipe_err.out);
-        os::close(pipe_in.out);
-
-        let (stdout_po, stdout_ch) = comm::stream();
-        do task::spawn_sched(task::SingleThreaded) || {
-            stdout_ch.send(readclose(pipe_out.in));
+        debug!("pandoc result: %i", output.status);
+        if output.status != 0 {
+            error!("pandoc-out: %s", str::from_bytes(output.output));
+            error!("pandoc-err: %s", str::from_bytes(output.error));
+            fail!("pandoc failed");
         }
-
-        let (stderr_po, stderr_ch) = comm::stream();
-        do task::spawn_sched(task::SingleThreaded) || {
-            stderr_ch.send(readclose(pipe_err.in));
-        }
-        let stdout = stdout_po.recv();
-        let stderr = stderr_po.recv();
-
-        let status = run::waitpid(pid);
-        debug!("pandoc result: %i", status);
-        if status != 0 {
-            error!("pandoc-out: %s", stdout);
-            error!("pandoc-err: %s", stderr);
-            fail!(~"pandoc failed");
-        }
-    }
-}
-
-fn readclose(fd: libc::c_int) -> ~str {
-    // Copied from run::program_output
-    unsafe {
-        let file = os::fdopen(fd);
-        let reader = io::FILE_reader(file, false);
-        let buf = io::with_bytes_writer(|writer| {
-            let mut bytes = [0, ..4096];
-            while !reader.eof() {
-                let nread = reader.read(bytes, bytes.len());
-                writer.write(bytes.slice(0, nread).to_owned());
-            }
-        });
-        os::fclose(file);
-        str::from_bytes(buf)
     }
 }
 
@@ -164,7 +129,7 @@ fn generic_writer(process: ~fn(markdown: ~str)) -> Writer {
         let mut keep_going = true;
         while keep_going {
             match po.recv() {
-              Write(s) => markdown += s,
+              Write(s) => markdown.push_str(s),
               Done => keep_going = false
             }
         }
@@ -175,15 +140,15 @@ fn generic_writer(process: ~fn(markdown: ~str)) -> Writer {
 }
 
 pub fn make_local_filename(
-    config: config::Config,
+    config: &config::Config,
     page: doc::Page
 ) -> Path {
-    let filename = make_filename(copy config, page);
+    let filename = make_filename(config, page);
     config.output_dir.push_rel(&filename)
 }
 
 pub fn make_filename(
-    config: config::Config,
+    config: &config::Config,
     page: doc::Page
 ) -> Path {
     let filename = {
@@ -198,7 +163,7 @@ pub fn make_filename(
             }
           }
           doc::ItemPage(doc) => {
-            str::connect(doc.path() + ~[doc.name()], ~"_")
+            (doc.path() + &[doc.name()]).connect("_")
           }
         }
     };
@@ -211,9 +176,9 @@ pub fn make_filename(
 }
 
 fn write_file(path: &Path, s: ~str) {
-    use core::io::WriterUtil;
+    use std::io::WriterUtil;
 
-    match io::file_writer(path, ~[io::Create, io::Truncate]) {
+    match io::file_writer(path, [io::Create, io::Truncate]) {
       result::Ok(writer) => {
         writer.write_str(s);
       }
@@ -230,6 +195,7 @@ pub fn future_writer_factory(
         let markdown_ch = markdown_ch.clone();
         do task::spawn || {
             let (writer, future) = future_writer();
+            let mut future = future;
             writer_ch.send(writer);
             let s = future.get();
             markdown_ch.send((copy page, s));
@@ -247,7 +213,7 @@ fn future_writer() -> (Writer, future::Future<~str>) {
         let mut res = ~"";
         loop {
             match port.recv() {
-              Write(s) => res += s,
+              Write(s) => res.push_str(s),
               Done => break
             }
         }
@@ -258,6 +224,7 @@ fn future_writer() -> (Writer, future::Future<~str>) {
 
 #[cfg(test)]
 mod test {
+
     use astsrv;
     use doc;
     use extract;
@@ -283,8 +250,8 @@ mod test {
         };
         let doc = mk_doc(~"test", ~"");
         let page = doc::CratePage(doc.CrateDoc());
-        let filename = make_local_filename(config, page);
-        assert!(filename.to_str() == ~"output/dir/test.md");
+        let filename = make_local_filename(&config, page);
+        assert_eq!(filename.to_str(), ~"output/dir/test.md");
     }
 
     #[test]
@@ -297,8 +264,8 @@ mod test {
         };
         let doc = mk_doc(~"", ~"");
         let page = doc::CratePage(doc.CrateDoc());
-        let filename = make_local_filename(config, page);
-        assert!(filename.to_str() == ~"output/dir/index.html");
+        let filename = make_local_filename(&config, page);
+        assert_eq!(filename.to_str(), ~"output/dir/index.html");
     }
 
     #[test]
@@ -312,7 +279,7 @@ mod test {
         let doc = mk_doc(~"", ~"mod a { mod b { } }");
         let modb = copy doc.cratemod().mods()[0].mods()[0];
         let page = doc::ItemPage(doc::ModTag(modb));
-        let filename = make_local_filename(config, page);
-        assert!(filename == Path("output/dir/a_b.html"));
+        let filename = make_local_filename(&config, page);
+        assert_eq!(filename, Path("output/dir/a_b.html"));
     }
 }

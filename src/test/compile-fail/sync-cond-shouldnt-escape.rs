@@ -8,9 +8,9 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-// error-pattern: reference is not valid outside of its lifetime
-extern mod std;
-use std::sync;
+// error-pattern: lifetime of variable does not enclose its declaration
+extern mod extra;
+use extra::sync;
 
 fn main() {
     let m = ~sync::Mutex();

@@ -1,6 +1,6 @@
 # xfail-license
 
-import re, os, sys, glob, tarfile, shutil, subprocess, tempfile
+import re, os, sys, glob, tarfile, shutil, subprocess, tempfile, distutils.spawn
 
 try:
   import hashlib
@@ -26,29 +26,29 @@ download_unpack_base = os.path.join(download_dir_base, "unpack")
 
 snapshot_files = {
     "linux": ["bin/rustc",
-              "lib/libcore-*.so",
               "lib/libstd-*.so",
+              "lib/libextra-*.so",
               "lib/librustc-*.so",
               "lib/libsyntax-*.so",
               "lib/librustrt.so",
               "lib/librustllvm.so"],
     "macos": ["bin/rustc",
-              "lib/libcore-*.dylib",
               "lib/libstd-*.dylib",
+              "lib/libextra-*.dylib",
               "lib/librustc-*.dylib",
               "lib/libsyntax-*.dylib",
               "lib/librustrt.dylib",
               "lib/librustllvm.dylib"],
     "winnt": ["bin/rustc.exe",
-              "bin/core-*.dll",
               "bin/std-*.dll",
+              "bin/extra-*.dll",
               "bin/rustc-*.dll",
               "bin/syntax-*.dll",
               "bin/rustrt.dll",
               "bin/rustllvm.dll"],
     "freebsd": ["bin/rustc",
-                "lib/libcore-*.so",
                 "lib/libstd-*.so",
+                "lib/libextra-*.so",
                 "lib/librustc-*.so",
                 "lib/libsyntax-*.so",
                 "lib/librustrt.so",
@@ -132,7 +132,13 @@ def local_rev_committer_date():
 def get_url_to_file(u,f):
     # no security issue, just to stop partial download leaving a stale file
     tmpf = f + '.tmp'
-    returncode = subprocess.call(["curl", "-o", tmpf, u])
+
+    returncode = -1
+    if distutils.spawn.find_executable("curl"):
+        returncode = subprocess.call(["curl", "-o", tmpf, u])
+    elif distutils.spawn.find_executable("wget"):
+        returncode = subprocess.call(["wget", "-O", tmpf, u])
+
     if returncode != 0:
         os.unlink(tmpf)
         raise

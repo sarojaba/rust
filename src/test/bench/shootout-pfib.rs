@@ -19,15 +19,19 @@
 
 */
 
-extern mod std;
+extern mod extra;
 
-use std::{time, getopts};
-use core::int::range;
-use core::comm::*;
-use core::io::WriterUtil;
-
-use core::result;
-use core::result::{Ok, Err};
+use extra::{time, getopts};
+use std::comm::*;
+use std::int::range;
+use std::io::WriterUtil;
+use std::io;
+use std::os;
+use std::result::{Ok, Err};
+use std::str;
+use std::task;
+use std::u64;
+use std::uint;
 
 fn fib(n: int) -> int {
     fn pfib(c: &Chan<int>, n: int) {
@@ -57,7 +61,7 @@ struct Config {
 fn parse_opts(argv: ~[~str]) -> Config {
     let opts = ~[getopts::optflag(~"stress")];
 
-    let opt_args = vec::slice(argv, 1, argv.len());
+    let opt_args = argv.slice(1, argv.len());
 
     match getopts::getopts(opt_args, opts) {
       Ok(ref m) => {
@@ -67,11 +71,11 @@ fn parse_opts(argv: ~[~str]) -> Config {
     }
 }
 
-fn stress_task(&&id: int) {
+fn stress_task(id: int) {
     let mut i = 0;
     loop {
         let n = 15;
-        assert!((fib(n) == fib(n)));
+        assert_eq!(fib(n), fib(n));
         i += 1;
         error!("%d: Completed %d iterations", id, i);
     }
@@ -80,13 +84,15 @@ fn stress_task(&&id: int) {
 fn stress(num_tasks: int) {
     let mut results = ~[];
     for range(0, num_tasks) |i| {
-        do task::task().future_result(|+r| {
-            results.push(r);
-        }).spawn {
+        let mut builder = task::task();
+        builder.future_result(|r| results.push(r));
+        do builder.spawn {
             stress_task(i);
         }
     }
-    for results.each |r| { r.recv(); }
+    for results.iter().advance |r| {
+        r.recv();
+    }
 }
 
 fn main() {
@@ -104,8 +110,7 @@ fn main() {
     if opts.stress {
         stress(2);
     } else {
-        let max = uint::parse_bytes(str::to_bytes(args[1]),
-                                                10u).get() as int;
+        let max = uint::parse_bytes(args[1].as_bytes(), 10u).get() as int;
 
         let num_trials = 10;
 

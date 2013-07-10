@@ -10,6 +10,7 @@
 
 //! Pulls type information out of the AST and attaches it to the document
 
+
 use astsrv;
 use doc::ItemUtils;
 use doc;
@@ -21,6 +22,7 @@ use pass::Pass;
 
 use syntax::ast;
 use syntax::print::pprust;
+use syntax::parse::token;
 use syntax::ast_map;
 
 pub fn mk_pass() -> Pass {
@@ -63,7 +65,7 @@ fn fold_fn(
 
 fn get_fn_sig(srv: astsrv::Srv, fn_id: doc::AstId) -> Option<~str> {
     do astsrv::exec(srv) |ctxt| {
-        match *ctxt.ast_map.get(&fn_id) {
+        match ctxt.ast_map.get_copy(&fn_id) {
             ast_map::node_item(@ast::item {
                 ident: ident,
                 node: ast::item_fn(ref decl, purity, _, ref tys, _), _
@@ -73,9 +75,9 @@ fn get_fn_sig(srv: astsrv::Srv, fn_id: doc::AstId) -> Option<~str> {
                 node: ast::foreign_item_fn(ref decl, purity, ref tys), _
             }, _, _, _) => {
                 Some(pprust::fun_to_str(decl, purity, ident, None, tys,
-                                        extract::interner()))
+                                       token::get_ident_interner()))
             }
-            _ => fail!(~"get_fn_sig: fn_id not bound to a fn item")
+            _ => fail!("get_fn_sig: fn_id not bound to a fn item")
         }
     }
 }
@@ -90,13 +92,13 @@ fn fold_const(
         sig: Some({
             let doc = copy doc;
             do astsrv::exec(srv) |ctxt| {
-                match *ctxt.ast_map.get(&doc.id()) {
+                match ctxt.ast_map.get_copy(&doc.id()) {
                     ast_map::node_item(@ast::item {
-                        node: ast::item_const(ty, _), _
+                        node: ast::item_static(ref ty, _, _), _
                     }, _) => {
                         pprust::ty_to_str(ty, extract::interner())
                     }
-                    _ => fail!(~"fold_const: id not bound to a const item")
+                    _ => fail!("fold_const: id not bound to a const item")
                 }
             }}),
         .. doc
@@ -111,23 +113,23 @@ fn fold_enum(
     let srv = fold.ctxt.clone();
 
     doc::EnumDoc {
-        variants: do vec::map(doc.variants) |variant| {
+        variants: do doc.variants.iter().transform |variant| {
             let sig = {
                 let variant = copy *variant;
                 do astsrv::exec(srv.clone()) |ctxt| {
-                    match *ctxt.ast_map.get(&doc_id) {
+                    match ctxt.ast_map.get_copy(&doc_id) {
                         ast_map::node_item(@ast::item {
                             node: ast::item_enum(ref enum_definition, _), _
                         }, _) => {
                             let ast_variant =
-                                do vec::find(enum_definition.variants) |v| {
+                                copy *do enum_definition.variants.iter().find_ |v| {
                                 to_str(v.node.name) == variant.name
                             }.get();
 
                             pprust::variant_to_str(
-                                ast_variant, extract::interner())
+                                &ast_variant, extract::interner())
                         }
-                        _ => fail!(~"enum variant not bound to an enum item")
+                        _ => fail!("enum variant not bound to an enum item")
                     }
                 }
             };
@@ -136,7 +138,7 @@ fn fold_enum(
                 sig: Some(sig),
                 .. copy *variant
             }
-        },
+        }.collect(),
         .. doc
     }
 }
@@ -156,12 +158,12 @@ fn merge_methods(
     item_id: doc::AstId,
     docs: ~[doc::MethodDoc]
 ) -> ~[doc::MethodDoc] {
-    do vec::map(docs) |doc| {
+    do docs.iter().transform |doc| {
         doc::MethodDoc {
             sig: get_method_sig(srv.clone(), item_id, copy doc.name),
             .. copy *doc
         }
-    }
+    }.collect()
 }
 
 fn get_method_sig(
@@ -170,24 +172,24 @@ fn get_method_sig(
     method_name: ~str
 ) -> Option<~str> {
     do astsrv::exec(srv) |ctxt| {
-        match *ctxt.ast_map.get(&item_id) {
+        match ctxt.ast_map.get_copy(&item_id) {
             ast_map::node_item(@ast::item {
                 node: ast::item_trait(_, _, ref methods), _
             }, _) => {
-                match vec::find(*methods, |method| {
+                match methods.iter().find_(|&method| {
                     match copy *method {
                         ast::required(ty_m) => to_str(ty_m.ident) == method_name,
                         ast::provided(m) => to_str(m.ident) == method_name,
                     }
                 }) {
                     Some(method) => {
-                        match method {
+                        match copy *method {
                             ast::required(ty_m) => {
                                 Some(pprust::fun_to_str(
                                     &ty_m.decl,
                                     ty_m.purity,
                                     ty_m.ident,
-                                    Some(ty_m.self_ty.node),
+                                    Some(ty_m.explicit_self.node),
                                     &ty_m.generics,
                                     extract::interner()
                                 ))
@@ -197,20 +199,20 @@ fn get_method_sig(
                                     &m.decl,
                                     m.purity,
                                     m.ident,
-                                    Some(m.self_ty.node),
+                                    Some(m.explicit_self.node),
                                     &m.generics,
                                     extract::interner()
                                 ))
                             }
                         }
                     }
-                    _ => fail!(~"method not found")
+                    _ => fail!("method not found")
                 }
             }
             ast_map::node_item(@ast::item {
                 node: ast::item_impl(_, _, _, ref methods), _
             }, _) => {
-                match vec::find(*methods, |method| {
+                match methods.iter().find_(|method| {
                     to_str(method.ident) == method_name
                 }) {
                     Some(method) => {
@@ -218,15 +220,15 @@ fn get_method_sig(
                             &method.decl,
                             method.purity,
                             method.ident,
-                            Some(method.self_ty.node),
+                            Some(method.explicit_self.node),
                             &method.generics,
                             extract::interner()
                         ))
                     }
-                    None => fail!(~"method not found")
+                    None => fail!("method not found")
                 }
             }
-            _ => fail!(~"get_method_sig: item ID not bound to trait or impl")
+            _ => fail!("get_method_sig: item ID not bound to trait or impl")
         }
     }
 }
@@ -241,21 +243,21 @@ fn fold_impl(
     let (bounds, trait_types, self_ty) = {
         let doc = copy doc;
         do astsrv::exec(srv) |ctxt| {
-            match *ctxt.ast_map.get(&doc.id()) {
+            match ctxt.ast_map.get_copy(&doc.id()) {
                 ast_map::node_item(@ast::item {
-                    node: ast::item_impl(ref generics, opt_trait_type, self_ty, _), _
+                    node: ast::item_impl(ref generics, ref opt_trait_type, ref self_ty, _), _
                 }, _) => {
                     let bounds = pprust::generics_to_str(generics, extract::interner());
                     let bounds = if bounds.is_empty() { None } else { Some(bounds) };
                     let trait_types = opt_trait_type.map_default(~[], |p| {
-                        ~[pprust::path_to_str(p.path, extract::interner())]
+                        ~[pprust::path_to_str(&p.path, extract::interner())]
                     });
                     (bounds,
                      trait_types,
                      Some(pprust::ty_to_str(
                          self_ty, extract::interner())))
                 }
-                _ => fail!(~"expected impl")
+                _ => fail!("expected impl")
             }
         }
     };
@@ -280,21 +282,20 @@ fn fold_type(
         sig: {
             let doc = copy doc;
             do astsrv::exec(srv) |ctxt| {
-                match *ctxt.ast_map.get(&doc.id()) {
+                match ctxt.ast_map.get_copy(&doc.id()) {
                     ast_map::node_item(@ast::item {
                         ident: ident,
-                        node: ast::item_ty(ty, ref params), _
+                        node: ast::item_ty(ref ty, ref params), _
                     }, _) => {
                         Some(fmt!(
                             "type %s%s = %s",
                             to_str(ident),
                             pprust::generics_to_str(params,
                                                     extract::interner()),
-                            pprust::ty_to_str(ty,
-                                              extract::interner())
+                            pprust::ty_to_str(ty, extract::interner())
                         ))
                     }
-                    _ => fail!(~"expected type")
+                    _ => fail!("expected type")
                 }
             }
         },
@@ -312,13 +313,13 @@ fn fold_struct(
         sig: {
             let doc = copy doc;
             do astsrv::exec(srv) |ctxt| {
-                match *ctxt.ast_map.get(&doc.id()) {
+                match ctxt.ast_map.get_copy(&doc.id()) {
                     ast_map::node_item(item, _) => {
                         let item = strip_struct_extra_stuff(item);
                         Some(pprust::item_to_str(item,
                                                  extract::interner()))
                     }
-                    _ => fail!(~"not an item")
+                    _ => fail!("not an item")
                 }
             }
         },
@@ -332,14 +333,8 @@ fn fold_struct(
 /// what I actually want
 fn strip_struct_extra_stuff(item: @ast::item) -> @ast::item {
     let node = match copy item.node {
-        ast::item_struct(def, tys) => {
-            let def = @ast::struct_def {
-                dtor: None, // Remove the drop { } block
-                .. copy *def
-            };
-            ast::item_struct(def, tys)
-        }
-        _ => fail!(~"not a struct")
+        ast::item_struct(def, tys) => ast::item_struct(def, tys),
+        _ => fail!("not a struct")
     };
 
     @ast::item {
@@ -351,6 +346,7 @@ fn strip_struct_extra_stuff(item: @ast::item) -> @ast::item {
 
 #[cfg(test)]
 mod test {
+
     use astsrv;
     use doc;
     use extract;
@@ -371,7 +367,7 @@ mod test {
 
     #[test]
     fn should_add_foreign_fn_sig() {
-        let doc = mk_doc(~"extern mod a { fn a<T>() -> int; }");
+        let doc = mk_doc(~"extern { fn a<T>() -> int; }");
         assert!(doc.cratemod().nmods()[0].fns[0].sig ==
                 Some(~"fn a<T>() -> int"));
     }
@@ -411,7 +407,7 @@ mod test {
     #[test]
     fn should_not_add_impl_trait_types_if_none() {
         let doc = mk_doc(~"impl int { fn a() { } }");
-        assert!(vec::len(doc.cratemod().impls()[0].trait_types) == 0);
+        assert!(doc.cratemod().impls()[0].trait_types.len() == 0);
     }
 
     #[test]
@@ -436,21 +432,14 @@ mod test {
     #[test]
     fn should_add_struct_defs() {
         let doc = mk_doc(~"struct S { field: () }");
-        assert!((&doc.cratemod().structs()[0].sig).get().contains(
+        assert!(doc.cratemod().structs()[0].sig.get().contains(
             "struct S {"));
-    }
-
-    #[test]
-    fn should_not_serialize_struct_drop_blocks() {
-        // All we care about are the fields
-        let doc = mk_doc(~"struct S { field: (), drop { } }");
-        assert!(!(&doc.cratemod().structs()[0].sig).get().contains("drop"));
     }
 
     #[test]
     fn should_not_serialize_struct_attrs() {
         // All we care about are the fields
         let doc = mk_doc(~"#[wut] struct S { field: () }");
-        assert!(!(&doc.cratemod().structs()[0].sig).get().contains("wut"));
+        assert!(!doc.cratemod().structs()[0].sig.get().contains("wut"));
     }
 }

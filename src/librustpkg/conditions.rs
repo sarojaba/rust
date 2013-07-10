@@ -10,8 +10,8 @@
 
 // Useful conditions
 
-pub use core::path::Path;
-pub use util::PkgId;
+pub use std::path::Path;
+pub use package_id::PkgId;
 
 condition! {
     bad_path: (super::Path, ~str) -> super::Path;
@@ -19,4 +19,16 @@ condition! {
 
 condition! {
     nonexistent_package: (super::PkgId, ~str) -> super::Path;
+}
+
+condition! {
+    copy_failed: (super::Path, super::Path) -> ();
+}
+
+condition! {
+    missing_pkg_files: (super::PkgId) -> ();
+}
+
+condition! {
+    bad_pkg_id: (super::Path, ~str) -> super::PkgId;
 }

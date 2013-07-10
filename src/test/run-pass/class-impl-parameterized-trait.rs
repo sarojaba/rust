@@ -8,11 +8,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-// xfail-test
+// xfail-test FIXME #7307
 // xfail-fast
 
-extern mod std;
-use std::oldmap::*;
+extern mod extra;
+use extra::oldmap::*;
 
 class cat : map<int, bool> {
   priv {
@@ -48,7 +48,7 @@ class cat : map<int, bool> {
   }
 
   fn size() -> uint { self.meows as uint }
-  fn insert(+k: int, +v: bool) -> bool { 
+  fn insert(+k: int, +v: bool) -> bool {
     if v { self.meows += k; } else { self.meows -= k; };
     true
   }
@@ -58,7 +58,7 @@ class cat : map<int, bool> {
   fn find(&&k:int) -> Option<bool> { Some(self.get(k)) }
   fn remove(&&k:int) -> Option<bool> { self.meows -= k; Some(true) }
   fn each(f: &fn(&&int, &&bool) -> bool) {
-    let mut n = int::abs(self.meows);
+    let mut n = num::abs(self.meows);
     while n > 0 {
         if !f(n, true) { break; }
         n -= 1;

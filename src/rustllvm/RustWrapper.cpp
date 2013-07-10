@@ -1,4 +1,4 @@
-// Copyright 2012 The Rust Project Developers. See the COPYRIGHT
+// Copyright 2013 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
 //
@@ -8,56 +8,14 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#include "rustllvm.h"
+
 //===----------------------------------------------------------------------===
 //
 // This file defines alternate interfaces to core functions that are more
 // readily callable by Rust's FFI.
 //
 //===----------------------------------------------------------------------===
-
-#include "llvm/IR/InlineAsm.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/Linker.h"
-#include "llvm/PassManager.h"
-#include "llvm/IR/InlineAsm.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/Analysis/Verifier.h"
-#include "llvm/Analysis/Passes.h"
-#include "llvm/ADT/Triple.h"
-#include "llvm/ADT/DenseSet.h"
-#include "llvm/Assembly/Parser.h"
-#include "llvm/Assembly/PrintModulePass.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/FormattedStream.h"
-#include "llvm/Support/Timer.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/Support/SourceMgr.h"
-#include "llvm/Support/Host.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/Support/DynamicLibrary.h"
-#include "llvm/Support/Memory.h"
-#include "llvm/ExecutionEngine/ExecutionEngine.h"
-#include "llvm/ExecutionEngine/JIT.h"
-#include "llvm/ExecutionEngine/JITMemoryManager.h"
-#include "llvm/ExecutionEngine/MCJIT.h"
-#include "llvm/ExecutionEngine/Interpreter.h"
-#include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetOptions.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/Transforms/IPO.h"
-#include "llvm-c/Core.h"
-#include "llvm-c/BitReader.h"
-#include "llvm-c/Object.h"
-
-// Used by RustMCJITMemoryManager::getPointerToNamedFunction()
-// to get around glibc issues. See the function for more information.
-#ifdef __linux__
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
 
 using namespace llvm;
 using namespace llvm::sys;
@@ -120,18 +78,18 @@ void LLVMRustInitializeTargets() {
   LLVMInitializeX86TargetMC();
   LLVMInitializeX86AsmPrinter();
   LLVMInitializeX86AsmParser();
-	
+
   LLVMInitializeARMTargetInfo();
   LLVMInitializeARMTarget();
   LLVMInitializeARMTargetMC();
   LLVMInitializeARMAsmPrinter();
-  LLVMInitializeARMAsmParser();	
+  LLVMInitializeARMAsmParser();
 
   LLVMInitializeMipsTargetInfo();
   LLVMInitializeMipsTarget();
   LLVMInitializeMipsTargetMC();
   LLVMInitializeMipsAsmPrinter();
-  LLVMInitializeMipsAsmParser();	
+  LLVMInitializeMipsAsmParser();
 }
 
 // Custom memory manager for MCJITting. It needs special features
@@ -371,12 +329,10 @@ LLVMRustLoadCrate(void* mem, const char* crate) {
   return true;
 }
 
-extern "C" void*
-LLVMRustExecuteJIT(void* mem,
-                   LLVMPassManagerRef PMR,
-                   LLVMModuleRef M,
-                   CodeGenOpt::Level OptLevel,
-                   bool EnableSegmentedStacks) {
+extern "C" LLVMExecutionEngineRef
+LLVMRustBuildJIT(void* mem,
+                 LLVMModuleRef M,
+                 bool EnableSegmentedStacks) {
 
   InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
@@ -388,46 +344,28 @@ LLVMRustExecuteJIT(void* mem,
   Options.JITEmitDebugInfo = true;
   Options.NoFramePointerElim = true;
   Options.EnableSegmentedStacks = EnableSegmentedStacks;
-  PassManager *PM = unwrap<PassManager>(PMR);
   RustMCJITMemoryManager* MM = (RustMCJITMemoryManager*) mem;
-
   assert(MM);
-
-  PM->add(createBasicAliasAnalysisPass());
-  PM->add(createInstructionCombiningPass());
-  PM->add(createReassociatePass());
-  PM->add(createGVNPass());
-  PM->add(createCFGSimplificationPass());
-  PM->add(createFunctionInliningPass());
-  PM->add(createPromoteMemoryToRegisterPass());
-  PM->run(*unwrap(M));
 
   ExecutionEngine* EE = EngineBuilder(unwrap(M))
     .setErrorStr(&Err)
     .setTargetOptions(Options)
     .setJITMemoryManager(MM)
-    .setOptLevel(OptLevel)
     .setUseMCJIT(true)
     .setAllocateGVsWithCode(false)
     .create();
 
   if(!EE || Err != "") {
     LLVMRustError = Err.c_str();
-    return 0;
+    // The EngineBuilder only takes ownership of these two structures if the
+    // create() call is successful, but here it wasn't successful.
+    LLVMDisposeModule(M);
+    delete MM;
+    return NULL;
   }
 
   MM->invalidateInstructionCache();
-  Function* func = EE->FindFunctionNamed("_rust_main");
-
-  if(!func || Err != "") {
-    LLVMRustError = Err.c_str();
-    return 0;
-  }
-
-  void* entry = EE->getPointerToFunction(func);
-  assert(entry);
-
-  return entry;
+  return wrap(EE);
 }
 
 extern "C" bool
@@ -438,7 +376,7 @@ LLVMRustWriteOutputFile(LLVMPassManagerRef PMR,
                         const char *path,
                         TargetMachine::CodeGenFileType FileType,
                         CodeGenOpt::Level OptLevel,
-			bool EnableSegmentedStacks) {
+      bool EnableSegmentedStacks) {
 
   LLVMRustInitializeTargets();
 
@@ -449,7 +387,7 @@ LLVMRustWriteOutputFile(LLVMPassManagerRef PMR,
   if (!EnableARMEHABI) {
     int argc = 3;
     const char* argv[] = {"rustc", "-arm-enable-ehabi",
-			  "-arm-enable-ehabi-descriptors"};
+        "-arm-enable-ehabi-descriptors"};
     cl::ParseCommandLineOptions(argc, argv);
   }
 
@@ -467,8 +405,8 @@ LLVMRustWriteOutputFile(LLVMPassManagerRef PMR,
   const Target *TheTarget = TargetRegistry::lookupTarget(Trip, Err);
   TargetMachine *Target =
     TheTarget->createTargetMachine(Trip, CPUStr, FeaturesStr,
-				   Options, Reloc::PIC_,
-				   CodeModel::Default, OptLevel);
+           Options, Reloc::PIC_,
+           CodeModel::Default, OptLevel);
   Target->addAnalysisPasses(*PM);
 
   bool NoVerify = false;
@@ -489,9 +427,10 @@ LLVMRustWriteOutputFile(LLVMPassManagerRef PMR,
   return true;
 }
 
-extern "C" LLVMModuleRef LLVMRustParseAssemblyFile(const char *Filename) {
+extern "C" LLVMModuleRef LLVMRustParseAssemblyFile(LLVMContextRef C,
+                                                   const char *Filename) {
   SMDiagnostic d;
-  Module *m = ParseAssemblyFile(Filename, d, getGlobalContext());
+  Module *m = ParseAssemblyFile(Filename, d, *unwrap(C));
   if (m) {
     return wrap(m);
   } else {
@@ -511,10 +450,10 @@ extern "C" LLVMValueRef LLVMRustConstSmallInt(LLVMTypeRef IntTy, unsigned N,
   return LLVMConstInt(IntTy, (unsigned long long)N, SignExtend);
 }
 
-extern "C" LLVMValueRef LLVMRustConstInt(LLVMTypeRef IntTy, 
-					 unsigned N_hi,
-					 unsigned N_lo,
-					 LLVMBool SignExtend) {
+extern "C" LLVMValueRef LLVMRustConstInt(LLVMTypeRef IntTy,
+           unsigned N_hi,
+           unsigned N_lo,
+           LLVMBool SignExtend) {
   unsigned long long N = N_hi;
   N <<= 32;
   N |= N_lo;
@@ -541,8 +480,29 @@ extern "C" LLVMValueRef LLVMGetOrInsertFunction(LLVMModuleRef M,
 extern "C" LLVMTypeRef LLVMMetadataTypeInContext(LLVMContextRef C) {
   return wrap(Type::getMetadataTy(*unwrap(C)));
 }
-extern "C" LLVMTypeRef LLVMMetadataType(void) {
-  return LLVMMetadataTypeInContext(LLVMGetGlobalContext());
+
+extern "C" LLVMValueRef LLVMBuildAtomicLoad(LLVMBuilderRef B,
+                                            LLVMValueRef source,
+                                            const char* Name,
+                                            AtomicOrdering order,
+                                            unsigned alignment) {
+    LoadInst* li = new LoadInst(unwrap(source),0);
+    li->setVolatile(true);
+    li->setAtomic(order);
+    li->setAlignment(alignment);
+    return wrap(unwrap(B)->Insert(li, Name));
+}
+
+extern "C" LLVMValueRef LLVMBuildAtomicStore(LLVMBuilderRef B,
+                                             LLVMValueRef val,
+                                             LLVMValueRef target,
+                                             AtomicOrdering order,
+                                             unsigned alignment) {
+    StoreInst* si = new StoreInst(unwrap(val),unwrap(target));
+    si->setVolatile(true);
+    si->setAtomic(order);
+    si->setAlignment(alignment);
+    return wrap(unwrap(B)->Insert(si));
 }
 
 extern "C" LLVMValueRef LLVMBuildAtomicCmpXchg(LLVMBuilderRef B,
@@ -578,4 +538,250 @@ extern "C" LLVMValueRef LLVMInlineAsm(LLVMTypeRef Ty,
     return wrap(InlineAsm::get(unwrap<FunctionType>(Ty), AsmString,
                                Constraints, HasSideEffects,
                                IsAlignStack, (InlineAsm::AsmDialect) Dialect));
+}
+
+/**
+ * This function is intended to be a threadsafe interface into enabling a
+ * multithreaded LLVM. This is invoked at the start of the translation phase of
+ * compilation to ensure that LLVM is ready.
+ *
+ * All of trans properly isolates LLVM with the use of a different
+ * LLVMContextRef per task, thus allowing parallel compilation of different
+ * crates in the same process. At the time of this writing, the use case for
+ * this is unit tests for rusti, but there are possible other applications.
+ */
+extern "C" bool LLVMRustStartMultithreading() {
+    static Mutex lock;
+    bool ret = true;
+    assert(lock.acquire());
+    if (!LLVMIsMultithreaded()) {
+        ret = LLVMStartMultithreaded();
+    }
+    assert(lock.release());
+    return ret;
+}
+
+
+typedef DIBuilder* DIBuilderRef;
+
+template<typename DIT>
+DIT unwrapDI(LLVMValueRef ref) { 
+    return DIT(ref ? unwrap<MDNode>(ref) : NULL); 
+}
+
+extern "C" DIBuilderRef LLVMDIBuilderCreate(LLVMModuleRef M) {
+    return new DIBuilder(*unwrap(M));
+}
+
+extern "C" void LLVMDIBuilderDispose(DIBuilderRef Builder) {
+    delete Builder;
+}
+
+extern "C" void LLVMDIBuilderFinalize(DIBuilderRef Builder) {
+    Builder->finalize();
+}
+
+extern "C" void LLVMDIBuilderCreateCompileUnit(
+    DIBuilderRef Builder,
+    unsigned Lang,
+    const char* File,
+    const char* Dir,
+    const char* Producer,
+    bool isOptimized,
+    const char* Flags,
+    unsigned RuntimeVer,
+    const char* SplitName) {
+    Builder->createCompileUnit(Lang, File, Dir, Producer, isOptimized,
+        Flags, RuntimeVer, SplitName);
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateFile(
+    DIBuilderRef Builder,
+    const char* Filename,
+    const char* Directory) {
+    return wrap(Builder->createFile(Filename, Directory));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateSubroutineType(
+    DIBuilderRef Builder,
+    LLVMValueRef File, 
+    LLVMValueRef ParameterTypes) {
+    return wrap(Builder->createSubroutineType(
+        unwrapDI<DIFile>(File), 
+        unwrapDI<DIArray>(ParameterTypes)));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateFunction(
+    DIBuilderRef Builder,
+    LLVMValueRef Scope, 
+    const char* Name,
+    const char* LinkageName,
+    LLVMValueRef File,  
+    unsigned LineNo,
+    LLVMValueRef Ty, 
+    bool isLocalToUnit,
+    bool isDefinition,
+    unsigned ScopeLine,
+    unsigned Flags,
+    bool isOptimized,
+    LLVMValueRef Fn,
+    LLVMValueRef TParam,
+    LLVMValueRef Decl) {
+    return wrap(Builder->createFunction(
+        unwrapDI<DIScope>(Scope), Name, LinkageName, 
+        unwrapDI<DIFile>(File), LineNo, 
+        unwrapDI<DIType>(Ty), isLocalToUnit, isDefinition, ScopeLine, 
+        Flags, isOptimized,
+        unwrap<Function>(Fn), 
+        unwrapDI<MDNode*>(TParam),
+        unwrapDI<MDNode*>(Decl)));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateBasicType(
+    DIBuilderRef Builder,
+    const char* Name,
+    uint64_t SizeInBits,
+    uint64_t AlignInBits,
+    unsigned Encoding) {
+    return wrap(Builder->createBasicType(
+        Name, SizeInBits, 
+        AlignInBits, Encoding));
+}
+    
+extern "C" LLVMValueRef LLVMDIBuilderCreatePointerType(
+    DIBuilderRef Builder,
+    LLVMValueRef PointeeTy,
+    uint64_t SizeInBits,
+    uint64_t AlignInBits,
+    const char* Name) {
+    return wrap(Builder->createPointerType(
+        unwrapDI<DIType>(PointeeTy), SizeInBits, AlignInBits, Name));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateStructType(
+    DIBuilderRef Builder,
+    LLVMValueRef Scope,
+    const char* Name,
+    LLVMValueRef File,
+    unsigned LineNumber,
+    uint64_t SizeInBits,
+    uint64_t AlignInBits,
+    unsigned Flags,
+    LLVMValueRef DerivedFrom,
+    LLVMValueRef Elements,
+    unsigned RunTimeLang,
+    LLVMValueRef VTableHolder) {
+    return wrap(Builder->createStructType(
+        unwrapDI<DIDescriptor>(Scope), Name, 
+        unwrapDI<DIFile>(File), LineNumber, 
+        SizeInBits, AlignInBits, Flags, 
+        unwrapDI<DIType>(DerivedFrom), 
+        unwrapDI<DIArray>(Elements), RunTimeLang, 
+        unwrapDI<MDNode*>(VTableHolder)));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateMemberType(
+    DIBuilderRef Builder,
+    LLVMValueRef Scope,
+    const char* Name,
+    LLVMValueRef File,
+    unsigned LineNo,
+    uint64_t SizeInBits,
+    uint64_t AlignInBits,
+    uint64_t OffsetInBits,
+    unsigned Flags,
+    LLVMValueRef Ty) {
+    return wrap(Builder->createMemberType(
+        unwrapDI<DIDescriptor>(Scope), Name, 
+        unwrapDI<DIFile>(File), LineNo,
+        SizeInBits, AlignInBits, OffsetInBits, Flags, 
+        unwrapDI<DIType>(Ty)));
+}
+    
+extern "C" LLVMValueRef LLVMDIBuilderCreateLexicalBlock(
+    DIBuilderRef Builder,
+    LLVMValueRef Scope,
+    LLVMValueRef File,
+    unsigned Line,
+    unsigned Col) {
+    return wrap(Builder->createLexicalBlock(
+        unwrapDI<DIDescriptor>(Scope), 
+        unwrapDI<DIFile>(File), Line, Col));
+}
+    
+extern "C" LLVMValueRef LLVMDIBuilderCreateLocalVariable(
+    DIBuilderRef Builder,
+    unsigned Tag,
+    LLVMValueRef Scope,
+    const char* Name,
+    LLVMValueRef File,
+    unsigned LineNo,
+    LLVMValueRef Ty,
+    bool AlwaysPreserve,
+    unsigned Flags,
+    unsigned ArgNo) {
+    return wrap(Builder->createLocalVariable(Tag, 
+        unwrapDI<DIDescriptor>(Scope), Name, 
+        unwrapDI<DIFile>(File), 
+        LineNo, 
+        unwrapDI<DIType>(Ty), AlwaysPreserve, Flags, ArgNo));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateArrayType(
+    DIBuilderRef Builder,
+    uint64_t Size,  
+    uint64_t AlignInBits,  
+    LLVMValueRef Ty, 
+    LLVMValueRef Subscripts) {
+    return wrap(Builder->createArrayType(Size, AlignInBits,
+        unwrapDI<DIType>(Ty), 
+        unwrapDI<DIArray>(Subscripts)));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderCreateVectorType(
+    DIBuilderRef Builder,
+    uint64_t Size,  
+    uint64_t AlignInBits,  
+    LLVMValueRef Ty, 
+    LLVMValueRef Subscripts) {
+    return wrap(Builder->createVectorType(Size, AlignInBits,
+        unwrapDI<DIType>(Ty), 
+        unwrapDI<DIArray>(Subscripts)));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderGetOrCreateSubrange(
+    DIBuilderRef Builder, 
+    int64_t Lo, 
+    int64_t Count) {
+    return wrap(Builder->getOrCreateSubrange(Lo, Count));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderGetOrCreateArray(
+    DIBuilderRef Builder,
+    LLVMValueRef* Ptr, 
+    unsigned Count) {
+    return wrap(Builder->getOrCreateArray(
+        ArrayRef<Value*>(reinterpret_cast<Value**>(Ptr), Count)));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderInsertDeclareAtEnd(
+    DIBuilderRef Builder,
+    LLVMValueRef Val,
+    LLVMValueRef VarInfo,
+    LLVMBasicBlockRef InsertAtEnd) {
+    return wrap(Builder->insertDeclare(
+        unwrap(Val), 
+        unwrapDI<DIVariable>(VarInfo), 
+        unwrap(InsertAtEnd)));
+}
+
+extern "C" LLVMValueRef LLVMDIBuilderInsertDeclareBefore(
+    DIBuilderRef Builder,
+    LLVMValueRef Val,
+    LLVMValueRef VarInfo,
+    LLVMValueRef InsertBefore) {
+    return wrap(Builder->insertDeclare(
+        unwrap(Val), 
+        unwrapDI<DIVariable>(VarInfo), 
+        unwrap<Instruction>(InsertBefore)));
 }

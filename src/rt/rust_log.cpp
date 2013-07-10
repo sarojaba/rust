@@ -24,7 +24,7 @@
  */
 static lock_and_signal _log_lock;
 /**
- * Indicates whether we are outputing to the console.
+ * Indicates whether we are outputting to the console.
  * Protected by _log_lock;
  */
 static bool _log_to_console = true;
@@ -43,11 +43,15 @@ log_console_on() {
  * overridden by the environment.
  */
 void
-log_console_off(rust_env *env) {
+log_console_off() {
     scoped_lock with(_log_lock);
-    if (env->logspec == NULL) {
-        _log_to_console = false;
-    }
+    _log_to_console = false;
+}
+
+bool
+should_log_console() {
+    scoped_lock with(_log_lock);
+    return _log_to_console;
 }
 
 rust_log::rust_log(rust_sched_loop *sched_loop) :
@@ -324,6 +328,10 @@ void update_log_settings(void* crate_map, char* settings) {
     free(buffer);
 }
 
+extern "C" CDECL void
+rust_update_log_settings(void* crate_map, char* settings) {
+    update_log_settings(crate_map, settings);
+}
 
 //
 // Local Variables:

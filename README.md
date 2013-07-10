@@ -30,9 +30,9 @@ Rust 컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "
 
 비교적 현대적인 *nix 시스템을 사용하고 필요 조건을 만족한다고 가정하면, 다음의 명령들을 수행하면 됩니다.
 
-    $ curl -O http://static.rust-lang.org/dist/rust-0.6.tar.gz
-    $ tar -xzf rust-0.6.tar.gz
-    $ cd rust-0.6
+    $ curl -O http://static.rust-lang.org/dist/rust-0.7.tar.gz
+    $ tar -xzf rust-0.7.tar.gz
+    $ cd rust-0.7
     $ ./configure
     $ make && make install
 
@@ -42,8 +42,8 @@ Rust 컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "
 API-문서 도구, 그리고 `rustpkg`는 Rust 패키지 관리자 및 빌드 시스템입니다.
 
 [wiki-start]: https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
-[tarball]: http://static.rust-lang.org/dist/rust-0.6.tar.gz
-[win-exe]: http://static.rust-lang.org/dist/rust-0.6-install.exe
+[tarball]: http://static.rust-lang.org/dist/rust-0.7.tar.gz
+[win-exe]: http://static.rust-lang.org/dist/rust-0.7-install.exe
 
 
 ## 라이선스

@@ -8,8 +8,13 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use core::hashmap::HashMap;
-use core::libc::c_uint;
+
+use std::hashmap::HashMap;
+use std::libc::{c_uint, c_ushort};
+use std::option;
+use std::str;
+
+use middle::trans::type_::Type;
 
 pub type Opcode = u32;
 pub type Bool = c_uint;
@@ -199,6 +204,8 @@ pub enum BasicBlock_opaque {}
 pub type BasicBlockRef = *BasicBlock_opaque;
 pub enum Builder_opaque {}
 pub type BuilderRef = *Builder_opaque;
+pub enum ExecutionEngine_opaque {}
+pub type ExecutionEngineRef = *ExecutionEngine_opaque;
 pub enum MemoryBuffer_opaque {}
 pub type MemoryBufferRef = *MemoryBuffer_opaque;
 pub enum PassManager_opaque {}
@@ -213,15 +220,54 @@ pub enum ObjectFile_opaque {}
 pub type ObjectFileRef = *ObjectFile_opaque;
 pub enum SectionIterator_opaque {}
 pub type SectionIteratorRef = *SectionIterator_opaque;
+pub enum Pass_opaque {}
+pub type PassRef = *Pass_opaque;
+
+pub mod debuginfo {
+    use super::{ValueRef};
+
+    pub enum DIBuilder_opaque {}
+    pub type DIBuilderRef = *DIBuilder_opaque;
+
+    pub type DIDescriptor = ValueRef;
+    pub type DIScope = DIDescriptor;
+    pub type DILocation = DIDescriptor;
+    pub type DIFile = DIScope;
+    pub type DILexicalBlock = DIScope;
+    pub type DISubprogram = DIScope;
+    pub type DIType = DIDescriptor;
+    pub type DIBasicType = DIType;
+    pub type DIDerivedType = DIType;
+    pub type DICompositeType = DIDerivedType;
+    pub type DIVariable = DIDescriptor;
+    pub type DIArray = DIDescriptor;
+    pub type DISubrange = DIDescriptor;
+
+    pub enum DIDescriptorFlags {
+      FlagPrivate            = 1 << 0,
+      FlagProtected          = 1 << 1,
+      FlagFwdDecl            = 1 << 2,
+      FlagAppleBlock         = 1 << 3,
+      FlagBlockByrefStruct   = 1 << 4,
+      FlagVirtual            = 1 << 5,
+      FlagArtificial         = 1 << 6,
+      FlagExplicit           = 1 << 7,
+      FlagPrototyped         = 1 << 8,
+      FlagObjcClassComplete  = 1 << 9,
+      FlagObjectPointer      = 1 << 10,
+      FlagVector             = 1 << 11,
+      FlagStaticMember       = 1 << 12
+    }
+}
 
 pub mod llvm {
-    use super::{AtomicBinOp, AtomicOrdering, BasicBlockRef};
+    use super::{AtomicBinOp, AtomicOrdering, BasicBlockRef, ExecutionEngineRef};
     use super::{Bool, BuilderRef, ContextRef, MemoryBufferRef, ModuleRef};
     use super::{ObjectFileRef, Opcode, PassManagerRef, PassManagerBuilderRef};
     use super::{SectionIteratorRef, TargetDataRef, TypeKind, TypeRef, UseRef};
-    use super::{ValueRef};
-
-    use core::libc::{c_char, c_int, c_longlong, c_uint, c_ulonglong};
+    use super::{ValueRef, PassRef};
+    use super::debuginfo::*;
+    use std::libc::{c_char, c_int, c_longlong, c_ushort, c_uint, c_ulonglong};
 
     #[link_args = "-Lrustllvm -lrustllvm"]
     #[link_name = "rustllvm"]
@@ -231,22 +277,20 @@ pub mod llvm {
         #[fast_ffi]
         pub unsafe fn LLVMContextCreate() -> ContextRef;
         #[fast_ffi]
-        pub unsafe fn LLVMGetGlobalContext() -> ContextRef;
-        #[fast_ffi]
         pub unsafe fn LLVMContextDispose(C: ContextRef);
         #[fast_ffi]
         pub unsafe fn LLVMGetMDKindIDInContext(C: ContextRef,
                                            Name: *c_char,
                                            SLen: c_uint)
                                         -> c_uint;
-        #[fast_ffi]
-        pub unsafe fn LLVMGetMDKindID(Name: *c_char, SLen: c_uint) -> c_uint;
 
         /* Create and destroy modules. */
         #[fast_ffi]
         pub unsafe fn LLVMModuleCreateWithNameInContext(ModuleID: *c_char,
                                                     C: ContextRef)
                                                  -> ModuleRef;
+        #[fast_ffi]
+        pub unsafe fn LLVMGetModuleContext(M: ModuleRef) -> ContextRef;
         #[fast_ffi]
         pub unsafe fn LLVMDisposeModule(M: ModuleRef);
 
@@ -293,18 +337,6 @@ pub mod llvm {
                                            NumBits: c_uint) -> TypeRef;
 
         #[fast_ffi]
-        pub unsafe fn LLVMInt1Type() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMInt8Type() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMInt16Type() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMInt32Type() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMInt64Type() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMIntType(NumBits: c_uint) -> TypeRef;
-        #[fast_ffi]
         pub unsafe fn LLVMGetIntTypeWidth(IntegerTy: TypeRef) -> c_uint;
 
         /* Operations on real types */
@@ -318,17 +350,6 @@ pub mod llvm {
         pub unsafe fn LLVMFP128TypeInContext(C: ContextRef) -> TypeRef;
         #[fast_ffi]
         pub unsafe fn LLVMPPCFP128TypeInContext(C: ContextRef) -> TypeRef;
-
-        #[fast_ffi]
-        pub unsafe fn LLVMFloatType() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMDoubleType() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMX86FP80Type() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMFP128Type() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMPPCFP128Type() -> TypeRef;
 
         /* Operations on function types */
         #[fast_ffi]
@@ -352,11 +373,6 @@ pub mod llvm {
                                               ElementTypes: *TypeRef,
                                               ElementCount: c_uint,
                                               Packed: Bool) -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMStructType(ElementTypes: *TypeRef,
-                                     ElementCount: c_uint,
-                                     Packed: Bool)
-                                  -> TypeRef;
         #[fast_ffi]
         pub unsafe fn LLVMCountStructElementTypes(StructTy: TypeRef)
                                                -> c_uint;
@@ -385,6 +401,10 @@ pub mod llvm {
         pub unsafe fn LLVMGetPointerAddressSpace(PointerTy: TypeRef)
                                               -> c_uint;
         #[fast_ffi]
+        pub unsafe fn LLVMGetPointerToGlobal(EE: ExecutionEngineRef,
+                                             V: ValueRef)
+                                              -> *();
+        #[fast_ffi]
         pub unsafe fn LLVMGetVectorSize(VectorTy: TypeRef) -> c_uint;
 
         /* Operations on other types */
@@ -394,13 +414,6 @@ pub mod llvm {
         pub unsafe fn LLVMLabelTypeInContext(C: ContextRef) -> TypeRef;
         #[fast_ffi]
         pub unsafe fn LLVMMetadataTypeInContext(C: ContextRef) -> TypeRef;
-
-        #[fast_ffi]
-        pub unsafe fn LLVMVoidType() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMLabelType() -> TypeRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMMetadataType() -> TypeRef;
 
         /* Operations on all values */
         #[fast_ffi]
@@ -451,6 +464,10 @@ pub mod llvm {
         /* all zeroes */
         #[fast_ffi]
         pub unsafe fn LLVMConstAllOnes(Ty: TypeRef) -> ValueRef;
+        #[fast_ffi]
+        pub unsafe fn LLVMConstICmp(Pred: c_ushort, V1: ValueRef, V2: ValueRef) -> ValueRef;
+        #[fast_ffi]
+        pub unsafe fn LLVMConstFCmp(Pred: c_ushort, V1: ValueRef, V2: ValueRef) -> ValueRef;
         /* only for int/vector */
         #[fast_ffi]
         pub unsafe fn LLVMGetUndef(Ty: TypeRef) -> ValueRef;
@@ -470,14 +487,10 @@ pub mod llvm {
                                         SLen: c_uint)
                                      -> ValueRef;
         #[fast_ffi]
-        pub unsafe fn LLVMMDString(Str: *c_char, SLen: c_uint) -> ValueRef;
-        #[fast_ffi]
         pub unsafe fn LLVMMDNodeInContext(C: ContextRef,
                                       Vals: *ValueRef,
                                       Count: c_uint)
                                    -> ValueRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMMDNode(Vals: *ValueRef, Count: c_uint) -> ValueRef;
         #[fast_ffi]
         pub unsafe fn LLVMAddNamedMetadataOperand(M: ModuleRef, Str: *c_char,
                                        Val: ValueRef);
@@ -532,19 +545,10 @@ pub mod llvm {
                                                Packed: Bool) -> ValueRef;
 
         #[fast_ffi]
-        pub unsafe fn LLVMConstString(Str: *c_char,
-                                      Length: c_uint,
-                                      DontNullTerminate: Bool)
-                                   -> ValueRef;
-        #[fast_ffi]
         pub unsafe fn LLVMConstArray(ElementTy: TypeRef,
                                      ConstantVals: *ValueRef,
                                      Length: c_uint)
                                   -> ValueRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMConstStruct(ConstantVals: *ValueRef,
-                                      Count: c_uint,
-                                      Packed: Bool) -> ValueRef;
         #[fast_ffi]
         pub unsafe fn LLVMConstVector(ScalarConstantVals: *ValueRef,
                                       Size: c_uint) -> ValueRef;
@@ -958,17 +962,14 @@ pub mod llvm {
                                                     BB: BasicBlockRef,
                                                     Name: *c_char)
                                                  -> BasicBlockRef;
-
-        #[fast_ffi]
-        pub unsafe fn LLVMAppendBasicBlock(Fn: ValueRef,
-                                       Name: *c_char)
-                                    -> BasicBlockRef;
-        #[fast_ffi]
-        pub unsafe fn LLVMInsertBasicBlock(InsertBeforeBB: BasicBlockRef,
-                                       Name: *c_char)
-                                    -> BasicBlockRef;
         #[fast_ffi]
         pub unsafe fn LLVMDeleteBasicBlock(BB: BasicBlockRef);
+
+        #[fast_ffi]
+        pub unsafe fn LLVMMoveBasicBlockAfter(BB: BasicBlockRef, MoveAfter: BasicBlockRef);
+
+        #[fast_ffi]
+        pub unsafe fn LLVMMoveBasicBlockBefore(BB: BasicBlockRef, MoveBefore: BasicBlockRef);
 
         /* Operations on instructions */
         #[fast_ffi]
@@ -1027,8 +1028,6 @@ pub mod llvm {
         #[fast_ffi]
         pub unsafe fn LLVMCreateBuilderInContext(C: ContextRef) -> BuilderRef;
         #[fast_ffi]
-        pub unsafe fn LLVMCreateBuilder() -> BuilderRef;
-        #[fast_ffi]
         pub unsafe fn LLVMPositionBuilder(Builder: BuilderRef,
                                           Block: BasicBlockRef,
                                           Instr: ValueRef);
@@ -1052,6 +1051,8 @@ pub mod llvm {
                                                 Name: *c_char);
         #[fast_ffi]
         pub unsafe fn LLVMDisposeBuilder(Builder: BuilderRef);
+        #[fast_ffi]
+        pub unsafe fn LLVMDisposeExecutionEngine(EE: ExecutionEngineRef);
 
         /* Metadata */
         #[fast_ffi]
@@ -1339,13 +1340,16 @@ pub mod llvm {
                                     PointerVal: ValueRef) -> ValueRef;
         #[fast_ffi]
         pub unsafe fn LLVMBuildLoad(B: BuilderRef,
-                                PointerVal: ValueRef,
-                                Name: *c_char)
-                             -> ValueRef;
+                                    PointerVal: ValueRef,
+                                    Name: *c_char)
+                                 -> ValueRef;
+
         #[fast_ffi]
         pub unsafe fn LLVMBuildStore(B: BuilderRef,
                                      Val: ValueRef,
-                                     Ptr: ValueRef) -> ValueRef;
+                                     Ptr: ValueRef)
+                                  -> ValueRef;
+
         #[fast_ffi]
         pub unsafe fn LLVMBuildGEP(B: BuilderRef,
                                Pointer: ValueRef,
@@ -1561,12 +1565,32 @@ pub mod llvm {
                                        Name: *c_char) -> ValueRef;
 
         /* Atomic Operations */
-        pub unsafe fn LLVMBuildAtomicCmpXchg(B: BuilderRef, LHS: ValueRef,
-                                  CMP: ValueRef, RHS: ValueRef,
-                                  ++Order: AtomicOrdering) -> ValueRef;
-        pub unsafe fn LLVMBuildAtomicRMW(B: BuilderRef, ++Op: AtomicBinOp,
-                              LHS: ValueRef, RHS: ValueRef,
-                              ++Order: AtomicOrdering) -> ValueRef;
+        pub unsafe fn LLVMBuildAtomicLoad(B: BuilderRef,
+                                          PointerVal: ValueRef,
+                                          Name: *c_char,
+                                          Order: AtomicOrdering,
+                                          Alignment: c_uint)
+                                       -> ValueRef;
+
+        pub unsafe fn LLVMBuildAtomicStore(B: BuilderRef,
+                                           Val: ValueRef,
+                                           Ptr: ValueRef,
+                                           Order: AtomicOrdering,
+                                           Alignment: c_uint)
+                                        -> ValueRef;
+
+        pub unsafe fn LLVMBuildAtomicCmpXchg(B: BuilderRef,
+                                             LHS: ValueRef,
+                                             CMP: ValueRef,
+                                             RHS: ValueRef,
+                                             Order: AtomicOrdering)
+                                             -> ValueRef;
+        pub unsafe fn LLVMBuildAtomicRMW(B: BuilderRef,
+                                         Op: AtomicBinOp,
+                                         LHS: ValueRef,
+                                         RHS: ValueRef,
+                                         Order: AtomicOrdering)
+                                         -> ValueRef;
 
         /* Selected entries from the downcasts. */
         #[fast_ffi]
@@ -1625,13 +1649,42 @@ pub mod llvm {
         /** Creates a pass manager. */
         #[fast_ffi]
         pub unsafe fn LLVMCreatePassManager() -> PassManagerRef;
+        /** Creates a function-by-function pass manager */
+        #[fast_ffi]
+        pub unsafe fn LLVMCreateFunctionPassManagerForModule(M:ModuleRef) -> PassManagerRef;
+
         /** Disposes a pass manager. */
         #[fast_ffi]
         pub unsafe fn LLVMDisposePassManager(PM: PassManagerRef);
+
         /** Runs a pass manager on a module. */
         #[fast_ffi]
         pub unsafe fn LLVMRunPassManager(PM: PassManagerRef,
                                          M: ModuleRef) -> Bool;
+
+        /** Runs the function passes on the provided function. */
+        #[fast_ffi]
+        pub unsafe fn LLVMRunFunctionPassManager(FPM:PassManagerRef, F:ValueRef) -> Bool;
+
+        /** Initializes all the function passes scheduled in the manager */
+        #[fast_ffi]
+        pub unsafe fn LLVMInitializeFunctionPassManager(FPM:PassManagerRef) -> Bool;
+
+        /** Finalizes all the function passes scheduled in the manager */
+        #[fast_ffi]
+        pub unsafe fn LLVMFinalizeFunctionPassManager(FPM:PassManagerRef) -> Bool;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMInitializePasses();
+
+        #[fast_ffi]
+        pub unsafe fn LLVMAddPass(PM:PassManagerRef,P:PassRef);
+
+        #[fast_ffi]
+        pub unsafe fn LLVMCreatePass(PassName:*c_char) -> PassRef;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDestroyPass(P: PassRef);
 
         /** Adds a verification pass. */
         #[fast_ffi]
@@ -1819,11 +1872,9 @@ pub mod llvm {
 
         /** Execute the JIT engine. */
         #[fast_ffi]
-        pub unsafe fn LLVMRustExecuteJIT(MM: *(),
-                              PM: PassManagerRef,
+        pub unsafe fn LLVMRustBuildJIT(MM: *(),
                               M: ModuleRef,
-                              OptLevel: c_int,
-                              EnableSegmentedStacks: bool) -> *();
+                              EnableSegmentedStacks: bool) -> ExecutionEngineRef;
 
         /** Parses the bitcode in the given memory buffer. */
         #[fast_ffi]
@@ -1832,7 +1883,8 @@ pub mod llvm {
 
         /** Parses LLVM asm in the given file */
         #[fast_ffi]
-        pub unsafe fn LLVMRustParseAssemblyFile(Filename: *c_char)
+        pub unsafe fn LLVMRustParseAssemblyFile(Filename: *c_char,
+                                                C: ContextRef)
                                              -> ModuleRef;
 
         #[fast_ffi]
@@ -1847,6 +1899,9 @@ pub mod llvm {
         /// Print the pass timings since static dtors aren't picking them up.
         #[fast_ffi]
         pub unsafe fn LLVMRustPrintPassTimings();
+
+        #[fast_ffi]
+        pub unsafe fn LLVMRustStartMultithreading() -> bool;
 
         #[fast_ffi]
         pub unsafe fn LLVMStructCreateNamed(C: ContextRef, Name: *c_char)
@@ -1874,6 +1929,165 @@ pub mod llvm {
                                     Constraints: *c_char, SideEffects: Bool,
                                     AlignStack: Bool, Dialect: c_uint)
                                  -> ValueRef;
+
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreate(M: ModuleRef) -> DIBuilderRef;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderDispose(Builder: DIBuilderRef);
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderFinalize(Builder: DIBuilderRef);
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateCompileUnit(
+            Builder: DIBuilderRef,
+            Lang: c_uint,
+            File: *c_char,
+            Dir: *c_char,
+            Producer: *c_char,
+            isOptimized: bool,
+            Flags: *c_char,
+            RuntimeVer: c_uint,
+            SplitName: *c_char);
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateFile(
+            Builder: DIBuilderRef,
+            Filename: *c_char,
+            Directory: *c_char) -> DIFile;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateSubroutineType(
+            Builder: DIBuilderRef,
+            File: DIFile,
+            ParameterTypes: DIArray) -> DICompositeType;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateFunction(
+            Builder: DIBuilderRef,
+            Scope: DIDescriptor,
+            Name: *c_char,
+            LinkageName: *c_char,
+            File: DIFile,
+            LineNo: c_uint,
+            Ty: DIType,
+            isLocalToUnit: bool,
+            isDefinition: bool,
+            ScopeLine: c_uint,
+            Flags: c_uint,
+            isOptimized: bool,
+            Fn: ValueRef,
+            TParam: ValueRef,
+            Decl: ValueRef) -> DISubprogram;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateBasicType(
+            Builder: DIBuilderRef,
+            Name: *c_char,
+            SizeInBits: c_ulonglong,
+            AlignInBits: c_ulonglong,
+            Encoding: c_uint) -> DIBasicType;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreatePointerType(
+            Builder: DIBuilderRef,
+            PointeeTy: DIType,
+            SizeInBits: c_ulonglong,
+            AlignInBits: c_ulonglong,
+            Name: *c_char) -> DIDerivedType;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateStructType(
+            Builder: DIBuilderRef,
+            Scope: DIDescriptor,
+            Name: *c_char,
+            File: DIFile,
+            LineNumber: c_uint,
+            SizeInBits: c_ulonglong,
+            AlignInBits: c_ulonglong,
+            Flags: c_uint,
+            DerivedFrom: DIType,
+            Elements: DIArray,
+            RunTimeLang: c_uint,
+            VTableHolder: ValueRef) -> DICompositeType;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateMemberType(
+            Builder: DIBuilderRef,
+            Scope: DIDescriptor,
+            Name: *c_char,
+            File: DIFile,
+            LineNo: c_uint,
+            SizeInBits: c_ulonglong,
+            AlignInBits: c_ulonglong,
+            OffsetInBits: c_ulonglong,
+            Flags: c_uint,
+            Ty: DIType) -> DIDerivedType;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateLexicalBlock(
+            Builder: DIBuilderRef,
+            Scope: DIDescriptor,
+            File: DIFile,
+            Line: c_uint,
+            Col: c_uint) -> DILexicalBlock;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateLocalVariable(
+            Builder: DIBuilderRef,
+            Tag: c_uint,
+            Scope: DIDescriptor,
+            Name: *c_char,
+            File: DIFile,
+            LineNo: c_uint,
+            Ty: DIType,
+            AlwaysPreserve: bool,
+            Flags: c_uint,
+            ArgNo: c_uint) -> DIVariable;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateArrayType(
+            Builder: DIBuilderRef,
+            Size: c_ulonglong,
+            AlignInBits: c_ulonglong,
+            Ty: DIType,
+            Subscripts: DIArray) -> DIType;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderCreateVectorType(
+            Builder: DIBuilderRef,
+            Size: c_ulonglong,
+            AlignInBits: c_ulonglong,
+            Ty: DIType,
+            Subscripts: DIArray) -> DIType;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderGetOrCreateSubrange(
+            Builder: DIBuilderRef,
+            Lo: c_longlong,
+            Count: c_longlong) -> DISubrange;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderGetOrCreateArray(
+            Builder: DIBuilderRef,
+            Ptr: *DIDescriptor,
+            Count: c_uint) -> DIArray;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderInsertDeclareAtEnd(
+            Builder: DIBuilderRef,
+            Val: ValueRef,
+            VarInfo: DIVariable,
+            InsertAtEnd: BasicBlockRef) -> ValueRef;
+
+        #[fast_ffi]
+        pub unsafe fn LLVMDIBuilderInsertDeclareBefore(
+            Builder: DIBuilderRef,
+            Val: ValueRef,
+            VarInfo: DIVariable,
+            InsertBefore: ValueRef) -> ValueRef;
     }
 }
 
@@ -1893,161 +2107,114 @@ pub fn SetLinkage(Global: ValueRef, Link: Linkage) {
     }
 }
 
+pub fn ConstICmp(Pred: IntPredicate, V1: ValueRef, V2: ValueRef) -> ValueRef {
+    unsafe {
+        llvm::LLVMConstICmp(Pred as c_ushort, V1, V2)
+    }
+}
+pub fn ConstFCmp(Pred: RealPredicate, V1: ValueRef, V2: ValueRef) -> ValueRef {
+    unsafe {
+        llvm::LLVMConstFCmp(Pred as c_ushort, V1, V2)
+    }
+}
 /* Memory-managed object interface to type handles. */
 
 pub struct TypeNames {
-    type_names: @mut HashMap<TypeRef, @str>,
-    named_types: @mut HashMap<@str, TypeRef>
+    type_names: HashMap<TypeRef, ~str>,
+    named_types: HashMap<~str, TypeRef>
 }
 
-pub fn associate_type(tn: @TypeNames, s: @str, t: TypeRef) {
-    assert!(tn.type_names.insert(t, s));
-    assert!(tn.named_types.insert(s, t));
-}
-
-pub fn type_has_name(tn: @TypeNames, t: TypeRef) -> Option<@str> {
-    return tn.type_names.find(&t).map_consume(|x| *x);
-}
-
-pub fn name_has_type(tn: @TypeNames, s: @str) -> Option<TypeRef> {
-    return tn.named_types.find(&s).map_consume(|x| *x);
-}
-
-pub fn mk_type_names() -> @TypeNames {
-    @TypeNames {
-        type_names: @mut HashMap::new(),
-        named_types: @mut HashMap::new()
+impl TypeNames {
+    pub fn new() -> TypeNames {
+        TypeNames {
+            type_names: HashMap::new(),
+            named_types: HashMap::new()
+        }
     }
-}
 
-pub fn type_to_str(names: @TypeNames, ty: TypeRef) -> @str {
-    return type_to_str_inner(names, [], ty);
-}
+    pub fn associate_type(&mut self, s: &str, t: &Type) {
+        assert!(self.type_names.insert(t.to_ref(), s.to_owned()));
+        assert!(self.named_types.insert(s.to_owned(), t.to_ref()));
+    }
 
-pub fn type_to_str_inner(names: @TypeNames, outer0: &[TypeRef], ty: TypeRef)
-                      -> @str {
-    unsafe {
-        match type_has_name(names, ty) {
-          option::Some(n) => return n,
-          _ => {}
+    pub fn find_name<'r>(&'r self, ty: &Type) -> Option<&'r str> {
+        match self.type_names.find(&ty.to_ref()) {
+            Some(a) => Some(a.slice(0, a.len())),
+            None => None
+        }
+    }
+
+    pub fn find_type(&self, s: &str) -> Option<Type> {
+        self.named_types.find_equiv(&s).map_consume(|x| Type::from_ref(*x))
+    }
+
+    // We have a depth count, because we seem to make infinite types.
+    pub fn type_to_str_depth(&self, ty: Type, depth: int) -> ~str {
+        match self.find_name(&ty) {
+            option::Some(name) => return name.to_owned(),
+            None => ()
         }
 
-        let outer = vec::append_one(outer0.to_vec(), ty);
-
-        let kind = llvm::LLVMGetTypeKind(ty);
-
-        fn tys_str(names: @TypeNames, outer: &[TypeRef],
-                   tys: ~[TypeRef]) -> @str {
-            let mut s = ~"";
-            let mut first: bool = true;
-            for tys.each |t| {
-                if first { first = false; } else { s += ~", "; }
-                s += type_to_str_inner(names, outer, *t).to_owned();
-            }
-            // [Note at-str] FIXME #2543: Could rewrite this without the copy,
-            // but need better @str support.
-            return s.to_managed();
+        if depth == 0 {
+            return ~"###";
         }
 
-        match kind {
-          Void => return @"Void",
-          Half => return @"Half",
-          Float => return @"Float",
-          Double => return @"Double",
-          X86_FP80 => return @"X86_FP80",
-          FP128 => return @"FP128",
-          PPC_FP128 => return @"PPC_FP128",
-          Label => return @"Label",
-          Integer => {
-            // See [Note at-str]
-            return fmt!("i%d", llvm::LLVMGetIntTypeWidth(ty)
-                        as int).to_managed();
-          }
-          Function => {
-            let out_ty: TypeRef = llvm::LLVMGetReturnType(ty);
-            let n_args = llvm::LLVMCountParamTypes(ty) as uint;
-            let args = vec::from_elem(n_args, 0 as TypeRef);
-            unsafe {
-                llvm::LLVMGetParamTypes(ty, vec::raw::to_ptr(args));
-            }
-            // See [Note at-str]
-            return fmt!("fn(%s) -> %s",
-                        tys_str(names, outer, args),
-                        type_to_str_inner(names, outer, out_ty)).to_managed();
-          }
-          Struct => {
-            let elts = struct_tys(ty);
-            // See [Note at-str]
-            return fmt!("{%s}", tys_str(names, outer, elts)).to_managed();
-          }
-          Array => {
-            let el_ty = llvm::LLVMGetElementType(ty);
-            // See [Note at-str]
-            return fmt!("[%s@ x %u", type_to_str_inner(names, outer, el_ty),
-                llvm::LLVMGetArrayLength(ty) as uint).to_managed();
-          }
-          Pointer => {
-            let mut i = 0;
-            for outer0.each |tout| {
-                i += 1;
-                if *tout as int == ty as int {
-                    let n = outer0.len() - i;
-                    // See [Note at-str]
-                    return fmt!("*\\%d", n as int).to_managed();
+        unsafe {
+            let kind = ty.kind();
+
+            match kind {
+                Void => ~"Void",
+                Half => ~"Half",
+                Float => ~"Float",
+                Double => ~"Double",
+                X86_FP80 => ~"X86_FP80",
+                FP128 => ~"FP128",
+                PPC_FP128 => ~"PPC_FP128",
+                Label => ~"Label",
+                Vector => ~"Vector",
+                Metadata => ~"Metadata",
+                X86_MMX => ~"X86_MMAX",
+                Integer => {
+                    fmt!("i%d", llvm::LLVMGetIntTypeWidth(ty.to_ref()) as int)
                 }
-            }
-            let addrstr = {
-                let addrspace = llvm::LLVMGetPointerAddressSpace(ty) as uint;
-                if addrspace == 0 {
-                    ~""
-                } else {
-                    fmt!("addrspace(%u)", addrspace)
+                Function => {
+                    let out_ty = ty.return_type();
+                    let args = ty.func_params();
+                    let args =
+                        args.map(|&ty| self.type_to_str_depth(ty, depth-1)).connect(", ");
+                    let out_ty = self.type_to_str_depth(out_ty, depth-1);
+                    fmt!("fn(%s) -> %s", args, out_ty)
                 }
-            };
-            // See [Note at-str]
-            return fmt!("%s*%s", addrstr, type_to_str_inner(names,
-                        outer,
-                        llvm::LLVMGetElementType(ty))).to_managed();
-          }
-          Vector => return @"Vector",
-          Metadata => return @"Metadata",
-          X86_MMX => return @"X86_MMAX",
-          _ => fail!()
+                Struct => {
+                    let tys = ty.field_types();
+                    let tys = tys.map(|&ty| self.type_to_str_depth(ty, depth-1)).connect(", ");
+                    fmt!("{%s}", tys)
+                }
+                Array => {
+                    let el_ty = ty.element_type();
+                    let el_ty = self.type_to_str_depth(el_ty, depth-1);
+                    let len = ty.array_length();
+                    fmt!("[%s x %u]", el_ty, len)
+                }
+                Pointer => {
+                    let el_ty = ty.element_type();
+                    let el_ty = self.type_to_str_depth(el_ty, depth-1);
+                    fmt!("*%s", el_ty)
+                }
+                _ => fail!("Unknown Type Kind (%u)", kind as uint)
+            }
         }
     }
-}
 
-pub fn float_width(llt: TypeRef) -> uint {
-    unsafe {
-        return match llvm::LLVMGetTypeKind(llt) as int {
-              1 => 32u,
-              2 => 64u,
-              3 => 80u,
-              4 | 5 => 128u,
-              _ => fail!(~"llvm_float_width called on a non-float type")
-            };
+    pub fn type_to_str(&self, ty: Type) -> ~str {
+        self.type_to_str_depth(ty, 30)
     }
-}
 
-pub fn fn_ty_param_tys(fn_ty: TypeRef) -> ~[TypeRef] {
-    unsafe {
-        let args = vec::from_elem(llvm::LLVMCountParamTypes(fn_ty) as uint,
-                                 0 as TypeRef);
-        llvm::LLVMGetParamTypes(fn_ty, vec::raw::to_ptr(args));
-        return args;
-    }
-}
-
-pub fn struct_tys(struct_ty: TypeRef) -> ~[TypeRef] {
-    unsafe {
-        let n_elts = llvm::LLVMCountStructElementTypes(struct_ty) as uint;
-        if n_elts == 0 {
-            return ~[];
+    pub fn val_to_str(&self, val: ValueRef) -> ~str {
+        unsafe {
+            let ty = Type::from_ref(llvm::LLVMTypeOf(val));
+            self.type_to_str(ty)
         }
-        let mut elts = vec::from_elem(n_elts, ptr::null());
-        llvm::LLVMGetStructElementTypes(
-            struct_ty, ptr::to_mut_unsafe_ptr(&mut elts[0]));
-        return elts;
     }
 }
 
@@ -2059,7 +2226,7 @@ pub struct target_data_res {
 }
 
 impl Drop for target_data_res {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             llvm::LLVMDisposeTargetData(self.TD);
         }
@@ -2096,7 +2263,7 @@ pub struct pass_manager_res {
 }
 
 impl Drop for pass_manager_res {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             llvm::LLVMDisposePassManager(self.PM);
         }
@@ -2132,7 +2299,7 @@ pub struct object_file_res {
 }
 
 impl Drop for object_file_res {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             llvm::LLVMDisposeObjectFile(self.ObjectFile);
         }
@@ -2169,7 +2336,7 @@ pub struct section_iter_res {
 }
 
 impl Drop for section_iter_res {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             llvm::LLVMDisposeSectionIterator(self.SI);
         }
@@ -2196,13 +2363,3 @@ pub fn mk_section_iter(llof: ObjectFileRef) -> SectionIter {
         }
     }
 }
-
-//
-// Local Variables:
-// mode: rust
-// fill-column: 78;
-// indent-tabs-mode: nil
-// c-basic-offset: 4
-// buffer-file-coding-system: utf-8-unix
-// End:
-//

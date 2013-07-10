@@ -12,11 +12,9 @@
 
 // A more complex example of numeric extensions
 
-extern mod std;
+extern mod extra;
 
-use core::cmp::{Eq, Ord};
-use core::num::NumCast::from;
-use std::cmp::FuzzyEq;
+use std::cmp::{Eq, Ord};
 
 pub trait TypeExt {}
 
@@ -94,14 +92,14 @@ impl IntegerExt for i64 {}
 impl IntegerExt for int {}
 
 
-pub trait FloatExt: NumExt + FuzzyEq<Self> {}
+pub trait FloatExt: NumExt + ApproxEq<Self> {}
 
 impl FloatExt for f32 {}
 impl FloatExt for f64 {}
 impl FloatExt for float {}
 
 
-fn test_float_ext<T:FloatExt>(n: T) { io::println(fmt!("%?", n < n)) }
+fn test_float_ext<T:FloatExt>(n: T) { println(fmt!("%?", n < n)) }
 
 pub fn main() {
     test_float_ext(1f32);

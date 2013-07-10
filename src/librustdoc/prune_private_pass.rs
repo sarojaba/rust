@@ -10,6 +10,7 @@
 
 //! Prune things that are private
 
+
 use extract;
 use syntax::ast;
 use syntax::ast_map;
@@ -19,7 +20,7 @@ use fold::Fold;
 use fold;
 use pass::Pass;
 
-use core::util;
+use std::util;
 
 pub fn mk_pass() -> Pass {
     Pass {
@@ -55,7 +56,7 @@ fn fold_impl(
     let doc = fold::default_seq_fold_impl(fold, doc);
 
     do astsrv::exec(fold.ctxt.clone()) |ctxt| {
-        match *ctxt.ast_map.get(&doc.item.id) {
+        match ctxt.ast_map.get_copy(&doc.item.id) {
             ast_map::node_item(item, _) => {
                 match item.node {
                     ast::item_impl(_, None, _, ref methods) => {
@@ -79,8 +80,8 @@ fn strip_priv_methods(
     methods: &[@ast::method],
     item_vis: ast::visibility
 ) -> doc::ImplDoc {
-    let methods = do (&doc.methods).filtered |method| {
-        let ast_method = do methods.find |m| {
+    let methods = do doc.methods.iter().filter |method| {
+        let ast_method = do methods.iter().find_ |m| {
             extract::to_str(m.ident) == method.name
         };
         assert!(ast_method.is_some());
@@ -90,7 +91,7 @@ fn strip_priv_methods(
             ast::private => false,
             ast::inherited => item_vis == ast::public
         }
-    };
+    }.transform(|x| copy *x).collect();
 
     doc::ImplDoc {
         methods: methods,
@@ -105,9 +106,9 @@ fn fold_mod(
     let doc = fold::default_any_fold_mod(fold, doc);
 
     doc::ModDoc {
-        items: doc.items.filtered(|ItemTag| {
-            match ItemTag {
-                &doc::ImplTag(ref doc) => {
+        items: doc.items.iter().filter(|item_tag| {
+            match item_tag {
+                & &doc::ImplTag(ref doc) => {
                     if doc.trait_types.is_empty() {
                         // This is an associated impl. We have already pruned the
                         // non-visible methods. If there are any left then
@@ -122,10 +123,10 @@ fn fold_mod(
                     }
                 }
                 _ => {
-                    is_visible(fold.ctxt.clone(), ItemTag.item())
+                    is_visible(fold.ctxt.clone(), item_tag.item())
                 }
             }
-        }),
+        }).transform(|x| copy *x).collect(),
         .. doc
     }
 }
@@ -134,7 +135,7 @@ fn is_visible(srv: astsrv::Srv, doc: doc::ItemDoc) -> bool {
     let id = doc.id;
 
     do astsrv::exec(srv) |ctxt| {
-        match *ctxt.ast_map.get(&id) {
+        match ctxt.ast_map.get_copy(&id) {
             ast_map::node_item(item, _) => {
                 match &item.node {
                     &ast::item_impl(*) => {
@@ -160,7 +161,6 @@ mod test {
     use extract;
     use tystr_pass;
     use prune_private_pass::run;
-    use core::vec;
 
     fn mk_doc(source: ~str) -> doc::Doc {
         do astsrv::from_str(copy source) |srv| {
@@ -173,7 +173,7 @@ mod test {
     #[test]
     fn should_prune_items_without_pub_modifier() {
         let doc = mk_doc(~"mod a { }");
-        assert!(vec::is_empty(doc.cratemod().mods()));
+        assert!(doc.cratemod().mods().is_empty());
     }
 
     #[test]
@@ -194,7 +194,7 @@ mod test {
               pub fn bar() { }\
               fn baz() { }\
               }");
-        assert!(doc.cratemod().impls()[0].methods.len() == 1);
+        assert_eq!(doc.cratemod().impls()[0].methods.len(), 1);
     }
 
     #[test]
@@ -204,43 +204,43 @@ mod test {
               pub fn bar() { }\
               priv fn baz() { }\
               }");
-        assert!(doc.cratemod().impls()[0].methods.len() == 1);
+        assert_eq!(doc.cratemod().impls()[0].methods.len(), 1);
     }
 
     #[test]
     fn should_prune_priv_associated_methods_on_pub_impls() {
         let doc = mk_doc(
-            ~"pub impl Foo {\
-              fn bar() { }\
+            ~"impl Foo {\
+              pub fn bar() { }\
               priv fn baz() { }\
               }");
-        assert!(doc.cratemod().impls()[0].methods.len() == 1);
+        assert_eq!(doc.cratemod().impls()[0].methods.len(), 1);
     }
 
     #[test]
     fn should_prune_associated_methods_without_vis_modifier_on_priv_impls() {
         let doc = mk_doc(
-            ~"priv impl Foo {\
+            ~"impl Foo {\
               pub fn bar() { }\
               fn baz() { }\
               }");
-        assert!(doc.cratemod().impls()[0].methods.len() == 1);
+        assert_eq!(doc.cratemod().impls()[0].methods.len(), 1);
     }
 
     #[test]
     fn should_prune_priv_associated_methods_on_priv_impls() {
         let doc = mk_doc(
-            ~"priv impl Foo {\
+            ~"impl Foo {\
               pub fn bar() { }\
               priv fn baz() { }\
               }");
-        assert!(doc.cratemod().impls()[0].methods.len() == 1);
+        assert_eq!(doc.cratemod().impls()[0].methods.len(), 1);
     }
 
     #[test]
     fn should_prune_associated_impls_with_no_pub_methods() {
         let doc = mk_doc(
-            ~"priv impl Foo {\
+            ~"impl Foo {\
               fn baz() { }\
               }");
         assert!(doc.cratemod().impls().is_empty());

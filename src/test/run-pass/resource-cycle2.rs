@@ -10,6 +10,8 @@
 
 // Don't leak the unique pointers
 
+use std::cast;
+
 struct U {
     a: int,
     b: int,
@@ -21,7 +23,7 @@ struct r {
 }
 
 impl Drop for r {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             let v2: ~int = cast::transmute(self.v.c);
         }

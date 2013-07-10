@@ -10,14 +10,14 @@
 
 // Type encoding
 
+
 use middle::ty::param_ty;
 use middle::ty;
 
-use core::hashmap::HashMap;
-use core::io::WriterUtil;
-use core::io;
-use core::uint;
-use core::vec;
+use std::hashmap::HashMap;
+use std::io::WriterUtil;
+use std::io;
+use std::uint;
 use syntax::abi::AbiSet;
 use syntax::ast;
 use syntax::ast::*;
@@ -30,7 +30,6 @@ pub struct ctxt {
     ds: @fn(def_id) -> ~str,
     // The type context.
     tcx: ty::ctxt,
-    reachable: @fn(node_id) -> bool,
     abbrevs: abbrev_ctxt
 }
 
@@ -40,7 +39,7 @@ pub struct ctxt {
 pub struct ty_abbrev {
     pos: uint,
     len: uint,
-    s: @~str
+    s: @str
 }
 
 pub enum abbrev_ctxt {
@@ -59,42 +58,40 @@ pub fn enc_ty(w: @io::Writer, cx: @ctxt, t: ty::t) {
     match cx.abbrevs {
       ac_no_abbrevs => {
         let result_str = match cx.tcx.short_names_cache.find(&t) {
-            Some(&s) => /*bad*/copy *s,
+            Some(&s) => s,
             None => {
                 let s = do io::with_str_writer |wr| {
                     enc_sty(wr, cx, /*bad*/copy ty::get(t).sty);
-                };
-                cx.tcx.short_names_cache.insert(t, @copy s);
+                }.to_managed();
+                cx.tcx.short_names_cache.insert(t, s);
                 s
           }
         };
         w.write_str(result_str);
       }
       ac_use_abbrevs(abbrevs) => {
-        match abbrevs.find(&t) {
-          Some(a) => { w.write_str(*a.s); return; }
-          None => {
-            let pos = w.tell();
-            enc_sty(w, cx, /*bad*/copy ty::get(t).sty);
-            let end = w.tell();
-            let len = end - pos;
-            fn estimate_sz(u: uint) -> uint {
-                let mut n = u;
-                let mut len = 0u;
-                while n != 0u { len += 1u; n = n >> 4u; }
-                return len;
-            }
-            let abbrev_len = 3u + estimate_sz(pos) + estimate_sz(len);
-            if abbrev_len < len {
-                // I.e. it's actually an abbreviation.
-                let s = ~"#" + uint::to_str_radix(pos, 16u) + ~":" +
-                    uint::to_str_radix(len, 16u) + ~"#";
-                let a = ty_abbrev { pos: pos, len: len, s: @s };
-                abbrevs.insert(t, a);
-            }
-            return;
+          match abbrevs.find(&t) {
+              Some(a) => { w.write_str(a.s); return; }
+              None => {}
           }
-        }
+          let pos = w.tell();
+          enc_sty(w, cx, /*bad*/copy ty::get(t).sty);
+          let end = w.tell();
+          let len = end - pos;
+          fn estimate_sz(u: uint) -> uint {
+              let mut n = u;
+              let mut len = 0u;
+              while n != 0u { len += 1u; n = n >> 4u; }
+              return len;
+          }
+          let abbrev_len = 3u + estimate_sz(pos) + estimate_sz(len);
+          if abbrev_len < len {
+              // I.e. it's actually an abbreviation.
+              let s = fmt!("#%x:%x#", pos, len).to_managed();
+              let a = ty_abbrev { pos: pos, len: len, s: s };
+              abbrevs.insert(t, a);
+          }
+          return;
       }
     }
 }
@@ -126,7 +123,7 @@ fn enc_substs(w: @io::Writer, cx: @ctxt, substs: &ty::substs) {
     do enc_opt(w, substs.self_r) |r| { enc_region(w, cx, r) }
     do enc_opt(w, substs.self_ty) |t| { enc_ty(w, cx, t) }
     w.write_char('[');
-    for substs.tps.each |t| { enc_ty(w, cx, *t); }
+    for substs.tps.iter().advance |t| { enc_ty(w, cx, *t); }
     w.write_char(']');
 }
 
@@ -152,9 +149,12 @@ fn enc_region(w: @io::Writer, cx: @ctxt, r: ty::Region) {
       ty::re_static => {
         w.write_char('t');
       }
+      ty::re_empty => {
+        w.write_char('e');
+      }
       ty::re_infer(_) => {
         // these should not crop up after typeck
-        cx.diag.handler().bug(~"Cannot encode region variables");
+        cx.diag.handler().bug("Cannot encode region variables");
       }
     }
 }
@@ -169,7 +169,7 @@ fn enc_bound_region(w: @io::Writer, cx: @ctxt, br: ty::bound_region) {
       }
       ty::br_named(s) => {
         w.write_char('[');
-        w.write_str(*cx.tcx.sess.str_of(s));
+        w.write_str(cx.tcx.sess.str_of(s));
         w.write_char(']')
       }
       ty::br_cap_avoid(id, br) => {
@@ -259,18 +259,21 @@ fn enc_sty(w: @io::Writer, cx: @ctxt, st: ty::sty) {
         enc_substs(w, cx, substs);
         w.write_char(']');
       }
-      ty::ty_trait(def, ref substs, store, mt) => {
+      ty::ty_trait(def, ref substs, store, mt, bounds) => {
         w.write_str(&"x[");
         w.write_str((cx.ds)(def));
         w.write_char('|');
         enc_substs(w, cx, substs);
         enc_trait_store(w, cx, store);
         enc_mutability(w, mt);
+        let bounds = ty::ParamBounds {builtin_bounds: bounds,
+                                      trait_bounds: ~[]};
+        enc_bounds(w, cx, &bounds);
         w.write_char(']');
       }
       ty::ty_tup(ts) => {
         w.write_str(&"T[");
-        for ts.each |t| { enc_ty(w, cx, *t); }
+        for ts.iter().advance |t| { enc_ty(w, cx, *t); }
         w.write_char(']');
       }
       ty::ty_box(mt) => { w.write_char('@'); enc_mt(w, cx, mt); }
@@ -300,7 +303,7 @@ fn enc_sty(w: @io::Writer, cx: @ctxt, st: ty::sty) {
         enc_bare_fn_ty(w, cx, f);
       }
       ty::ty_infer(_) => {
-        cx.diag.handler().bug(~"Cannot encode inference variable types");
+        cx.diag.handler().bug("Cannot encode inference variable types");
       }
       ty::ty_param(param_ty {idx: id, def_id: did}) => {
         w.write_char('p');
@@ -320,18 +323,18 @@ fn enc_sty(w: @io::Writer, cx: @ctxt, st: ty::sty) {
       }
       ty::ty_opaque_box => w.write_char('B'),
       ty::ty_struct(def, ref substs) => {
-          debug!("~~~~ %s", ~"a[");
+          debug!("~~~~ %s", "a[");
           w.write_str(&"a[");
           let s = (cx.ds)(def);
           debug!("~~~~ %s", s);
           w.write_str(s);
-          debug!("~~~~ %s", ~"|");
+          debug!("~~~~ %s", "|");
           w.write_char('|');
           enc_substs(w, cx, substs);
-          debug!("~~~~ %s", ~"]");
+          debug!("~~~~ %s", "]");
           w.write_char(']');
       }
-      ty::ty_err => fail!(~"Shouldn't encode error type")
+      ty::ty_err => fail!("Shouldn't encode error type")
     }
 }
 
@@ -343,13 +346,8 @@ fn enc_sigil(w: @io::Writer, sigil: Sigil) {
     }
 }
 
-pub fn enc_arg(w: @io::Writer, cx: @ctxt, arg: ty::arg) {
-    enc_ty(w, cx, arg.ty);
-}
-
 fn enc_purity(w: @io::Writer, p: purity) {
     match p {
-      pure_fn => w.write_char('p'),
       impure_fn => w.write_char('i'),
       unsafe_fn => w.write_char('u'),
       extern_fn => w.write_char('c')
@@ -383,31 +381,37 @@ fn enc_closure_ty(w: @io::Writer, cx: @ctxt, ft: &ty::ClosureTy) {
     enc_purity(w, ft.purity);
     enc_onceness(w, ft.onceness);
     enc_region(w, cx, ft.region);
+    let bounds = ty::ParamBounds {builtin_bounds: ft.bounds,
+                                  trait_bounds: ~[]};
+    enc_bounds(w, cx, &bounds);
     enc_fn_sig(w, cx, &ft.sig);
 }
 
 fn enc_fn_sig(w: @io::Writer, cx: @ctxt, fsig: &ty::FnSig) {
     w.write_char('[');
-    for fsig.inputs.each |arg| {
-        enc_arg(w, cx, *arg);
+    for fsig.inputs.iter().advance |ty| {
+        enc_ty(w, cx, *ty);
     }
     w.write_char(']');
     enc_ty(w, cx, fsig.output);
 }
 
-fn enc_bounds(w: @io::Writer, cx: @ctxt, bs: @~[ty::param_bound]) {
-    for vec::each(*bs) |bound| {
-        match *bound {
-          ty::bound_owned => w.write_char('S'),
-          ty::bound_copy => w.write_char('C'),
-          ty::bound_const => w.write_char('K'),
-          ty::bound_durable => w.write_char('O'),
-          ty::bound_trait(tp) => {
-              w.write_char('I');
-              enc_trait_ref(w, cx, tp);
-          }
+fn enc_bounds(w: @io::Writer, cx: @ctxt, bs: &ty::ParamBounds) {
+    for bs.builtin_bounds.each |bound| {
+        match bound {
+            ty::BoundSend => w.write_char('S'),
+            ty::BoundCopy => w.write_char('C'),
+            ty::BoundFreeze => w.write_char('K'),
+            ty::BoundStatic => w.write_char('O'),
+            ty::BoundSized => w.write_char('Z'),
         }
     }
+
+    for bs.trait_bounds.iter().advance |&tp| {
+        w.write_char('I');
+        enc_trait_ref(w, cx, tp);
+    }
+
     w.write_char('.');
 }
 
@@ -416,13 +420,3 @@ pub fn enc_type_param_def(w: @io::Writer, cx: @ctxt, v: &ty::TypeParameterDef) {
     w.write_char('|');
     enc_bounds(w, cx, v.bounds);
 }
-
-//
-// Local Variables:
-// mode: rust
-// fill-column: 78;
-// indent-tabs-mode: nil
-// c-basic-offset: 4
-// buffer-file-coding-system: utf-8-unix
-// End:
-//

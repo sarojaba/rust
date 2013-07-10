@@ -10,9 +10,13 @@
 
 // Context data structure used by rustpkg
 
-use core::hashmap::HashMap;
+
+use std::hashmap::HashMap;
 
 pub struct Ctx {
+    // Sysroot -- if this is None, uses rustc filesearch's
+    // idea of the default
+    sysroot_opt: Option<@Path>,
     // I'm not sure what this is for
     json: bool,
     // Cache of hashes of things already installed

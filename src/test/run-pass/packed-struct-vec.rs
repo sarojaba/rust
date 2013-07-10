@@ -8,6 +8,9 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+use std::sys;
+use std::uint;
+
 #[packed]
 #[deriving(Eq)]
 struct Foo {
@@ -24,7 +27,7 @@ fn main() {
         assert_eq!(foos[i], Foo { bar: 1, baz: 2});
     }
 
-    for foos.each |&foo| {
+    for foos.iter().advance |&foo| {
         assert_eq!(foo, Foo { bar: 1, baz: 2 });
     }
 }

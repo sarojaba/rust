@@ -10,14 +10,16 @@
 
 // Code that generates a test runner to run all the tests in a crate
 
+
 use driver::session;
 use front::config;
 
+use std::vec;
 use syntax::ast_util::*;
 use syntax::attr;
-use syntax::codemap::{dummy_sp, span, ExpandedFrom, CallInfo, NameAndSpan};
+use syntax::codemap::{dummy_sp, span, ExpnInfo, NameAndSpan};
 use syntax::codemap;
-use syntax::ext::base::{mk_ctxt, ext_ctxt};
+use syntax::ext::base::ExtCtxt;
 use syntax::fold;
 use syntax::print::pprust;
 use syntax::{ast, ast_util};
@@ -36,7 +38,7 @@ struct TestCtxt {
     sess: session::Session,
     crate: @ast::crate,
     path: ~[ast::ident],
-    ext_cx: @ext_ctxt,
+    ext_cx: @ExtCtxt,
     testfns: ~[Test]
 }
 
@@ -49,7 +51,7 @@ pub fn modify_for_testing(sess: session::Session,
     // configuration, either with the '--test' or '--cfg test'
     // command line options.
     let should_test = attr::contains(crate.node.config,
-                                     attr::mk_word_item(@~"test"));
+                                     attr::mk_word_item(@"test"));
 
     if should_test {
         generate_test_harness(sess, crate)
@@ -64,18 +66,19 @@ fn generate_test_harness(sess: session::Session,
     let cx: @mut TestCtxt = @mut TestCtxt {
         sess: sess,
         crate: crate,
-        ext_cx: mk_ctxt(sess.parse_sess, copy sess.opts.cfg),
+        ext_cx: ExtCtxt::new(sess.parse_sess, copy sess.opts.cfg),
         path: ~[],
         testfns: ~[]
     };
 
-    cx.ext_cx.bt_push(ExpandedFrom(CallInfo {
+    let ext_cx = cx.ext_cx;
+    ext_cx.bt_push(ExpnInfo {
         call_site: dummy_sp(),
         callee: NameAndSpan {
-            name: ~"test",
+            name: @"test",
             span: None
         }
-    }));
+    });
 
     let precursor = @fold::AstFoldFns {
         fold_crate: fold::wrap(|a,b| fold_crate(cx, a, b) ),
@@ -84,16 +87,16 @@ fn generate_test_harness(sess: session::Session,
 
     let fold = fold::make_fold(precursor);
     let res = @fold.fold_crate(&*crate);
-    cx.ext_cx.bt_pop();
+    ext_cx.bt_pop();
     return res;
 }
 
-fn strip_test_functions(crate: @ast::crate) -> @ast::crate {
+fn strip_test_functions(crate: &ast::crate) -> @ast::crate {
     // When not compiling with --test we should not compile the
     // #[test] functions
     do config::strip_items(crate) |attrs| {
-        !attr::contains_name(attr::attr_metas(attrs), ~"test") &&
-        !attr::contains_name(attr::attr_metas(attrs), ~"bench")
+        !attr::contains_name(attr::attr_metas(attrs), "test") &&
+        !attr::contains_name(attr::attr_metas(attrs), "bench")
     }
 }
 
@@ -106,15 +109,17 @@ fn fold_mod(cx: @mut TestCtxt,
 
     fn nomain(cx: @mut TestCtxt, item: @ast::item) -> @ast::item {
         if !*cx.sess.building_library {
-            @ast::item{attrs: item.attrs.filtered(|attr| {
-                               *attr::get_attr_name(attr) != ~"main"
-                           }),.. copy *item}
+            @ast::item{
+                attrs: do item.attrs.iter().filter_map |attr| {
+                    if "main" != attr::get_attr_name(attr) {Some(*attr)} else {None}
+                }.collect(),
+                .. copy *item}
         } else { item }
     }
 
     let mod_nomain = ast::_mod {
         view_items: /*bad*/copy m.view_items,
-        items: vec::map(m.items, |i| nomain(cx, *i)),
+        items: m.items.iter().transform(|i| nomain(cx, *i)).collect(),
     };
 
     fold::noop_fold_mod(&mod_nomain, fld)
@@ -139,15 +144,15 @@ fn fold_item(cx: @mut TestCtxt, i: @ast::item, fld: @fold::ast_fold)
           -> Option<@ast::item> {
     cx.path.push(i.ident);
     debug!("current path: %s",
-           ast_util::path_name_i(copy cx.path, cx.sess.parse_sess.interner));
+           ast_util::path_name_i(copy cx.path));
 
-    if is_test_fn(i) || is_bench_fn(i) {
+    if is_test_fn(cx, i) || is_bench_fn(i) {
         match i.node {
           ast::item_fn(_, purity, _, _, _) if purity == ast::unsafe_fn => {
             let sess = cx.sess;
             sess.span_fatal(
                 i.span,
-                ~"unsafe functions cannot be used for tests");
+                "unsafe functions cannot be used for tests");
           }
           _ => {
             debug!("this is a test function");
@@ -169,9 +174,9 @@ fn fold_item(cx: @mut TestCtxt, i: @ast::item, fld: @fold::ast_fold)
     return res;
 }
 
-fn is_test_fn(i: @ast::item) -> bool {
+fn is_test_fn(cx: @mut TestCtxt, i: @ast::item) -> bool {
     let has_test_attr = !attr::find_attrs_by_name(i.attrs,
-                                                  ~"test").is_empty();
+                                                  "test").is_empty();
 
     fn has_test_signature(i: @ast::item) -> bool {
         match &i.node {
@@ -188,17 +193,23 @@ fn is_test_fn(i: @ast::item) -> bool {
         }
     }
 
+    if has_test_attr && !has_test_signature(i) {
+        let sess = cx.sess;
+        sess.span_err(
+            i.span,
+            "functions used as tests must have signature fn() -> ()."
+        );
+    }
     return has_test_attr && has_test_signature(i);
 }
 
 fn is_bench_fn(i: @ast::item) -> bool {
-    let has_bench_attr =
-        vec::len(attr::find_attrs_by_name(i.attrs, ~"bench")) > 0u;
+    let has_bench_attr = !attr::find_attrs_by_name(i.attrs, "bench").is_empty();
 
     fn has_test_signature(i: @ast::item) -> bool {
         match i.node {
             ast::item_fn(ref decl, _, _, ref generics, _) => {
-                let input_cnt = vec::len(decl.inputs);
+                let input_cnt = decl.inputs.len();
                 let no_output = match decl.output.node {
                     ast::ty_nil => true,
                     _ => false
@@ -220,10 +231,10 @@ fn is_ignored(cx: @mut TestCtxt, i: @ast::item) -> bool {
     let ignoreattrs = attr::find_attrs_by_name(i.attrs, "ignore");
     let ignoreitems = attr::attr_metas(ignoreattrs);
     return if !ignoreitems.is_empty() {
-        let cfg_metas =
-            vec::concat(
-                vec::filter_map(ignoreitems,
-                                |i| attr::get_meta_item_list(i)));
+        let cfg_metas = ignoreitems.consume_iter()
+            .filter_map(|i| attr::get_meta_item_list(i))
+            .collect::<~[~[@ast::meta_item]]>()
+            .concat_vec();
         config::metas_in_cfg(/*bad*/copy cx.crate.node.config, cfg_metas)
     } else {
         false
@@ -231,7 +242,7 @@ fn is_ignored(cx: @mut TestCtxt, i: @ast::item) -> bool {
 }
 
 fn should_fail(i: @ast::item) -> bool {
-    vec::len(attr::find_attrs_by_name(i.attrs, ~"should_fail")) > 0u
+    !attr::find_attrs_by_name(i.attrs, "should_fail").is_empty()
 }
 
 fn add_test_module(cx: &TestCtxt, m: &ast::_mod) -> ast::_mod {
@@ -248,25 +259,25 @@ We're going to be building a module that looks more or less like:
 
 mod __test {
   #[!resolve_unexported]
-  extern mod std (name = "std", vers = "...");
+  extern mod extra (name = "extra", vers = "...");
   fn main() {
     #[main];
-    std::test::test_main_static(::os::args(), tests)
+    extra::test::test_main_static(::os::args(), tests)
   }
 
-  static tests : &'static [std::test::TestDescAndFn] = &[
+  static tests : &'static [extra::test::TestDescAndFn] = &[
     ... the list of tests in the crate ...
   ];
 }
 
 */
 
-fn mk_std(cx: &TestCtxt) -> @ast::view_item {
-    let vers = ast::lit_str(@~"0.7-pre");
+fn mk_std(cx: &TestCtxt) -> ast::view_item {
+    let vers = ast::lit_str(@"0.8-pre");
     let vers = nospan(vers);
-    let mi = ast::meta_name_value(@~"vers", vers);
+    let mi = ast::meta_name_value(@"vers", vers);
     let mi = nospan(mi);
-    let id_std = cx.sess.ident_of(~"std");
+    let id_std = cx.sess.ident_of("extra");
     let vi = if is_std(cx) {
         ast::view_item_use(
             ~[@nospan(ast::view_path_simple(id_std,
@@ -276,18 +287,17 @@ fn mk_std(cx: &TestCtxt) -> @ast::view_item {
         ast::view_item_extern_mod(id_std, ~[@mi],
                            cx.sess.next_node_id())
     };
-    let vi = ast::view_item {
+    ast::view_item {
         node: vi,
         attrs: ~[],
         vis: ast::public,
         span: dummy_sp()
-    };
-    return @vi;
+    }
 }
 
 fn mk_test_module(cx: &TestCtxt) -> @ast::item {
 
-    // Link to std
+    // Link to extra
     let view_items = ~[mk_std(cx)];
 
     // A constant vector of test descriptors.
@@ -299,7 +309,7 @@ fn mk_test_module(cx: &TestCtxt) -> @ast::item {
     let mainfn = (quote_item!(
         pub fn main() {
             #[main];
-            std::test::test_main_static(::os::args(), tests);
+            extra::test::test_main_static(::std::os::args(), TESTS);
         }
     )).get();
 
@@ -311,10 +321,10 @@ fn mk_test_module(cx: &TestCtxt) -> @ast::item {
 
     // This attribute tells resolve to let us call unexported functions
     let resolve_unexported_attr =
-        attr::mk_attr(attr::mk_word_item(@~"!resolve_unexported"));
+        attr::mk_attr(attr::mk_word_item(@"!resolve_unexported"));
 
     let item = ast::item {
-        ident: cx.sess.ident_of(~"__test"),
+        ident: cx.sess.ident_of("__test"),
         attrs: ~[resolve_unexported_attr],
         id: cx.sess.next_node_id(),
         node: item_,
@@ -332,16 +342,16 @@ fn nospan<T:Copy>(t: T) -> codemap::spanned<T> {
     codemap::spanned { node: t, span: dummy_sp() }
 }
 
-fn path_node(ids: ~[ast::ident]) -> @ast::Path {
-    @ast::Path { span: dummy_sp(),
+fn path_node(ids: ~[ast::ident]) -> ast::Path {
+    ast::Path { span: dummy_sp(),
                 global: false,
                 idents: ids,
                 rp: None,
                 types: ~[] }
 }
 
-fn path_node_global(ids: ~[ast::ident]) -> @ast::Path {
-    @ast::Path { span: dummy_sp(),
+fn path_node_global(ids: ~[ast::ident]) -> ast::Path {
+    ast::Path { span: dummy_sp(),
                  global: true,
                  idents: ids,
                  rp: None,
@@ -356,7 +366,7 @@ fn mk_tests(cx: &TestCtxt) -> @ast::item {
     let test_descs = mk_test_descs(cx);
 
     (quote_item!(
-        pub static tests : &'static [self::std::test::TestDescAndFn] =
+        pub static TESTS : &'static [self::extra::test::TestDescAndFn] =
             $test_descs
         ;
     )).get()
@@ -365,8 +375,8 @@ fn mk_tests(cx: &TestCtxt) -> @ast::item {
 fn is_std(cx: &TestCtxt) -> bool {
     let is_std = {
         let items = attr::find_linkage_metas(cx.crate.node.attrs);
-        match attr::last_meta_item_value_str_by_name(items, ~"name") {
-          Some(@~"std") => true,
+        match attr::last_meta_item_value_str_by_name(items, "name") {
+          Some(s) if "extra" == s => true,
           _ => false
         }
     };
@@ -376,21 +386,19 @@ fn is_std(cx: &TestCtxt) -> bool {
 fn mk_test_descs(cx: &TestCtxt) -> @ast::expr {
     debug!("building test vector from %u tests", cx.testfns.len());
     let mut descs = ~[];
-    for cx.testfns.each |test| {
+    for cx.testfns.iter().advance |test| {
         descs.push(mk_test_desc_and_fn_rec(cx, test));
     }
 
     let sess = cx.sess;
     let inner_expr = @ast::expr {
         id: sess.next_node_id(),
-        callee_id: sess.next_node_id(),
         node: ast::expr_vec(descs, ast::m_imm),
         span: dummy_sp(),
     };
 
     @ast::expr {
         id: sess.next_node_id(),
-        callee_id: sess.next_node_id(),
         node: ast::expr_vstore(inner_expr, ast::expr_vstore_slice),
         span: dummy_sp(),
     }
@@ -402,17 +410,13 @@ fn mk_test_desc_and_fn_rec(cx: &TestCtxt, test: &Test) -> @ast::expr {
 
     let ext_cx = cx.ext_cx;
 
-    debug!("encoding %s", ast_util::path_name_i(path,
-                                                cx.sess.parse_sess.interner));
+    debug!("encoding %s", ast_util::path_name_i(path));
 
     let name_lit: ast::lit =
-        nospan(ast::lit_str(@ast_util::path_name_i(
-            path,
-            cx.sess.parse_sess.interner)));
+        nospan(ast::lit_str(ast_util::path_name_i(path).to_managed()));
 
     let name_expr = @ast::expr {
           id: cx.sess.next_node_id(),
-          callee_id: cx.sess.next_node_id(),
           node: ast::expr_lit(@name_lit),
           span: span
     };
@@ -421,15 +425,14 @@ fn mk_test_desc_and_fn_rec(cx: &TestCtxt, test: &Test) -> @ast::expr {
 
     let fn_expr = @ast::expr {
         id: cx.sess.next_node_id(),
-        callee_id: cx.sess.next_node_id(),
         node: ast::expr_path(fn_path),
         span: span,
     };
 
     let t_expr = if test.bench {
-        quote_expr!( self::std::test::StaticBenchFn($fn_expr) )
+        quote_expr!( self::extra::test::StaticBenchFn($fn_expr) )
     } else {
-        quote_expr!( self::std::test::StaticTestFn($fn_expr) )
+        quote_expr!( self::extra::test::StaticTestFn($fn_expr) )
     };
 
     let ignore_expr = if test.ignore {
@@ -445,9 +448,9 @@ fn mk_test_desc_and_fn_rec(cx: &TestCtxt, test: &Test) -> @ast::expr {
     };
 
     let e = quote_expr!(
-        self::std::test::TestDescAndFn {
-            desc: self::std::test::TestDesc {
-                name: self::std::test::StaticTestName($name_expr),
+        self::extra::test::TestDescAndFn {
+            desc: self::extra::test::TestDesc {
+                name: self::extra::test::StaticTestName($name_expr),
                 ignore: $ignore_expr,
                 should_fail: $fail_expr
             },
@@ -456,11 +459,3 @@ fn mk_test_desc_and_fn_rec(cx: &TestCtxt, test: &Test) -> @ast::expr {
     );
     e
 }
-
-// Local Variables:
-// mode: rust
-// fill-column: 78;
-// indent-tabs-mode: nil
-// c-basic-offset: 4
-// buffer-file-coding-system: utf-8-unix
-// End:

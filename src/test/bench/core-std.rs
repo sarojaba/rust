@@ -8,12 +8,20 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-// Microbenchmarks for various functions in core and std
+// Microbenchmarks for various functions in std and extra
 
-extern mod std;
+extern mod extra;
 
-use std::time::precise_time_s;
-use core::rand::RngUtil;
+use extra::time::precise_time_s;
+use std::int;
+use std::io;
+use std::os;
+use std::rand::RngUtil;
+use std::rand;
+use std::result;
+use std::uint;
+use std::util;
+use std::vec;
 
 macro_rules! bench (
     ($id:ident) => (maybe_run_test(argv, stringify!($id).to_owned(), $id))
@@ -21,7 +29,7 @@ macro_rules! bench (
 
 fn main() {
     let argv = os::args();
-    let tests = vec::slice(argv, 1, argv.len());
+    let tests = argv.slice(1, argv.len());
 
     bench!(shift_push);
     bench!(read_line);
@@ -33,12 +41,15 @@ fn main() {
 fn maybe_run_test(argv: &[~str], name: ~str, test: &fn()) {
     let mut run_test = false;
 
-    if os::getenv(~"RUST_BENCH").is_some() { run_test = true }
-    else if argv.len() > 0 {
-        run_test = argv.contains(&~"all") || argv.contains(&name)
+    if os::getenv(~"RUST_BENCH").is_some() {
+        run_test = true
+    } else if argv.len() > 0 {
+        run_test = argv.iter().any(|x| x == &~"all") || argv.iter().any(|x| x == &name)
     }
 
-    if !run_test { return }
+    if !run_test {
+        return
+    }
 
     let start = precise_time_s();
     test();
@@ -69,16 +80,15 @@ fn read_line() {
 }
 
 fn vec_plus() {
-    let r = rand::rng();
+    let mut r = rand::rng();
 
     let mut v = ~[];
     let mut i = 0;
     while i < 1500 {
         let rv = vec::from_elem(r.gen_uint_range(0, i + 1), i);
         if r.gen() {
-            v += rv;
-        }
-        else {
+            v.push_all_move(rv);
+        } else {
             v = rv + v;
         }
         i += 1;
@@ -86,7 +96,7 @@ fn vec_plus() {
 }
 
 fn vec_append() {
-    let r = rand::rng();
+    let mut r = rand::rng();
 
     let mut v = ~[];
     let mut i = 0;
@@ -103,7 +113,7 @@ fn vec_append() {
 }
 
 fn vec_push_all() {
-    let r = rand::rng();
+    let mut r = rand::rng();
 
     let mut v = ~[];
     for uint::range(0, 1500) |i| {
@@ -112,7 +122,7 @@ fn vec_push_all() {
             v.push_all(rv);
         }
         else {
-            v <-> rv;
+            util::swap(&mut v, &mut rv);
             v.push_all(rv);
         }
     }

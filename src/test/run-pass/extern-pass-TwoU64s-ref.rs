@@ -16,14 +16,13 @@ struct TwoU64s {
 }
 
 pub extern {
-    pub fn rust_dbg_extern_identity_TwoU64s(&&u: TwoU64s) -> TwoU64s;
+    pub fn rust_dbg_extern_identity_TwoU64s(u: TwoU64s) -> TwoU64s;
 }
 
 pub fn main() {
     unsafe {
         let x = TwoU64s {one: 22, two: 23};
         let y = rust_dbg_extern_identity_TwoU64s(x);
-        assert!(x == y);
+        assert_eq!(x, y);
     }
 }
-

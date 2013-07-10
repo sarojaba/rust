@@ -12,12 +12,16 @@
 # Translation of inline assembly.
 */
 
+
 use lib;
 use middle::trans::build::*;
 use middle::trans::callee;
 use middle::trans::common::*;
 use middle::ty;
 
+use middle::trans::type_::Type;
+
+use std::str;
 use syntax::ast;
 
 // Take an inline assembly expression and splat it out via LLVM
@@ -30,14 +34,11 @@ pub fn trans_inline_asm(bcx: block, ia: &ast::inline_asm) -> block {
 
     // Prepare the output operands
     let outputs = do ia.outputs.map |&(c, out)| {
-        constraints.push(copy *c);
+        constraints.push(c);
 
-        let aoutty = ty::arg {
-            ty: expr_ty(bcx, out)
-        };
         aoutputs.push(unpack_result!(bcx, {
             callee::trans_arg_expr(bcx,
-                                   aoutty,
+                                   expr_ty(bcx, out),
                                    ty::ByCopy,
                                    out,
                                    &mut cleanups,
@@ -47,16 +48,12 @@ pub fn trans_inline_asm(bcx: block, ia: &ast::inline_asm) -> block {
 
         let e = match out.node {
             ast::expr_addr_of(_, e) => e,
-            _ => fail!(~"Expression must be addr of")
-        };
-
-        let outty = ty::arg {
-            ty: expr_ty(bcx, e)
+            _ => fail!("Expression must be addr of")
         };
 
         unpack_result!(bcx, {
             callee::trans_arg_expr(bcx,
-                                   outty,
+                                   expr_ty(bcx, e),
                                    ty::ByCopy,
                                    e,
                                    &mut cleanups,
@@ -66,22 +63,18 @@ pub fn trans_inline_asm(bcx: block, ia: &ast::inline_asm) -> block {
 
     };
 
-    for cleanups.each |c| {
+    for cleanups.iter().advance |c| {
         revoke_clean(bcx, *c);
     }
     cleanups.clear();
 
     // Now the input operands
     let inputs = do ia.inputs.map |&(c, in)| {
-        constraints.push(copy *c);
-
-        let inty = ty::arg {
-            ty: expr_ty(bcx, in)
-        };
+        constraints.push(c);
 
         unpack_result!(bcx, {
             callee::trans_arg_expr(bcx,
-                                   inty,
+                                   expr_ty(bcx, in),
                                    ty::ByCopy,
                                    in,
                                    &mut cleanups,
@@ -91,24 +84,25 @@ pub fn trans_inline_asm(bcx: block, ia: &ast::inline_asm) -> block {
 
     };
 
-    for cleanups.each |c| {
+    for cleanups.iter().advance |c| {
         revoke_clean(bcx, *c);
     }
 
-    let mut constraints = str::connect(constraints, ",");
+    let mut constraints = constraints.connect(",");
 
     let mut clobbers = getClobbers();
-    if *ia.clobbers != ~"" && clobbers != ~"" {
-        clobbers = *ia.clobbers + ~"," + clobbers;
+    if !ia.clobbers.is_empty() && !clobbers.is_empty() {
+        clobbers = fmt!("%s,%s", ia.clobbers, clobbers);
     } else {
-        clobbers += *ia.clobbers;
+        clobbers.push_str(ia.clobbers);
     };
 
     // Add the clobbers to our constraints list
-    if clobbers != ~"" && constraints != ~"" {
-        constraints += ~"," + clobbers;
+    if clobbers.len() != 0 && constraints.len() != 0 {
+        constraints.push_char(',');
+        constraints.push_str(clobbers);
     } else {
-        constraints += clobbers;
+        constraints.push_str(clobbers);
     }
 
     debug!("Asm Constraints: %?", constraints);
@@ -117,11 +111,11 @@ pub fn trans_inline_asm(bcx: block, ia: &ast::inline_asm) -> block {
 
     // Depending on how many outputs we have, the return type is different
     let output = if numOutputs == 0 {
-        T_void()
+        Type::void()
     } else if numOutputs == 1 {
         val_ty(outputs[0])
     } else {
-        T_struct(outputs.map(|o| val_ty(*o)), false)
+        Type::struct_(outputs.map(|o| val_ty(*o)), false)
     };
 
     let dialect = match ia.dialect {
@@ -129,7 +123,7 @@ pub fn trans_inline_asm(bcx: block, ia: &ast::inline_asm) -> block {
         ast::asm_intel => lib::llvm::AD_Intel
     };
 
-    let r = do str::as_c_str(*ia.asm) |a| {
+    let r = do str::as_c_str(ia.asm) |a| {
         do str::as_c_str(constraints) |c| {
             InlineAsmCall(bcx, a, c, inputs, output, ia.volatile, ia.alignstack, dialect)
         }
@@ -137,12 +131,12 @@ pub fn trans_inline_asm(bcx: block, ia: &ast::inline_asm) -> block {
 
     // Again, based on how many outputs we have
     if numOutputs == 1 {
-        let op = PointerCast(bcx, aoutputs[0], T_ptr(val_ty(outputs[0])));
+        let op = PointerCast(bcx, aoutputs[0], val_ty(outputs[0]).ptr_to());
         Store(bcx, r, op);
     } else {
-        for aoutputs.eachi |i, o| {
+        for aoutputs.iter().enumerate().advance |(i, o)| {
             let v = ExtractValue(bcx, r, i);
-            let op = PointerCast(bcx, *o, T_ptr(val_ty(outputs[i])));
+            let op = PointerCast(bcx, *o, val_ty(outputs[i]).ptr_to());
             Store(bcx, v, op);
         }
     }

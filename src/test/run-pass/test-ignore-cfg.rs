@@ -11,7 +11,7 @@
 // compile-flags: --test --cfg ignorecfg
 // xfail-fast
 
-extern mod std;
+extern mod extra;
 
 #[test]
 #[ignore(cfg(ignorecfg))]
@@ -26,13 +26,11 @@ fn shouldnotignore() {
 #[test]
 fn checktests() {
     // Pull the tests out of the secreturn test module
-    let tests = __test::tests;
+    let tests = __test::TESTS;
 
-    assert!(vec::any(
-        tests,
-        |t| t.desc.name.to_str() == ~"shouldignore" && t.desc.ignore));
+    assert!(
+        tests.iter().any(|t| t.desc.name.to_str() == ~"shouldignore" && t.desc.ignore));
 
-    assert!(vec::any(
-        tests,
-        |t| t.desc.name.to_str() == ~"shouldnotignore" && !t.desc.ignore));
+    assert!(
+        tests.iter().any(|t| t.desc.name.to_str() == ~"shouldnotignore" && !t.desc.ignore));
 }

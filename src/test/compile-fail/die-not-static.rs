@@ -1,7 +1,8 @@
-// error-pattern:illegal borrow: borrowed value does not live long enough
+use std::str;
 
 fn main() {
     let v = ~"test";
-    let sslice = str::slice(v, 0, v.len());
+    let sslice = v.slice(0, v.len());
+    //~^ ERROR borrowed value does not live long enough
     fail!(sslice);
 }

@@ -8,6 +8,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+
+
 use astsrv;
 use doc;
 use time;
@@ -17,7 +19,7 @@ use time;
 /// A single operation on the document model
 pub struct Pass {
     name: ~str,
-    f: @fn(srv: astsrv::Srv, +doc: doc::Doc) -> doc::Doc
+    f: @fn(srv: astsrv::Srv, doc: doc::Doc) -> doc::Doc
 }
 
 pub fn run_passes(
@@ -26,7 +28,7 @@ pub fn run_passes(
     passes: ~[Pass]
 ) -> doc::Doc {
     let mut passno = 0;
-    do vec::foldl(doc, passes) |doc, pass| {
+    do passes.iter().fold(doc) |doc, pass| {
         debug!("pass #%d", passno);
         passno += 1;
         do time(copy pass.name) {
@@ -46,7 +48,7 @@ fn test_run_passes() {
                 doc::CratePage(doc::CrateDoc{
                     topmod: doc::ModDoc{
                         item: doc::ItemDoc {
-                            name: doc.cratemod().name() + ~"two",
+                            name: doc.cratemod().name() + "two",
                             .. copy doc.cratemod().item
                         },
                         items: ~[],
@@ -65,7 +67,7 @@ fn test_run_passes() {
                 doc::CratePage(doc::CrateDoc{
                     topmod: doc::ModDoc{
                         item: doc::ItemDoc {
-                            name: doc.cratemod().name() + ~"three",
+                            name: doc.cratemod().name() + "three",
                             .. copy doc.cratemod().item
                         },
                         items: ~[],
@@ -89,6 +91,6 @@ fn test_run_passes() {
         ];
         let doc = extract::from_srv(srv.clone(), ~"one");
         let doc = run_passes(srv, doc, passes);
-        assert!(doc.cratemod().name() == ~"onetwothree");
+        assert_eq!(doc.cratemod().name(), ~"onetwothree");
     }
 }

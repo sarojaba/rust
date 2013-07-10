@@ -8,23 +8,23 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use core::hashmap::HashSet;
+use std::hashmap::HashSet;
 
 struct Foo {
   n: HashSet<int>,
 }
 
-pub impl Foo {
-  fn foo(&mut self, fun: &fn(&int)) {
-    for self.n.each |f| {
-      fun(f);
+impl Foo {
+    pub fn foo(&mut self, fun: &fn(&int)) {
+        for self.n.iter().advance |f| {
+            fun(f);
+        }
     }
-  }
 }
 
 fn bar(f: &mut Foo) {
-  do f.foo |a| { //~ NOTE prior loan as mutable granted here
-    f.n.insert(*a); //~ ERROR conflicts with prior loan
+  do f.foo |a| {
+    f.n.insert(*a); //~ ERROR cannot borrow
   }
 }
 

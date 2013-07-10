@@ -14,12 +14,13 @@
 
 // xfail-win32
 
-extern mod std;
-use std::timer::sleep;
-use std::uv;
+extern mod extra;
+use extra::timer::sleep;
+use extra::uv;
 
-use core::cell::Cell;
-use core::pipes::{try_recv, recv};
+use std::cell::Cell;
+use std::pipes::{try_recv, recv};
+use std::task;
 
 proto! oneshot (
     waiting:send {
@@ -29,9 +30,9 @@ proto! oneshot (
 
 pub fn main() {
     let iotask = &uv::global_loop::get();
-    
-    let (chan, port) = oneshot::init();
-    let port = Cell(port);
+
+    let (port, chan) = oneshot::init();
+    let port = Cell::new(port);
     do spawn {
         match try_recv(port.take()) {
           Some(*) => { fail!() }
@@ -46,9 +47,9 @@ pub fn main() {
 
 // Make sure the right thing happens during failure.
 fn failtest() {
-    let (c, p) = oneshot::init();
+    let (p, c) = oneshot::init();
 
-    do task::spawn_with(c) |_c| { 
+    do task::spawn_with(c) |_c| {
         fail!();
     }
 

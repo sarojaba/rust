@@ -1,15 +1,15 @@
 // xfail-test
 
-extern mod std;
+extern mod extra;
 
-use core::cast::transmute;
-use core::i32::range;
-use core::libc::{STDIN_FILENO, c_int, fdopen, fgets, fileno, fopen, fstat};
-use core::libc::{stat, strlen};
-use core::ptr::null;
-use core::unstable::intrinsics::init;
-use core::vec::{reverse, slice};
-use std::sort::quick_sort3;
+use std::cast::transmute;
+use std::i32::range;
+use std::libc::{STDIN_FILENO, c_int, fdopen, fgets, fileno, fopen, fstat};
+use std::libc::{stat, strlen};
+use std::ptr::null;
+use std::unstable::intrinsics::init;
+use std::vec::{reverse};
+use extra::sort::quick_sort3;
 
 static LINE_LEN: uint = 80;
 static TABLE: [u8, ..4] = [ 'A' as u8, 'C' as u8, 'G' as u8, 'T' as u8 ];
@@ -194,7 +194,7 @@ fn unpack_symbol(c: u8) -> u8 {
 
 fn next_char<'a>(mut buf: &'a [u8]) -> &'a [u8] {
     loop {
-        buf = slice(buf, 1, buf.len());
+        buf = buf.slice(1, buf.len());
         if buf.len() == 0 {
             break;
         }
@@ -218,8 +218,7 @@ fn read_stdin() -> ~[u8] {
         fstat(fileno(stdin), &mut st);
         let mut buf = vec::from_elem(st.st_size as uint, 0);
 
-        let header = str::byte_slice_no_callback(">THREE");
-        let header = vec::slice(header, 0, 6);
+        let header = ">THREE".as_bytes();
 
         {
             let mut window: &mut [u8] = buf;
@@ -227,7 +226,7 @@ fn read_stdin() -> ~[u8] {
                 fgets(transmute(&mut window[0]), LINE_LEN as c_int, stdin);
 
                 {
-                    if vec::slice(window, 0, 6) == header {
+                    if window.slice(0, 6) == header {
                         break;
                     }
                 }
@@ -236,9 +235,7 @@ fn read_stdin() -> ~[u8] {
             while fgets(transmute(&mut window[0]),
                         LINE_LEN as c_int,
                         stdin) != null() {
-                window = vec::mut_slice(window,
-                                        strlen(transmute(&window[0])) as uint,
-                                        window.len());
+                window = window.mut_slice(strlen(transmute(&window[0])) as uint, window.len());
             }
         }
 
@@ -252,7 +249,7 @@ fn generate_frequencies(frequencies: &mut Table,
                         mut input: &[u8],
                         frame: i32) {
     let mut code = Code(0);
-    
+
     // Pull first frame.
     for (frame as uint).times {
         code = code.push_char(input[0]);
@@ -313,4 +310,3 @@ fn main() {
         print_occurrences(frequencies, occurrence);
     }
 }
-

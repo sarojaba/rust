@@ -11,24 +11,30 @@
 // rustpkg utilities having to do with workspaces
 
 use path_util::{rust_path, workspace_contains_package_id};
-use util::PkgId;
-use core::path::Path;
+use package_id::PkgId;
+use std::path::Path;
 
-pub fn pkg_parent_workspaces(pkgid: PkgId, action: &fn(&Path) -> bool) {
+pub fn each_pkg_parent_workspace(pkgid: &PkgId, action: &fn(&Path) -> bool) -> bool {
     // Using the RUST_PATH, find workspaces that contain
     // this package ID
-    let workspaces = rust_path().filtered(|ws|
-        workspace_contains_package_id(pkgid, ws));
+    let workspaces = pkg_parent_workspaces(pkgid);
     if workspaces.is_empty() {
         // tjc: make this a condition
-        fail!(fmt!("Package %s not found in any of \
+        fail!("Package %s not found in any of \
                     the following workspaces: %s",
-                   pkgid.path.to_str(),
-                   rust_path().to_str()));
+                   pkgid.remote_path.to_str(),
+                   rust_path().to_str());
     }
-    for workspaces.each |ws| {
+    for workspaces.iter().advance |ws| {
         if action(ws) {
             break;
         }
     }
+    return true;
+}
+
+pub fn pkg_parent_workspaces(pkgid: &PkgId) -> ~[Path] {
+    rust_path().consume_iter()
+        .filter(|ws| workspace_contains_package_id(pkgid, ws))
+        .collect()
 }

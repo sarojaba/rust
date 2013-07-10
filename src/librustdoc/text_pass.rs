@@ -10,6 +10,7 @@
 
 //! Generic pass for performing an operation on all descriptions
 
+
 use astsrv;
 use doc::ItemUtils;
 use doc;
@@ -18,10 +19,10 @@ use fold;
 use pass::Pass;
 use util::NominalOp;
 
-use core::cell::Cell;
+use std::cell::Cell;
 
 pub fn mk_pass(name: ~str, op: @fn(&str) -> ~str) -> Pass {
-    let op = Cell(op);
+    let op = Cell::new(op);
     Pass {
         name: copy name,
         f: |srv: astsrv::Srv, doc: doc::Doc| -> doc::Doc {
@@ -137,6 +138,7 @@ fn fold_impl(
 
 #[cfg(test)]
 mod test {
+
     use astsrv;
     use attr_pass;
     use desc_to_brief_pass;
@@ -151,20 +153,20 @@ mod test {
             let doc = (attr_pass::mk_pass().f)(srv.clone(), doc);
             let doc = (desc_to_brief_pass::mk_pass().f)(srv.clone(), doc);
             let doc = (sectionalize_pass::mk_pass().f)(srv.clone(), doc);
-            (mk_pass(~"", |s| str::trim(s).to_owned() ).f)(srv.clone(), doc)
+            (mk_pass(~"", |s| s.trim().to_owned() ).f)(srv.clone(), doc)
         }
     }
 
     #[test]
     fn should_execute_op_on_enum_brief() {
         let doc = mk_doc(~"#[doc = \" a \"] enum a { b }");
-        assert!(doc.cratemod().enums()[0].brief() == Some(~"a"));
+        assert_eq!(doc.cratemod().enums()[0].brief(), Some(~"a"));
     }
 
     #[test]
     fn should_execute_op_on_enum_desc() {
         let doc = mk_doc(~"#[doc = \" a \"] enum a { b }");
-        assert!(doc.cratemod().enums()[0].desc() == Some(~"a"));
+        assert_eq!(doc.cratemod().enums()[0].desc(), Some(~"a"));
     }
 
     #[test]
@@ -177,14 +179,14 @@ mod test {
     fn should_execute_op_on_trait_brief() {
         let doc = mk_doc(
             ~"#[doc = \" a \"] trait i { fn a(); }");
-        assert!(doc.cratemod().traits()[0].brief() == Some(~"a"));
+        assert_eq!(doc.cratemod().traits()[0].brief(), Some(~"a"));
     }
 
     #[test]
     fn should_execute_op_on_trait_desc() {
         let doc = mk_doc(
             ~"#[doc = \" a \"] trait i { fn a(); }");
-        assert!(doc.cratemod().traits()[0].desc() == Some(~"a"));
+        assert_eq!(doc.cratemod().traits()[0].desc(), Some(~"a"));
     }
 
     #[test]
@@ -205,14 +207,14 @@ mod test {
     fn should_execute_op_on_impl_brief() {
         let doc = mk_doc(
             ~"#[doc = \" a \"] impl int { fn a() { } }");
-        assert!(doc.cratemod().impls()[0].brief() == Some(~"a"));
+        assert_eq!(doc.cratemod().impls()[0].brief(), Some(~"a"));
     }
 
     #[test]
     fn should_execute_op_on_impl_desc() {
         let doc = mk_doc(
             ~"#[doc = \" a \"] impl int { fn a() { } }");
-        assert!(doc.cratemod().impls()[0].desc() == Some(~"a"));
+        assert_eq!(doc.cratemod().impls()[0].desc(), Some(~"a"));
     }
 
     #[test]
@@ -233,14 +235,14 @@ mod test {
     fn should_execute_op_on_type_brief() {
         let doc = mk_doc(
             ~"#[doc = \" a \"] type t = int;");
-        assert!(doc.cratemod().types()[0].brief() == Some(~"a"));
+        assert_eq!(doc.cratemod().types()[0].brief(), Some(~"a"));
     }
 
     #[test]
     fn should_execute_op_on_type_desc() {
         let doc = mk_doc(
             ~"#[doc = \" a \"] type t = int;");
-        assert!(doc.cratemod().types()[0].desc() == Some(~"a"));
+        assert_eq!(doc.cratemod().types()[0].desc(), Some(~"a"));
     }
 
     #[test]

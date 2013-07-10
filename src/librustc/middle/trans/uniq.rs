@@ -9,7 +9,6 @@
 // except according to those terms.
 
 
-use back;
 use lib::llvm::ValueRef;
 use middle::trans::base::*;
 use middle::trans::build::*;
@@ -18,10 +17,13 @@ use middle::trans::datum::immediate_rvalue;
 use middle::trans::datum;
 use middle::trans::glue;
 use middle::ty;
+use middle::trans::machine::llsize_of;
+use middle::trans::type_of;
+use middle::trans::type_of::*;
 
 pub fn make_free_glue(bcx: block, vptrptr: ValueRef, box_ty: ty::t)
     -> block {
-    let _icx = bcx.insn_ctxt("uniq::make_free_glue");
+    let _icx = push_ctxt("uniq::make_free_glue");
     let box_datum = immediate_rvalue(Load(bcx, vptrptr), box_ty);
 
     let not_null = IsNotNull(bcx, box_datum.val);
@@ -38,27 +40,28 @@ pub fn make_free_glue(bcx: block, vptrptr: ValueRef, box_ty: ty::t)
 }
 
 pub fn duplicate(bcx: block, src_box: ValueRef, src_ty: ty::t) -> Result {
-    let _icx = bcx.insn_ctxt("uniq::duplicate");
+    let _icx = push_ctxt("uniq::duplicate");
 
     // Load the body of the source (*src)
     let src_datum = immediate_rvalue(src_box, src_ty);
     let body_datum = src_datum.box_body(bcx);
 
     // Malloc space in exchange heap and copy src into it
-    let MallocResult {
-        bcx: bcx,
-        box: dst_box,
-        body: dst_body
-    } = malloc_unique(bcx, body_datum.ty);
-    body_datum.copy_to(bcx, datum::INIT, dst_body);
+    if ty::type_contents(bcx.tcx(), src_ty).contains_managed() {
+        let MallocResult {
+            bcx: bcx,
+            box: dst_box,
+            body: dst_body
+        } = malloc_general(bcx, body_datum.ty, heap_managed_unique);
+        body_datum.copy_to(bcx, datum::INIT, dst_body);
 
-    // Copy the type descriptor
-    let src_tydesc_ptr = GEPi(bcx, src_box,
-                              [0u, back::abi::box_field_tydesc]);
-    let dst_tydesc_ptr = GEPi(bcx, dst_box,
-                              [0u, back::abi::box_field_tydesc]);
-    let td = Load(bcx, src_tydesc_ptr);
-    Store(bcx, td, dst_tydesc_ptr);
-
-    return rslt(bcx, dst_box);
+        rslt(bcx, dst_box)
+    } else {
+        let body_datum = body_datum.to_value_datum(bcx);
+        let llty = type_of(bcx.ccx(), body_datum.ty);
+        let size = llsize_of(bcx.ccx(), llty);
+        let Result { bcx: bcx, val: val } = malloc_raw_dyn(bcx, body_datum.ty, heap_exchange, size);
+        body_datum.copy_to(bcx, datum::INIT, val);
+        Result { bcx: bcx, val: val }
+    }
 }

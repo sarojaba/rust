@@ -57,16 +57,6 @@ vec_data(rust_vec *v) {
     return reinterpret_cast<T*>(v->data);
 }
 
-inline void reserve_vec_exact_shared(rust_task* task, rust_vec_box** vpp,
-                                     size_t size) {
-    rust_opaque_box** ovpp = (rust_opaque_box**)vpp;
-    if (size > (*vpp)->body.alloc) {
-        *vpp = (rust_vec_box*)task->boxed.realloc(
-            *ovpp, size + sizeof(rust_vec));
-        (*vpp)->body.alloc = size;
-    }
-}
-
 inline void reserve_vec_exact(rust_vec_box** vpp,
                               size_t size) {
     if (size > (*vpp)->body.alloc) {
@@ -81,7 +71,6 @@ typedef rust_vec_box rust_str;
 
 inline size_t get_box_size(size_t body_size, size_t body_align) {
     size_t header_size = sizeof(rust_opaque_box);
-    // FIXME (#2699): This alignment calculation is suspicious. Is it right?
     size_t total_size = align_to(header_size, body_align) + body_size;
     return total_size;
 }

@@ -8,7 +8,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-use core::{option, cast};
+use std::{option, cast};
 
 // Iota-reduction is a rule in the Calculus of (Co-)Inductive Constructions,
 // which "says that a destructor applied to an object built from a constructor
@@ -20,7 +20,7 @@ use core::{option, cast};
 
 enum E<T> { Thing(int, T), Nothing((), ((), ()), [i8, ..0]) }
 impl<T> E<T> {
-    fn is_none(&self) -> bool { 
+    fn is_none(&self) -> bool {
         match *self {
             Thing(*) => false,
             Nothing(*) => true
@@ -28,7 +28,7 @@ impl<T> E<T> {
     }
     fn get_ref<'r>(&'r self) -> (int, &'r T) {
         match *self {
-            Nothing(*) => fail!(fmt!("E::get_ref(Nothing::<%s>)",  stringify!($T))),
+            Nothing(*) => fail!("E::get_ref(Nothing::<%s>)",  stringify!($T)),
             Thing(x, ref y) => (x, y)
         }
     }
@@ -57,8 +57,8 @@ macro_rules! check_fancy {
         let t_ = Thing::<$T>(23, $e);
         match t_.get_ref() {
             (23, $v) => { $chk }
-            _ => fail!(fmt!("Thing::<%s>(23, %s).get_ref() != (23, _)",
-                            stringify!($T), stringify!($e)))
+            _ => fail!("Thing::<%s>(23, %s).get_ref() != (23, _)",
+                       stringify!($T), stringify!($e))
         }
     }}
 }

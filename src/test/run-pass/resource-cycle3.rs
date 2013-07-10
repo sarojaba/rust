@@ -8,9 +8,11 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-// same as resource-cycle2, but be sure to give r multiple fields... 
+// same as resource-cycle2, but be sure to give r multiple fields...
 
 // Don't leak the unique pointers
+
+use std::cast;
 
 struct U {
     a: int,
@@ -25,7 +27,7 @@ struct R {
 }
 
 impl Drop for R {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             let _v2: ~int = cast::transmute(self.v.c);
             // let _v3: ~int = cast::transmute_copy(self.x);
@@ -50,7 +52,7 @@ struct Node {
     r: R
 }
 
-pub fn main() { 
+pub fn main() {
     unsafe {
         let i1 = ~0xA;
         let i1p = cast::transmute_copy(&i1);

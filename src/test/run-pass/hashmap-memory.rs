@@ -19,8 +19,10 @@
 pub fn map(filename: ~str, emit: map_reduce::putter) { emit(filename, ~"1"); }
 
 mod map_reduce {
-    use core::hashmap::HashMap;
-    use core::comm::*;
+    use std::comm::*;
+    use std::hashmap::HashMap;
+    use std::str;
+    use std::task;
 
     pub type putter = @fn(~str, ~str);
 
@@ -29,7 +31,7 @@ mod map_reduce {
     enum ctrl_proto { find_reducer(~[u8], Chan<int>), mapper_done, }
 
     fn start_mappers(ctrl: SharedChan<ctrl_proto>, inputs: ~[~str]) {
-        for inputs.each |i| {
+        for inputs.iter().advance |i| {
             let ctrl = ctrl.clone();
             let i = i.clone();
             task::spawn(|| map_task(ctrl.clone(), i.clone()) );
@@ -46,7 +48,7 @@ mod map_reduce {
             }
             let (pp, cc) = stream();
             error!("sending find_reducer");
-            ctrl.send(find_reducer(str::to_bytes(key), cc));
+            ctrl.send(find_reducer(key.as_bytes().to_owned(), cc));
             error!("receiving");
             let c = pp.recv();
             error!(c);
@@ -71,7 +73,7 @@ mod map_reduce {
 
         start_mappers(ctrl_chan, inputs.clone());
 
-        let mut num_mappers = vec::len(inputs) as int;
+        let mut num_mappers = inputs.len() as int;
 
         while num_mappers > 0 {
             match ctrl_port.recv() {

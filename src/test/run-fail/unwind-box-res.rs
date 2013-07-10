@@ -10,6 +10,8 @@
 
 // error-pattern:fail
 
+use std::cast;
+
 fn failfn() {
     fail!();
 }
@@ -19,7 +21,7 @@ struct r {
 }
 
 impl Drop for r {
-    fn finalize(&self) {
+    fn drop(&self) {
         unsafe {
             let _v2: ~int = cast::transmute(self.v);
         }

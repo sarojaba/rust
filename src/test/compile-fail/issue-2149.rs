@@ -15,7 +15,7 @@ trait vec_monad<A> {
 impl<A> vec_monad<A> for ~[A] {
     fn bind<B>(&self, f: &fn(A) -> ~[B]) {
         let mut r = fail!();
-        for self.each |elt| { r += f(*elt); }
+        for self.iter().advance |elt| { r = r + f(*elt); }
         //~^ WARNING unreachable expression
         //~^^ ERROR the type of this value must be known
    }
@@ -23,5 +23,4 @@ impl<A> vec_monad<A> for ~[A] {
 fn main() {
     ["hi"].bind(|x| [x] );
     //~^ ERROR type `[&'static str, .. 1]` does not implement any method in scope named `bind`
-    //~^^ ERROR Unconstrained region variable
 }

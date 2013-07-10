@@ -10,6 +10,7 @@
 
 //! Build indexes as appropriate for the markdown pass
 
+
 use astsrv;
 use config;
 use doc::ItemUtils;
@@ -72,7 +73,7 @@ fn build_mod_index(
 ) -> doc::Index {
     doc::Index {
         entries: doc.items.map(|doc| {
-            item_to_entry(copy *doc, copy config)
+            item_to_entry(copy *doc, &config)
         })
     }
 }
@@ -83,14 +84,14 @@ fn build_nmod_index(
 ) -> doc::Index {
     doc::Index {
         entries: doc.fns.map(|doc| {
-            item_to_entry(doc::FnTag(copy *doc), copy config)
+            item_to_entry(doc::FnTag(copy *doc), &config)
         })
     }
 }
 
 fn item_to_entry(
     doc: doc::ItemTag,
-    config: config::Config
+    config: &config::Config
 ) -> doc::IndexEntry {
     let link = match doc {
       doc::ModTag(_) | doc::NmodTag(_)
@@ -124,33 +125,33 @@ pub fn pandoc_header_id(header: &str) -> ~str {
     return header;
 
     fn remove_formatting(s: &str) -> ~str {
-        str::replace(s, ~"`", ~"")
+        s.replace("`", "")
     }
     fn remove_punctuation(s: &str) -> ~str {
-        let s = str::replace(s, ~"<", ~"");
-        let s = str::replace(s, ~">", ~"");
-        let s = str::replace(s, ~"[", ~"");
-        let s = str::replace(s, ~"]", ~"");
-        let s = str::replace(s, ~"(", ~"");
-        let s = str::replace(s, ~")", ~"");
-        let s = str::replace(s, ~"@~", ~"");
-        let s = str::replace(s, ~"~", ~"");
-        let s = str::replace(s, ~"/", ~"");
-        let s = str::replace(s, ~":", ~"");
-        let s = str::replace(s, ~"&", ~"");
-        let s = str::replace(s, ~"^", ~"");
-        let s = str::replace(s, ~",", ~"");
-        let s = str::replace(s, ~"'", ~"");
-        let s = str::replace(s, ~"+", ~"");
+        let s = s.replace("<", "");
+        let s = s.replace(">", "");
+        let s = s.replace("[", "");
+        let s = s.replace("]", "");
+        let s = s.replace("(", "");
+        let s = s.replace(")", "");
+        let s = s.replace("@~", "");
+        let s = s.replace("~", "");
+        let s = s.replace("/", "");
+        let s = s.replace(":", "");
+        let s = s.replace("&", "");
+        let s = s.replace("^", "");
+        let s = s.replace(",", "");
+        let s = s.replace("'", "");
+        let s = s.replace("+", "");
         return s;
     }
     fn replace_with_hyphens(s: &str) -> ~str {
         // Collapse sequences of whitespace to a single dash
         // XXX: Hacky implementation here that only covers
         // one or two spaces.
-        let s = str::trim(s);
-        let s = str::replace(s, ~"  ", ~"-");
-        let s = str::replace(s, ~" ", ~"-");
+        let s = s.trim();
+        let s = s.replace("  ", "-");
+        let s = s.replace(" ", "-");
         return s;
     }
     // FIXME: #4318 Instead of to_ascii and to_str_ascii, could use
@@ -162,6 +163,7 @@ pub fn pandoc_header_id(header: &str) -> ~str {
 
 #[cfg(test)]
 mod test {
+
     use astsrv;
     use attr_pass;
     use config;
@@ -189,27 +191,27 @@ mod test {
 
     #[test]
     fn should_remove_punctuation_from_headers() {
-        assert!(pandoc_header_id(~"impl foo of bar<A>") ==
+        assert!(pandoc_header_id("impl foo of bar<A>") ==
                 ~"impl-foo-of-bara");
-        assert!(pandoc_header_id(~"impl of num::num for int")
+        assert!(pandoc_header_id("impl of num::num for int")
                 == ~"impl-of-numnum-for-int");
-        assert!(pandoc_header_id(~"impl of num::num for int/&")
+        assert!(pandoc_header_id("impl of num::num for int/&")
                 == ~"impl-of-numnum-for-int");
-        assert!(pandoc_header_id(~"impl of num::num for ^int")
+        assert!(pandoc_header_id("impl of num::num for ^int")
                 == ~"impl-of-numnum-for-int");
-        assert!(pandoc_header_id(~"impl for & condvar")
+        assert!(pandoc_header_id("impl for & condvar")
                 == ~"impl-for-condvar");
-        assert!(pandoc_header_id(~"impl of Select<T, U> for (Left, Right)")
+        assert!(pandoc_header_id("impl of Select<T, U> for (Left, Right)")
                 == ~"impl-of-selectt-u-for-left-right");
-        assert!(pandoc_header_id(~"impl of Condition<'self, T, U>")
+        assert!(pandoc_header_id("impl of Condition<'self, T, U>")
                 == ~"impl-of-conditionself-t-u");
-        assert!(pandoc_header_id(~"impl of Condition<T: Copy + Clone>")
+        assert!(pandoc_header_id("impl of Condition<T: Copy + Clone>")
                 == ~"impl-of-conditiont-copy-clone");
     }
 
     #[test]
     fn should_trim_whitespace_after_removing_punctuation() {
-        assert!(pandoc_header_id("impl foo for ()") == ~"impl-foo-for");
+        assert_eq!(pandoc_header_id("impl foo for ()"), ~"impl-foo-for");
     }
 
     #[test]
@@ -218,13 +220,13 @@ mod test {
             config::DocPerCrate,
             ~"mod a { } fn b() { }"
         );
-        assert!((&doc.cratemod().index).get().entries[0] == doc::IndexEntry {
+        assert!(doc.cratemod().index.get().entries[0] == doc::IndexEntry {
             kind: ~"Module",
             name: ~"a",
             brief: None,
             link: ~"#module-a"
         });
-        assert!((&doc.cratemod().index).get().entries[1] == doc::IndexEntry {
+        assert!(doc.cratemod().index.get().entries[1] == doc::IndexEntry {
             kind: ~"Function",
             name: ~"b",
             brief: None,
@@ -238,31 +240,17 @@ mod test {
             config::DocPerMod,
             ~"mod a { } fn b() { }"
         );
-        assert!((&doc.cratemod().index).get().entries[0] == doc::IndexEntry {
+        assert!(doc.cratemod().index.get().entries[0] == doc::IndexEntry {
             kind: ~"Module",
             name: ~"a",
             brief: None,
             link: ~"a.html"
         });
-        assert!((&doc.cratemod().index).get().entries[1] == doc::IndexEntry {
+        assert!(doc.cratemod().index.get().entries[1] == doc::IndexEntry {
             kind: ~"Function",
             name: ~"b",
             brief: None,
             link: ~"#function-b"
-        });
-    }
-
-    #[test]
-    fn should_index_foreign_mod_pages() {
-        let doc = mk_doc(
-            config::DocPerMod,
-            ~"extern mod a { }"
-        );
-        assert!((&doc.cratemod().index).get().entries[0] == doc::IndexEntry {
-            kind: ~"Foreign module",
-            name: ~"a",
-            brief: None,
-            link: ~"a.html"
         });
     }
 
@@ -272,7 +260,7 @@ mod test {
             config::DocPerMod,
             ~"#[doc = \"test\"] mod a { }"
         );
-        assert!((&doc.cratemod().index).get().entries[0].brief
+        assert!(doc.cratemod().index.get().entries[0].brief
                 == Some(~"test"));
     }
 
@@ -280,9 +268,9 @@ mod test {
     fn should_index_foreign_mod_contents() {
         let doc = mk_doc(
             config::DocPerCrate,
-            ~"extern mod a { fn b(); }"
+            ~"extern { fn b(); }"
         );
-        assert!((&doc.cratemod().nmods()[0].index).get().entries[0]
+        assert!(doc.cratemod().nmods()[0].index.get().entries[0]
                 == doc::IndexEntry {
                     kind: ~"Function",
                     name: ~"b",

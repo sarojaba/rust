@@ -1,8 +1,11 @@
-use core::cast::transmute;
-use core::from_str::FromStr;
-use core::libc::{FILE, STDOUT_FILENO, c_int, fdopen, fputc, fputs, fwrite, size_t};
-use core::uint::{min, range};
-use core::vec::bytes::copy_memory;
+use std::cast::transmute;
+use std::from_str::FromStr;
+use std::libc::{FILE, STDOUT_FILENO, c_int, fdopen, fputc, fputs, fwrite, size_t};
+use std::os;
+use std::str;
+use std::uint::{min, range};
+use std::vec::bytes::copy_memory;
+use std::vec;
 
 static LINE_LEN: uint = 60;
 static LOOKUP_SIZE: uint = 4 * 1024;
@@ -56,7 +59,7 @@ static HOMO_SAPIENS: [AminoAcid, ..4] = [
 fn sum_and_scale(a: &'static [AminoAcid]) -> ~[AminoAcid] {
     let mut result = ~[];
     let mut p = 0f32;
-    for a.each |a_i| {
+    for a.iter().advance |a_i| {
         let mut a_i = *a_i;
         p += a_i.p;
         a_i.p = p * LOOKUP_SCALE;
@@ -89,14 +92,17 @@ impl RepeatFasta {
             let stdout = self.stdout;
             let alu_len = self.alu.len();
             let mut buf = vec::from_elem(alu_len + LINE_LEN, 0u8);
-            let alu: &[u8] = str::byte_slice_no_callback(self.alu);
+            let alu: &[u8] = self.alu.as_bytes();
 
             copy_memory(buf, alu, alu_len);
-            copy_memory(vec::mut_slice(buf, alu_len, buf.len()),
+            let buf_len = buf.len();
+            copy_memory(buf.mut_slice(alu_len, buf_len),
                         alu,
                         LINE_LEN);
 
-            let mut pos = 0, bytes, n = n;
+            let mut pos = 0;
+            let mut bytes;
+            let mut n = n;
             while n > 0 {
                 bytes = min(LINE_LEN, n);
                 fwrite(transmute(&buf[pos]), bytes as size_t, 1, stdout);
@@ -129,7 +135,7 @@ impl RandomFasta {
     fn make_lookup(a: &[AminoAcid]) -> [AminoAcid, ..LOOKUP_SIZE] {
         let mut lookup = [ NULL_AMINO_ACID, ..LOOKUP_SIZE ];
         let mut j = 0;
-        for vec::eachi_mut(lookup) |i, slot| {
+        for lookup.mut_iter().enumerate().advance |(i, slot)| {
             while a[j].p < (i as f32) {
                 j += 1;
             }
@@ -145,7 +151,7 @@ impl RandomFasta {
 
     fn nextc(&mut self) -> u8 {
         let r = self.rng(1.0);
-        for self.lookup.each |a| {
+        for self.lookup.iter().advance |a| {
             if a.p >= r {
                 return a.c;
             }
@@ -155,7 +161,8 @@ impl RandomFasta {
 
     fn make(&mut self, n: uint) {
         unsafe {
-            let lines = n / LINE_LEN, chars_left = n % LINE_LEN;
+            let lines = n / LINE_LEN;
+            let chars_left = n % LINE_LEN;
             let mut buf = [0, ..LINE_LEN + 1];
 
             for lines.times {
@@ -201,4 +208,3 @@ fn main() {
         fputc('\n' as c_int, stdout);
     }
 }
-

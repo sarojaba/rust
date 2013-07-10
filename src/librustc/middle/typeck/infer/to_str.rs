@@ -8,6 +8,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+
 use middle::ty::{FnSig, Vid};
 use middle::ty::IntVarValue;
 use middle::ty;
@@ -16,6 +17,7 @@ use middle::typeck::infer::InferCtxt;
 use middle::typeck::infer::unify::{Redirect, Root, VarValue};
 use util::ppaux::{mt_to_str, ty_to_str, trait_ref_to_str};
 
+use std::uint;
 use syntax::ast;
 
 pub trait InferStr {
@@ -31,7 +33,7 @@ impl InferStr for ty::t {
 impl InferStr for FnSig {
     fn inf_str(&self, cx: &InferCtxt) -> ~str {
         fmt!("(%s) -> %s",
-             str::connect(self.inputs.map(|a| a.ty.inf_str(cx)), ", "),
+             self.inputs.map(|a| a.inf_str(cx)).connect(", "),
              self.output.inf_str(cx))
     }
 }
