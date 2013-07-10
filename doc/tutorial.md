@@ -86,6 +86,7 @@ fn main() {
 만약 Rust 컴파일러가 성공적으로 설치되었다면, `rustc hello.rs`라고 실행하면 `hello` 라는 실행파일이 생성되고(윈도우즈에서는 `hello.exe`), 실행하면 원하는 결과가 정확히 실행될 것이다.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, `io:println` 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.
 =======
 The Rust compiler tries to provide useful information when it encounters an
@@ -93,6 +94,9 @@ error. If you introduce an error into the program (for example, by changing
 `println` to some nonexistent function), and then compile it, you'll see
 an error message like this:
 >>>>>>> upstream/master
+=======
+The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, `println` 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.
+>>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 
 ~~~~ {.notrust}
 hello.rs:2:4: 2:16 error: unresolved name: print_with_unicorns
@@ -236,7 +240,7 @@ Rust는 `float`, `f32`, 그리고 `f64`의 세가지 부동소수점 타입이 �
 
 ## 연산자
 
-Rust의 연산자의 세트는 몇가지 놀라움을 가지고 있다. 산술연산은 `*`, `/`, `%`, `+`, `-` (곱하기, 나누기, 나머지, 더하기, 빼기)로 구성된다. 또 `-`는 음수를 표현하는 단항 접미 연산. C와 마찬가지로, the 비트 연산자 `>>`, `<<`, `&`, `|`, `^`도 지원된다.
+Rust의 연산자의 세트는 몇가지 놀라움을 가지고 있다. 산술연산은 `*`, `/`, `%`, `+`, `-` (곱하기, 몫, 나머지, 더하기, 빼기)로 구성된다. 또 `-`는 음수를 표현하는 단항 접미 연산. C와 마찬가지로, the 비트 연산자 `>>`, `<<`, `&`, `|`, `^`도 지원된다.
 
 정수 값에 `!`를 적용하면, 모든 비트를 뒤집는다는 것을 명심하자(C의 `~` 처럼).
 
@@ -333,7 +337,10 @@ match my_number {
 
 ~~~~
 # use std::float;
+<<<<<<< HEAD
 # use std::num::atan;
+=======
+>>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 fn angle(vector: (float, float)) -> float {
     let pi = float::consts::pi;
     match vector {
@@ -383,6 +390,7 @@ loop {
 이 코드는 기묘한 수열을 출력하고 5로 나뉠 수 있는 수를 찾자마자 멈춘다.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Rust에서 컬렉션의 요소를 하나하나 세는 등의 반복은 [higher-order functions](#closures)를 사용한다.
 =======
 Rust also has a `for` construct. It's different from C's `for` and it works
@@ -390,6 +398,9 @@ best when iterating over collections. See the section on [closures](#closures)
 to find out how to use `for` and higher-order functions for enumerating
 elements of a collection.
 >>>>>>> upstream/master
+=======
+또한 Rust는 `for` construct를 가지고 있다. C의 `for`와는 다르고 컬렉션을 반복할 때 가장 좋다. `for`와 컬렉션의 요소를 세는 고차함수를 사용하는 방법을 알고 싶다면 [closures](#closures) 섹션을 보아라.
+>>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 
 # 자료 구조
 
@@ -635,10 +646,10 @@ fn first((value, _): (int, float)) -> int { value }
     // an integer allocated on the heap
     let y = ~10;
 }
-// the destructor frees the heap memory as soon as `y` goes out of scope
+// 소멸자는 `y`가 범위를 벗어나자마자 힙 메모리를 해제한다.
 ~~~~
 
-흔하게 사용되기 때문에 Rust는 언어 차원에서 힙 메모리 할당을 위한 문법을 포함하지만, 동일한 의미로 타입에 따른 맞춤 소멸자가 구현될 수 있다.
+Rust는 언어 차원에서 힙 메모리 할당을 위한 문법이 흔하게 사용되기 때문에 포함하지만, 동일한 의미로 타입에 따른 맞춤 소멸자가 구현될 수 있다.
 
 # 소유권
 
@@ -683,7 +694,7 @@ let mut y = ~5; // 변경 가능
 *y += 2; // * 연산자는 가지고 있는 값에 접근하기 위해 필요하다.
 ~~~~
 
-소유된 박스의 목적은 재귀적인 자료 구조를 생성하거나 포인터보다 더 큰 객체를 싸게 전달하기 위해 간접 층을 추가하는 것이다. 소유된 box는 유일한 소유주를 갖기 때문에, 트리 자료 구조로 나타내어질 수 있었다.
+소유된 박스의 목적은 재귀적인 자료 구조를 생성하거나 포인터보다 더 큰 객체를 싸게 전달하기 위해 간접 층을 추가하는 것이다. 소유된 box는 유일한 소유주를 갖기 때문에, 트리 자료 구조로만 나타내어질 수 있다.
 
 다음의 구조체는 컴파일되지 않을것이다. 왜냐하면 간접의 누락은 구조체가 무한 크기를 갖는다는 것을 의미할 것이기 때문이다.
 
@@ -1442,6 +1453,10 @@ To call such a method, just prefix it with the type name and a double colon:
 
 ~~~~
 # use std::float::consts::pi;
+<<<<<<< HEAD
+=======
+# use std::float::sqrt;
+>>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 struct Circle { radius: float }
 impl Circle {
     fn new(area: float) -> Circle { Circle { radius: (area / pi).sqrt() } }
@@ -1710,6 +1725,10 @@ implementation to use.
 
 ~~~~
 # use std::float::consts::pi;
+<<<<<<< HEAD
+=======
+# use std::float::sqrt;
+>>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 trait Shape { fn new(area: float) -> Self; }
 struct Circle { radius: float }
 struct Square { length: float }
@@ -1866,6 +1885,10 @@ Now, we can implement `Circle` on a type only if we also implement `Shape`.
 
 ~~~~
 # use std::float::consts::pi;
+<<<<<<< HEAD
+=======
+# use std::float::sqrt;
+>>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 # trait Shape { fn area(&self) -> float; }
 # trait Circle : Shape { fn radius(&self) -> float; }
 # struct Point { x: float, y: float }
@@ -1901,6 +1924,10 @@ Likewise, supertrait methods may also be called on trait objects.
 
 ~~~ {.xfail-test}
 # use std::float::consts::pi;
+<<<<<<< HEAD
+=======
+# use std::float::sqrt;
+>>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 # trait Shape { fn area(&self) -> float; }
 # trait Circle : Shape { fn radius(&self) -> float; }
 # struct Point { x: float, y: float }
