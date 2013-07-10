@@ -85,18 +85,7 @@ fn main() {
 
 만약 Rust 컴파일러가 성공적으로 설치되었다면, `rustc hello.rs`라고 실행하면 `hello` 라는 실행파일이 생성되고(윈도우즈에서는 `hello.exe`), 실행하면 원하는 결과가 정확히 실행될 것이다.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, `io:println` 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.
-=======
-The Rust compiler tries to provide useful information when it encounters an
-error. If you introduce an error into the program (for example, by changing
-`println` to some nonexistent function), and then compile it, you'll see
-an error message like this:
->>>>>>> upstream/master
-=======
 The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공하려고 노력한다. 프로그램에 에러를 넣고(예를 들어, `println` 을 존재하지 않는 함수로 바꿔서) 컴파일을 하면, 아래와 비슷한 에러 메시지를 볼 수 있을 것이다.
->>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 
 ~~~~ {.notrust}
 hello.rs:2:4: 2:16 error: unresolved name: print_with_unicorns
@@ -337,10 +326,6 @@ match my_number {
 
 ~~~~
 # use std::float;
-<<<<<<< HEAD
-# use std::num::atan;
-=======
->>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 fn angle(vector: (float, float)) -> float {
     let pi = float::consts::pi;
     match vector {
@@ -389,18 +374,7 @@ loop {
 
 이 코드는 기묘한 수열을 출력하고 5로 나뉠 수 있는 수를 찾자마자 멈춘다.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-Rust에서 컬렉션의 요소를 하나하나 세는 등의 반복은 [higher-order functions](#closures)를 사용한다.
-=======
-Rust also has a `for` construct. It's different from C's `for` and it works
-best when iterating over collections. See the section on [closures](#closures)
-to find out how to use `for` and higher-order functions for enumerating
-elements of a collection.
->>>>>>> upstream/master
-=======
 또한 Rust는 `for` construct를 가지고 있다. C의 `for`와는 다르고 컬렉션을 반복할 때 가장 좋다. `for`와 컬렉션의 요소를 세는 고차함수를 사용하는 방법을 알고 싶다면 [closures](#closures) 섹션을 보아라.
->>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 
 # 자료 구조
 
@@ -732,14 +706,7 @@ let mut d = @mut 5; // 변경 가능한 변수, 변경 가능한 박스
 d = @mut 15;
 ~~~~
 
-<<<<<<< HEAD
 변경가능한 변수와 변경불가능한 변수는 타입이 호환된다면 같은 박스를 가리킬 수 있다. 박스의 변경가능성은 그 타입의 속성이지만, 가변의 핸들 예제에서 불변의 박스가 가변의 박스로의 참조는 할당될 수 없다.
-=======
-A mutable variable and an immutable variable can refer to the same box, given
-that their types are compatible. Mutability of a box is a property of its type,
-however, so for example a mutable handle to an immutable box cannot be
-assigned a reference to a mutable box.
->>>>>>> upstream/master
 
 ~~~~
 let a = @1;     // 불변 박스
@@ -1452,11 +1419,7 @@ impl Circle {
 To call such a method, just prefix it with the type name and a double colon:
 
 ~~~~
-# use std::float::consts::pi;
-<<<<<<< HEAD
-=======
-# use std::float::sqrt;
->>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
+# use std::float::const::pi;
 struct Circle { radius: float }
 impl Circle {
     fn new(area: float) -> Circle { Circle { radius: (area / pi).sqrt() } }
@@ -1725,10 +1688,6 @@ implementation to use.
 
 ~~~~
 # use std::float::consts::pi;
-<<<<<<< HEAD
-=======
-# use std::float::sqrt;
->>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 trait Shape { fn new(area: float) -> Self; }
 struct Circle { radius: float }
 struct Square { length: float }
@@ -1885,10 +1844,6 @@ Now, we can implement `Circle` on a type only if we also implement `Shape`.
 
 ~~~~
 # use std::float::consts::pi;
-<<<<<<< HEAD
-=======
-# use std::float::sqrt;
->>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 # trait Shape { fn area(&self) -> float; }
 # trait Circle : Shape { fn radius(&self) -> float; }
 # struct Point { x: float, y: float }
@@ -1924,10 +1879,6 @@ Likewise, supertrait methods may also be called on trait objects.
 
 ~~~ {.xfail-test}
 # use std::float::consts::pi;
-<<<<<<< HEAD
-=======
-# use std::float::sqrt;
->>>>>>> 5b547cf18ee3ba493e68cb3b7f9af7180d616ca8
 # trait Shape { fn area(&self) -> float; }
 # trait Circle : Shape { fn radius(&self) -> float; }
 # struct Point { x: float, y: float }
