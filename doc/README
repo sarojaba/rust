@@ -1,8 +1,25 @@
-The markdown 문서는 node가 설치되어 있는 상태에서 make 명령을 통해서만 생성된다(use `make doc`). 만약 node가 설치되지 않았으면 손수 생성할 수 있다. 
-불행히도 markdown을 위한 진짜 표준은 없고, 모든 도구는 다르게 동작한다. pandoc은 잘 동작하는 것 중에 하나이다.
+보편적인 문서 변환기인 Pandoc은 Rust의 소스 코드에서 HTML 문서를 생성하기 위해 필요하다. 대부분의 플랫폼을 위한 프로그램은 다음에서 찾을 수 있다.
+http://johnmacfarlane.net/pandoc/installing.html
 
-문서의 html 버전을 생성하려면 다음의 명령을 수행한다:
-nodejs prep.js --highlight -o tutorial-temp.md tutorial.md && pandoc --toc --number-sections -c rust.css tutorial-temp.md -o tutorial.html && rm tutorial-temp.md
+또한 Node.js (http://nodejs.org/)는 Markdown 문서(레퍼런스 매뉴얼, 튜토리얼 등등)에서 HTML을 생성하고 여기 git 저장소에 배포하기 위해 필요하다.
+
+모든 문서를 생성하기 위해서는, `make docs` 저장소의 루트에서 명령을 실행한다. 이 명령은 'std'와 'extra' 라이브러리들에 관해 배포된 Markdown 문서를 HTML로 변환하고 HTML 문서를 생성할 것이다.
+
+하나의 소스 파일로 부터 HTML 문서를 생성하기 위해서는 다음을 수행한다.
+
+  rustdoc --output-dir html-doc/ --output-format html ../src/libstd/path.rs
+
+(물론, `rustdoc` 도구가 미리 설치되어 있어야 한다.)
+
+Markdown 문서의 HTML 버전을 생성하려면, 설치된 Node.js 없어도, 다음처럼 수행하면 된다.
+
+  pandoc --from=markdown --to=html --number-sections -o rust.html rust.md
+
+(역자 주: CSS가 적용된 이쁜 HTML 문서가 생성되려면 다음과 같이 해야한다. 이전 버전에서 경험에 의해 도출하였음.)
+
+  nodejs prep.js --highlight -o tutorial-temp.md tutorial.md
+  pandoc --toc --number-sections -c rust.css tutorial-temp.md -o tutorial.html
+  rm tutorial-temp.md
 
 pandoc 스타일의 markdown 문법은 다음에서 찾을 수 있다:
 http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
