@@ -1,21 +1,15 @@
-% Rust Reference Manual
+% Rust 레퍼런스 매뉴얼
 
-# Introduction
+# 소개
 
-This document is the reference manual for the Rust programming language. It
-provides three kinds of material:
+이 문서는 Rust 프로그래밍 언어를 위한 레퍼런스 매뉴얼이다. 이 문서는 세 종류의 자료를 제공한다.
 
-  - Chapters that formally define the language grammar and, for each
-    construct, informally describe its semantics and give examples of its
-    use.
-  - Chapters that informally describe the memory model, concurrency model,
-    runtime services, linkage model and debugging facilities.
-  - Appendix chapters providing rationale and references to languages that
-    influenced the design.
+  - 언어 문법의 공식적인 정의와, 각 구조에 대한 의미를 격식없이 기술하고 그 것의 사용 예를 제시한 단원.
+  - 메모리 모델, 동시성 모델, 런타임 서비스, 링킹 모델 그리고 디버깅 도구를 격식없이 기술하는 단원.
+  - 영향을 준 언어의 근거와 참조를 제공하는 부록 단원.
 
-This document does not serve as a tutorial introduction to the
-language. Background familiarity with the language is assumed. A separate
-[tutorial] document is available to help acquire such background familiarity.
+이 문서는 언어의 튜토리얼 소개로서 제공되지 않는다. 언어에 대한 배경 지식이 있다고 가정한다. 분리된
+[tutorial] 문서는 배경 지식을 얻는 것을 도와줄 수 있다.
 
 This document also does not serve as a reference to the [standard] or [extra]
 libraries included in the language distribution. Those libraries are
