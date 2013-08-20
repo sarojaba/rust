@@ -726,37 +726,28 @@ c = b;          // error
 
 # Move semantics
 
-Rust uses a shallow copy for parameter passing, assignment and returning values
-from functions. A shallow copy is considered a move of ownership if the
-ownership tree of the copied value includes an owned box or a type with a
-custom destructor. After a value has been moved, it can no longer be used from
-the source location and will not be destroyed there.
+Rust는 인자 전달, 할당, 함수로부터의 값 반환시 얕은 복사를 사용한다. 복사된 값의 소유권 트리가 소유된 박스나 커스텀 소멸자를 가지는 타입을 포함한다면, 얕은 복사는 소유권의 이동이 고려된다. 값이 이동된 다음, 소스 위치에서 사용될 수 없고 거기서 소멸되지 않을 것이다.
 
 ~~~~
 let x = ~5;
-let y = x.clone(); // y is a newly allocated box
-let z = x; // no new memory allocated, x can no longer be used
+let y = x.clone(); // y는 새롭게 할당된 박스
+let z = x; // 새 메모리가 할당되지 않음, x는 더이상 사용할 수 없음
 ~~~~
 
-Since in owned boxes mutability is a property of the owner, not the
-box, mutable boxes may become immutable when they are moved, and vice-versa.
+소유된 박스의 변경가능성은 소유권의 특성이기 때문에, 박스가 아닌, 그것이 이동되면 변경가능한 박스는 변경불가능이 될 것이고 그 반대도 동일하다.
 
 ~~~~
 let r = ~13;
-let mut s = r; // box becomes mutable
+let mut s = r; // 박스는 변경가능이 된다.
 *s += 1;
-let t = s; // box becomes immutable
+let t = s; // 박스는 변경불가능이 된다.
 ~~~~
 
-# Borrowed pointers
+# 빌린 포인터
 
-Rust's borrowed pointers are a general purpose reference type. In contrast with
-owned boxes, where the holder of an owned box is the owner of the pointed-to
-memory, borrowed pointers never imply ownership. A pointer can be borrowed to
-any object, and the compiler verifies that it cannot outlive the lifetime of
-the object.
+Rust의 빌린 포인터는 범용의 참조 타입이다. 소유된 박스와는 대조적으로, 소유된 박스의 홀더는 메모리 참조의 소유자이다. 빌린 포인터는 암묵적인 소유권이 절대 아니다. 포인터는 어떤 객체로든 빌려질 수 있고, 컴파일러는 객체의 생명주기보다 오래 살 수 없다는 것을 검증한다.
 
-As an example, consider a simple struct type, `Point`:
+예를 들어, 단순한 구조체 타입(`Point`)을 살펴보자.
 
 ~~~
 struct Point {
