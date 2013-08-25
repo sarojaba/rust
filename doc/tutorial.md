@@ -756,9 +756,8 @@ struct Point {
 }
 ~~~~
 
-We can use this simple definition to allocate points in many different
-ways. For example, in this code, each of these three local variables
-contains a point, but allocated in a different location:
+점들을 다양한 방식으로 할당하기 위해 단순한 정의를 이용할 수 있다.
+예를 들어, 코드에서, 각각의 세개의 지역 변수는 점을 포함할 수 있지만, 다른 위치에 할당되었다.
 
 ~~~
 # struct Point { x: float, y: float }
@@ -767,12 +766,9 @@ let managed_box  : @Point = @Point { x: 5.0, y: 1.0 };
 let owned_box    : ~Point = ~Point { x: 7.0, y: 9.0 };
 ~~~
 
-Suppose we want to write a procedure that computes the distance
-between any two points, no matter where they are stored. For example,
-we might like to compute the distance between `on_the_stack` and
-`managed_box`, or between `managed_box` and `owned_box`. One option is
-to define a function that takes two arguments of type point—that is,
-it takes the points by value. But this will cause the points to be
+어느 두 점 사이의 거리를 계산하는 절차를 작성하기를 원한다고 가정하면, 그것들이 저장되는 곳은 중요하지 않다.
+예를 들어, `on_the_stack`과 `managed_box` 사이나, `managed_box`과 `owned_box` 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다.
+즉, 점들을 값으로 취하는 것이다. But this will cause the points to be
 copied when we call the function. For points, this is probably not so
 bad, but often copies are expensive or, worse, if there are mutable
 fields, they can change the semantics of your program. So we’d like to
