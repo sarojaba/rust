@@ -48,7 +48,7 @@
 <li><a href="#관리되는-박스"><span class="toc-section-number">9.2</span> 관리되는 박스</a></li>
 </ul></li>
 <li><a href="#move-semantics"><span class="toc-section-number">10</span> Move semantics</a></li>
-<li><a href="#borrowed-pointers"><span class="toc-section-number">11</span> Borrowed pointers</a><ul>
+<li><a href="#빌린-포인터"><span class="toc-section-number">11</span> 빌린 포인터</a><ul>
 <li><a href="#freezing"><span class="toc-section-number">11.1</span> Freezing</a></li>
 </ul></li>
 <li><a href="#dereferencing-pointers"><span class="toc-section-number">12</span> Dereferencing pointers</a></li>
@@ -582,35 +582,35 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <h1 id="move-semantics"><a href="#move-semantics"><span class="header-section-number">10</span> Move semantics</a></h1>
-<p>Rust uses a shallow copy for parameter passing, assignment and returning values from functions. A shallow copy is considered a move of ownership if the ownership tree of the copied value includes an owned box or a type with a custom destructor. After a value has been moved, it can no longer be used from the source location and will not be destroyed there.</p>
+<p>Rust는 인자 전달, 할당, 함수로부터의 값 반환시 얕은 복사를 사용한다. 복사된 값의 소유권 트리가 소유된 박스나 커스텀 소멸자를 가지는 타입을 포함한다면, 얕은 복사는 소유권의 이동이 고려된다. 값이 이동된 다음, 소스 위치에서 사용될 수 없고 거기서 소멸되지 않을 것이다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">x</span> = <span class="cm-variable">~5</span>;
-<span class="cm-keyword">let</span> <span class="cm-def">y</span> = <span class="cm-variable">x</span>.<span class="cm-variable">clone</span>(); <span class="cm-comment">// y is a newly allocated box</span>
-<span class="cm-keyword">let</span> <span class="cm-def">z</span> = <span class="cm-variable">x</span>; <span class="cm-comment">// no new memory allocated, x can no longer be used</span>
+<span class="cm-keyword">let</span> <span class="cm-def">y</span> = <span class="cm-variable">x</span>.<span class="cm-variable">clone</span>(); <span class="cm-comment">// y는 새롭게 할당된 박스</span>
+<span class="cm-keyword">let</span> <span class="cm-def">z</span> = <span class="cm-variable">x</span>; <span class="cm-comment">// 새 메모리가 할당되지 않음, x는 더이상 사용할 수 없음</span>
 </pre>
 
-<p>Since in owned boxes mutability is a property of the owner, not the box, mutable boxes may become immutable when they are moved, and vice-versa.</p>
+<p>소유된 박스의 변경가능성은 소유권의 특성이기 때문에, 박스가 아닌, 그것이 이동되면 변경가능한 박스는 변경불가능이 될 것이고 그 반대도 동일하다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">r</span> = <span class="cm-variable">~13</span>;
-<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">s</span> = <span class="cm-variable">r</span>; <span class="cm-comment">// box becomes mutable</span>
+<span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">s</span> = <span class="cm-variable">r</span>; <span class="cm-comment">// 박스는 변경가능이 된다.</span>
 *<span class="cm-variable">s</span> += <span class="cm-number">1</span>;
-<span class="cm-keyword">let</span> <span class="cm-def">t</span> = <span class="cm-variable">s</span>; <span class="cm-comment">// box becomes immutable</span>
+<span class="cm-keyword">let</span> <span class="cm-def">t</span> = <span class="cm-variable">s</span>; <span class="cm-comment">// 박스는 변경불가능이 된다.</span>
 </pre>
 
-<h1 id="borrowed-pointers"><a href="#borrowed-pointers"><span class="header-section-number">11</span> Borrowed pointers</a></h1>
-<p>Rust's borrowed pointers are a general purpose reference type. In contrast with owned boxes, where the holder of an owned box is the owner of the pointed-to memory, borrowed pointers never imply ownership. A pointer can be borrowed to any object, and the compiler verifies that it cannot outlive the lifetime of the object.</p>
-<p>As an example, consider a simple struct type, <code>Point</code>:</p>
+<h1 id="빌린-포인터"><a href="#빌린-포인터"><span class="header-section-number">11</span> 빌린 포인터</a></h1>
+<p>Rust의 빌린 포인터는 범용의 참조 타입이다. 소유된 박스와는 대조적으로, 소유된 박스의 홀더는 메모리 참조의 소유자이다. 빌린 포인터는 암묵적인 소유권이 절대 아니다. 포인터는 어떤 객체로든 빌려질 수 있고, 컴파일러는 객체의 생명주기보다 오래 살 수 없다는 것을 검증한다.</p>
+<p>예를 들어, 단순한 구조체 타입(<code>Point</code>)을 살펴보자.</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {
     <span class="cm-variable">x</span>: <span class="cm-variable">float</span>,
     <span class="cm-variable">y</span>: <span class="cm-variable">float</span>
 }
 </pre>
 
-<p>We can use this simple definition to allocate points in many different ways. For example, in this code, each of these three local variables contains a point, but allocated in a different location:</p>
+<p>점들을 다양한 방식으로 할당하기 위해 단순한 정의를 이용할 수 있다. 예를 들어, 코드에서, 각각의 세개의 지역 변수는 점을 포함할 수 있지만, 다른 위치에 할당되었다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">on_the_stack</span> : <span class="cm-variable-3">Point</span>  =  <span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">3.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">4.0</span> };
 <span class="cm-keyword">let</span> <span class="cm-def">managed_box</span>  : @<span class="cm-variable-3">Point</span> = @<span class="cm-variable">Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">5.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">1.0</span> };
 <span class="cm-keyword">let</span> <span class="cm-def">owned_box</span>    : <span class="cm-variable-3">~Point</span> = <span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">7.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">9.0</span> };
 </pre>
 
-<p>Suppose we want to write a procedure that computes the distance between any two points, no matter where they are stored. For example, we might like to compute the distance between <code>on_the_stack</code> and <code>managed_box</code>, or between <code>managed_box</code> and <code>owned_box</code>. One option is to define a function that takes two arguments of type point—that is, it takes the points by value. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive or, worse, if there are mutable fields, they can change the semantics of your program. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
+<p>어느 두 점 사이의 거리를 계산하는 절차를 작성하기를 원한다고 가정하면, 그것들이 저장되는 곳은 중요하지 않다. 예를 들어, <code>on_the_stack</code>과 <code>managed_box</code> 사이나, <code>managed_box</code>과 <code>owned_box</code> 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다. 즉, 점들을 값으로 취하는 것이다. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive or, worse, if there are mutable fields, they can change the semantics of your program. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">compute_distance</span>(<span class="cm-def">p1</span>: &amp;<span class="cm-variable-3">Point</span>, <span class="cm-def">p2</span>: &amp;<span class="cm-variable-3">Point</span>) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">let</span> <span class="cm-def">x_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">x</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">x</span>;
     <span class="cm-keyword">let</span> <span class="cm-def">y_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">y</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">y</span>;
