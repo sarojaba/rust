@@ -154,15 +154,15 @@ block_comment_body : non_star * | '*' + non_slash_or_star ;
 line_comment : "//" non_eol * ;
 ~~~~~~~~
 
-Comments in Rust code follow the general C++ style of line and block-comment forms,
-with no nesting of block-comment delimiters.
+Rust 코드에서의 주석은 줄 단위 주석과 블록 주석 구분기호를 내부에 포함하지 않는
+블록 주석인 일반적인 C++ 스타일을 따른다.
 
-Line comments beginning with _three_ slashes (`///`),
-and block comments beginning with a repeated asterisk in the block-open sequence (`/**`),
-are interpreted as a special syntax for `doc` [attributes](#attributes).
-That is, they are equivalent to writing `#[doc "..."]` around the comment's text.
+라인 주석은 _세 개의_ 슬래시 (`///`)로 시작하고,
+블록을 여는 반복된 별표(`/**`)로 시작하는 블록 주석은,
+`doc` [속성](#attributes)을 위해 특수한 문법으로 해석된다.
+즉, 주석 내용을 `#[doc "..."]`으로 감싸는 것과 같다.
 
-Non-doc comments are interpreted as a form of whitespace.
+주석이 없으면 빈 양식으로 해석된다.
 
 ## Whitespace
 
