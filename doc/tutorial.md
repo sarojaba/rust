@@ -32,7 +32,7 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 
 현재 Rust 컴파일러는 [tarball]로 제작되고, Windows의 경우는 [installer][win-exe] 사용을 추천한다.
 
-컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "snapshot" 버전으로 만들어진다(개발 초기 단계에). 이처럼, 소스를 빌드하려면 스냅샷을 받아오기 위해 인터넷 연결과 유효한 스냅샷 바이너리를 실행할 수 있는 OS가 필요하다.
+컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "snapshot" 버전으로 만들어진다(개발 초기 단계에). 소스는 인터넷에서 지원되는 플랫폼에 맞게 이 스냅샷을 가져와 자동적으로 빌드한다.
 
 현재 스냅샷 바이너리는 아래의 플랫폼들에서 제작되고 테스트된다:
 
@@ -45,7 +45,7 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 > ***Note:*** 윈도우즈 사용자들은 위키에서 세부적인 [getting started][wiki-start] 내용을 읽어야한다. 바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다. 자세한 내용은 여기서 논의하지 않는다. 마지막으로, `rustc`는 [referred to as `rustc.exe`][bug-3319]를 알고 있어야한다. 기대에 어긋나는 것이라는 것은 알고있다.
 
 [bug-3319]: https://github.com/mozilla/rust/issues/3319
-[wiki-start]:	https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
+[wiki-start]: https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
 
 소스로부터 빌드하려면 사전에 필요한 패키지는 다음과 같다:
 
@@ -58,9 +58,9 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 만약 충분히 필요 조건을 만족한다면, 다음의 명령들을 수행하면 된다.
 
 ~~~~ {.notrust}
-$ curl -O http://static.rust-lang.org/dist/rust-0.7.tar.gz
-$ tar -xzf rust-0.7.tar.gz
-$ cd rust-0.7
+$ curl -O http://static.rust-lang.org/dist/rust-0.8.tar.gz
+$ tar -xzf rust-0.8.tar.gz
+$ cd rust-0.8
 $ ./configure
 $ make && make install
 ~~~~
@@ -69,9 +69,8 @@ $ make && make install
 
 `make install`이 성공적으로 완료되면 `/usr/local/bin` 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. `rustc`는 the Rust 컴파일러, `rustdoc`는 API-문서 도구, 그리고 `rustpkg`는 Rust 패키지 관리자 및 빌드 시스템, `rusti`는 Rust REPL, 그리고 `rust`는, 위 명령들의 통합된 인터페이스, 몇개의 공통의 명령행 시나리오로 동작하는 도구이다.
 
-[wiki-start]: https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
-[tarball]: http://static.rust-lang.org/dist/rust-0.7.tar.gz
-[win-exe]: http://static.rust-lang.org/dist/rust-0.7-install.exe
+[tarball]: http://static.rust-lang.org/dist/rust-0.8.tar.gz
+[win-exe]: http://static.rust-lang.org/dist/rust-0.8-install.exe
 
 ## 자신의 첫 프로그램 컴파일하기
 
@@ -196,7 +195,7 @@ let price =
 
 다르게 말하면, Rust에서 세미콜론은 *표현식의 값을 무시한다*. 그래서 `if`의 분기가 `{ 4; }`처럼 되어있다면, 위의 예제는 단순히 `price`에 `()` (nil 또는 void)를 할당할 것이다. 그러나 세미콜론이 없으면, 각 분기는 서로 다른 값을 가지고, `price`는 분기에서 얻은 값을 가진다.
 
-즉, 선언(변수를 위한 `let`, 함수를 위한 `fn`, 그리고 [traits](#traits), [enum types](#enums), 그리고 [constants](#constants)와 같은 최상위 요소)이 아닌 모든 것(함수 몸통 포함)은 표현식이다.
+즉, 선언(변수를 위한 `let`, 함수를 위한 `fn`, 그리고 [traits](#traits), [enum types](#enums), 그리고 정적 아이템)은 표현식이고, 함수 몸체에 포함된다.
 
 ~~~~
 fn is_four(x: int) -> bool {
@@ -262,8 +261,6 @@ println(fmt!("what is this thing: %?", mystery_object));
 
 매크로 시스템을 통해 자신만의 문법 확장을 정의할 수 있다. 자세한 사항은 [macro tutorial][macros]를 참고하세요.
 
-[macros]: tutorial-macros.html
-
 # 제어 구조
 
 ## 조건
@@ -286,7 +283,7 @@ if false {
 fn signum(x: int) -> int {
     if x < 0 { -1 }
     else if x > 0 { 1 }
-    else { return 0 }
+    else { 0 }
 }
 ~~~~
 
@@ -325,7 +322,8 @@ match my_number {
 > ***노트:*** 다음의 코드는 섹션 5.3에서 설명되는 튜플(`(float, float)`)을 사용한다. 이제 아이템의 목록으로서의 튜플을 떠올릴 수 있다.
 
 ~~~~
-# use std::float;
+use std::float;
+use std::num::atan;
 fn angle(vector: (float, float)) -> float {
     let pi = float::consts::pi;
     match vector {
@@ -363,18 +361,15 @@ while cake_amount > 0 {
 `loop`는 무한 루프를 의미하고, `while true`라고 적는것보다 선호되는 방법이다.
 
 ~~~~
-# use std::int;
-let mut x = 5;
+let mut x = 5u;
 loop {
     x += x - 3;
     if x % 5 == 0 { break; }
-    println(int::to_str(x));
+    println(x.to_str());
 }
 ~~~~
 
 이 코드는 기묘한 수열을 출력하고 5로 나뉠 수 있는 수를 찾자마자 멈춘다.
-
-또한 Rust는 `for` construct를 가지고 있다. C의 `for`와는 다르고 컬렉션을 반복할 때 가장 좋다. `for`와 컬렉션의 요소를 세는 고차함수를 사용하는 방법을 알고 싶다면 [closures](#closures) 섹션을 보아라.
 
 # 자료 구조
 
@@ -471,7 +466,7 @@ C와 비슷한 열거형이면, `int`의 식별값으로 변환하기 위해 `as
 복수의 열거값을 가지는 열거형 타입에 대해, 구조파괴는 내용을 얻기위한 유일한 방법이다. `area`의 정의에서 모든 열거값 생성자는 패턴으로 사용될 수 있다.
 
 ~~~~
-# use std::float;
+use std::float;
 # struct Point {x: float, y: float}
 # enum Shape { Circle(Point, float), Rectangle(Point, Point) }
 fn area(sh: Shape) -> float {
@@ -500,7 +495,7 @@ fn point_from_direction(dir: Direction) -> Point {
 열거값은 구조체가 될 수 있다. 다음을 살펴보자.
 
 ~~~~
-# use std::float;
+use std::float;
 # struct Point { x: float, y: float }
 # fn square(x: float) -> float { x * x }
 enum Shape {
@@ -690,7 +685,7 @@ struct Foo {
 
 ## 관리되는 박스
 
-관리되는 박스(`@`)는 태스크 로컬 쓰레기 수집기에 의해 관리되는 생명주기를 포함한 힙 할당이다. 태스크가 끝나기 전에 박스로 남은 참조가 없으면 어떤 포인터는 소멸될 것이다. 관리되는 박스는 소유자가 없고, 그래서 새로운 소유권 트리를 시작하고 변경가능성을 상속하지 않는다. 관리되는 박스는 포함된 객체를 소유하고, 변경가능성은 공유되는 박스(`@` 또는 `@mut`)의 타입에 의해 정의된다. 관리되는 박스에 포함된 객체는 `Owned`가 아니고, 태스크 간에 전송될 수 없다.
+관리되는 박스(`@`)는 태스크 로컬 쓰레기 수집기에 의해 관리되는 생명주기를 포함한 힙 할당이다. 태스크가 끝나기 전에 박스로 남은 참조가 없으면 어떤 포인터는 소멸될 것이다. 관리되는 박스는 소유자가 없고, 그래서 새로운 소유권 트리를 시작하고 변경가능성을 상속하지 않는다. 관리되는 박스는 포함된 객체를 소유하고, 변경가능성은 관리되는 박스(`@` 또는 `@mut`)의 타입에 의해 정의된다. 관리되는 박스에 포함된 객체는 `Owned`가 아니고, 태스크 간에 전송될 수 없다.
 
 ~~~~
 let a = @5; // 변경 불가
@@ -770,10 +765,8 @@ let owned_box    : ~Point = ~Point { x: 7.0, y: 9.0 };
 예를 들어, `on_the_stack`과 `managed_box` 사이나, `managed_box`과 `owned_box` 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다.
 즉, 점들을 값으로 취하는 것이다. But this will cause the points to be
 copied when we call the function. For points, this is probably not so
-bad, but often copies are expensive or, worse, if there are mutable
-fields, they can change the semantics of your program. So we’d like to
-define a function that takes the points by pointer. We can use
-borrowed pointers to do this:
+bad, but often copies are expensive. So we’d like to define a function
+that takes the points by pointer. We can use borrowed pointers to do this:
 
 ~~~
 # struct Point { x: float, y: float }
@@ -835,6 +828,7 @@ let mut x = 5;
     let y = &x; // x is now frozen, it cannot be modified
 }
 // x is now unfrozen again
+# x = 3;
 ~~~~
 
 Mutable managed boxes handle freezing dynamically when any of their contents
@@ -953,6 +947,11 @@ The `+` operator means concatenation when applied to vector types.
 # enum Crayon { Almond, AntiqueBrass, Apricot,
 #               Aquamarine, Asparagus, AtomicTangerine,
 #               BananaMania, Beaver, Bittersweet };
+# impl Clone for Crayon {
+#     fn clone(&self) -> Crayon {
+#         *self
+#     }
+# }
 
 let my_crayons = ~[Almond, AntiqueBrass, Apricot];
 let your_crayons = ~[BananaMania, Beaver, Bittersweet];
@@ -987,7 +986,7 @@ match crayons[0] {
 A vector can be destructured using pattern matching:
 
 ~~~~
-let numbers: [int, ..3] = [1, 2, 3];
+let numbers: &[int] = &[1, 2, 3];
 let score = match numbers {
     [] => 0,
     [a] => a * 10,
@@ -1050,7 +1049,7 @@ let exchange_crayons: ~str = ~"Black, BlizzardBlue, Blue";
 ~~~
 
 Both vectors and strings support a number of useful
-[methods](#functions-and-methods), defined in [`std::vec`]
+[methods](#methods), defined in [`std::vec`]
 and [`std::str`]. Here are some examples.
 
 [`std::vec`]: std/vec.html
@@ -1074,8 +1073,8 @@ assert!(crayons.len() == 3);
 assert!(!crayons.is_empty());
 
 // Iterate over a vector, obtaining a pointer to each element
-// (`for` is explained in the next section)
-for crayons.iter().advance |crayon| {
+// (`for` is explained in the container/iterator tutorial)
+for crayon in crayons.iter() {
     let delicious_crayon_wax = unwrap_crayon(*crayon);
     eat_crayon_wax(delicious_crayon_wax);
 }
@@ -1132,7 +1131,7 @@ compiler needs assistance, though, the arguments and return types may be
 annotated.
 
 ~~~~
-let square = |x: int| -> uint { x * x as uint };
+let square = |x: int| -> uint { (x * x) as uint };
 ~~~~
 
 There are several forms of closure, each with its own role. The most
@@ -1153,34 +1152,6 @@ cannot be stored in data structures or returned from
 functions. Despite these limitations, stack closures are used
 pervasively in Rust code.
 
-## Managed closures
-
-When you need to store a closure in a data structure, a stack closure
-will not do, since the compiler will refuse to let you store it. For
-this purpose, Rust provides a type of closure that has an arbitrary
-lifetime, written `@fn` (boxed closure, analogous to the `@` pointer
-type described earlier). This type of closure *is* first-class.
-
-A managed closure does not directly access its environment, but merely
-copies out the values that it closes over into a private data
-structure. This means that it can not assign to these variables, and
-cannot observe updates to them.
-
-This code creates a closure that adds a given string to its argument,
-returns it from a function, and then calls it:
-
-~~~~
-fn mk_appender(suffix: ~str) -> @fn(~str) -> ~str {
-    // The compiler knows that we intend this closure to be of type @fn
-    return |s| s + suffix;
-}
-
-fn main() {
-    let shout = mk_appender(~"!");
-    println(shout(~"hey ho, let's go"));
-}
-~~~~
-
 ## Owned closures
 
 Owned closures, written `~fn` in analogy to the `~` pointer type,
@@ -1189,8 +1160,6 @@ processes. They copy the values they close over, much like managed
 closures, but they also own them: that is, no other code can access
 them. Owned closures are used in concurrent code, particularly
 for spawning [tasks][tasks].
-
-[tasks]: tutorial-tasks.html
 
 ## Closure compatibility
 
@@ -1277,7 +1246,8 @@ lists back to back. Since that is so unsightly, empty argument lists
 may be omitted from `do` expressions.
 
 ~~~~
-# use std::task::spawn;
+use std::task::spawn;
+
 do spawn {
    debug!("Kablam!");
 }
@@ -1406,7 +1376,7 @@ impl Circle {
 To call such a method, just prefix it with the type name and a double colon:
 
 ~~~~
-# use std::float::const::pi;
+use std::float::consts::pi;
 struct Circle { radius: float }
 impl Circle {
     fn new(area: float) -> Circle { Circle { radius: (area / pi).sqrt() } }
@@ -1427,7 +1397,7 @@ of `vector`:
 ~~~~
 fn map<T, U>(vector: &[T], function: &fn(v: &T) -> U) -> ~[U] {
     let mut accumulator = ~[];
-    for vector.iter().advance |element| {
+    for element in vector.iter() {
         accumulator.push(function(element));
     }
     return accumulator;
@@ -1452,7 +1422,7 @@ illegal to copy and pass by value.
 Generic `type`, `struct`, and `enum` declarations follow the same pattern:
 
 ~~~~
-# use std::hashmap::HashMap;
+use std::hashmap::HashMap;
 type Set<T> = HashMap<T, ()>;
 
 struct Stack<T> {
@@ -1505,15 +1475,17 @@ similarities to type classes. Rust's traits are a form of *bounded
 polymorphism*: a trait is a way of limiting the set of possible types
 that a type parameter could refer to.
 
-As motivation, let us consider copying in Rust. The `copy` operation
-is not defined for all Rust types. One reason is user-defined
-destructors: copying a type that has a destructor could result in the
-destructor running multiple times. Therefore, types with user-defined
-destructors cannot be copied, either implicitly or explicitly, and
-neither can types that own other types containing destructors.
+As motivation, let us consider copying in Rust.
+The `clone` method is not defined for all Rust types.
+One reason is user-defined destructors:
+copying a type that has a destructor
+could result in the destructor running multiple times.
+Therefore, types with destructors cannot be copied
+unless you explicitly implement `Clone` for them.
 
-This complicates handling of generic functions. If you have a type
-parameter `T`, can you copy values of that type? In Rust, you can't,
+This complicates handling of generic functions.
+If you have a type parameter `T`, can you copy values of that type?
+In Rust, you can't,
 and if you try to run the following code the compiler will complain.
 
 ~~~~ {.xfail-test}
@@ -1523,42 +1495,49 @@ fn head_bad<T>(v: &[T]) -> T {
 }
 ~~~~
 
-However, we can tell the compiler that the `head` function is only for
-copyable types: that is, those that have the `Copy` trait. In that
-case, we can explicitly create a second copy of the value we are
-returning using the `copy` keyword:
+However, we can tell the compiler
+that the `head` function is only for copyable types:
+that is, those that implement the `Clone` trait.
+In that case,
+we can explicitly create a second copy of the value we are returning
+using the `clone` keyword:
 
 ~~~~
 // This does
-fn head<T: Copy>(v: &[T]) -> T {
-    copy v[0]
+fn head<T: Clone>(v: &[T]) -> T {
+    v[0].clone()
 }
 ~~~~
 
-This says that we can call `head` on any type `T` as long as that type
-implements the `Copy` trait. When instantiating a generic function,
-you can only instantiate it with types that implement the correct
-trait, so you could not apply `head` to a type with a
-destructor. (`Copy` is a special trait that is built in to the
-compiler, making it possible for the compiler to enforce this
-restriction.)
+This says that we can call `head` on any type `T`
+as long as that type implements the `Clone` trait.
+When instantiating a generic function,
+you can only instantiate it with types
+that implement the correct trait,
+so you could not apply `head` to a type
+that does not implement `Clone`.
 
-While most traits can be defined and implemented by user code, three
-traits are automatically derived and implemented for all applicable
-types by the compiler, and may not be overridden:
+While most traits can be defined and implemented by user code,
+three traits are automatically derived and implemented
+for all applicable types by the compiler,
+and may not be overridden:
 
-* `Copy` - Types that can be copied, either implicitly, or explicitly with the
-  `copy` operator. All types are copyable unless they have destructors or
-  contain types with destructors.
+* `Send` - Sendable types.
+Types are sendable
+unless they contain managed boxes, managed closures, or borrowed pointers.
 
-* `Owned` - Owned types. Types are owned unless they contain managed
-  boxes, managed closures, or borrowed pointers. Owned types may or
-  may not be copyable.
+* `Freeze` - Constant (immutable) types.
+These are types that do not contain anything intrinsically mutable.
+Intrinsically mutable values include `@mut`
+and `Cell` in the standard library.
 
-* `Const` - Constant (immutable) types. These are types that do not contain
-  mutable fields.
+* `'static` - Non-borrowed types.
+These are types that do not contain any data whose lifetime is bound to
+a particular stack frame. These are types that do not contain any
+borrowed pointers, or types where the only contained borrowed pointers
+have the `'static` lifetime.
 
-> ***Note:*** These three traits were referred to as 'kinds' in earlier
+> ***Note:*** These two traits were referred to as 'kinds' in earlier
 > iterations of the language, and often still are.
 
 Additionally, the `Drop` trait is used to define destructors. This
@@ -1573,8 +1552,8 @@ struct TimeBomb {
 }
 
 impl Drop for TimeBomb {
-    fn drop(&self) {
-        for self.explosivity.times {
+    fn drop(&mut self) {
+        for _ in range(0, self.explosivity) {
             println("blam!");
         }
     }
@@ -1586,10 +1565,11 @@ may call it.
 
 ## Declaring and implementing traits
 
-A trait consists of a set of methods, without bodies, or may be empty,
-as is the case with `Copy`, `Owned`, and `Const`. For example, we could
-declare the trait `Printable` for things that can be printed to the
-console, with a single method:
+A trait consists of a set of methods without bodies,
+or may be empty, as is the case with `Send` and `Freeze`.
+For example, we could declare the trait
+`Printable` for things that can be printed to the console,
+with a single method:
 
 ~~~~
 trait Printable {
@@ -1602,7 +1582,7 @@ that implements a trait includes the name of the trait at the start of
 the definition, as in the following impls of `Printable` for `int`
 and `~str`.
 
-[impls]: #functions-and-methods
+[impls]: #methods
 
 ~~~~
 # trait Printable { fn print(&self); }
@@ -1674,7 +1654,7 @@ name and a double colon.  The compiler uses type inference to decide which
 implementation to use.
 
 ~~~~
-# use std::float::consts::pi;
+use std::float::consts::pi;
 trait Shape { fn new(area: float) -> Self; }
 struct Circle { radius: float }
 struct Square { length: float }
@@ -1701,14 +1681,14 @@ generic types.
 ~~~~
 # trait Printable { fn print(&self); }
 fn print_all<T: Printable>(printable_things: ~[T]) {
-    for printable_things.iter().advance |thing| {
+    for thing in printable_things.iter() {
         thing.print();
     }
 }
 ~~~~
 
 Declaring `T` as conforming to the `Printable` trait (as we earlier
-did with `Copy`) makes it possible to call methods from that trait
+did with `Clone`) makes it possible to call methods from that trait
 on values of type `T` inside the function. It will also cause a
 compile-time error when anyone tries to call `print_all` on an array
 whose element type does not have a `Printable` implementation.
@@ -1718,10 +1698,10 @@ as in this version of `print_all` that copies elements.
 
 ~~~
 # trait Printable { fn print(&self); }
-fn print_all<T: Printable + Copy>(printable_things: ~[T]) {
+fn print_all<T: Printable + Clone>(printable_things: ~[T]) {
     let mut i = 0;
     while i < printable_things.len() {
-        let copy_of_thing = copy printable_things[i];
+        let copy_of_thing = printable_things[i].clone();
         copy_of_thing.print();
         i += 1;
     }
@@ -1747,7 +1727,7 @@ However, consider this function:
 trait Drawable { fn draw(&self); }
 
 fn draw_all<T: Drawable>(shapes: ~[T]) {
-    for shapes.iter().advance |shape| { shape.draw(); }
+    for shape in shapes.iter() { shape.draw(); }
 }
 # let c: Circle = new_circle();
 # draw_all(~[c]);
@@ -1762,7 +1742,7 @@ an _object_.
 ~~~~
 # trait Drawable { fn draw(&self); }
 fn draw_all(shapes: &[@Drawable]) {
-    for shapes.iter().advance |shape| { shape.draw(); }
+    for shape in shapes.iter() { shape.draw(); }
 }
 ~~~~
 
@@ -1815,6 +1795,30 @@ select the method to call at runtime.
 
 This usage of traits is similar to Java interfaces.
 
+By default, each of the three storage classes for traits enforce a
+particular set of built-in kinds that their contents must fulfill in
+order to be packaged up in a trait object of that storage class.
+
+* The contents of owned traits (`~Trait`) must fulfill the `Send` bound.
+* The contents of managed traits (`@Trait`) must fulfill the `'static` bound.
+* The contents of borrowed traits (`&Trait`) are not constrained by any bound.
+
+Consequently, the trait objects themselves automatically fulfill their
+respective kind bounds. However, this default behavior can be overridden by
+specifying a list of bounds on the trait type, for example, by writing `~Trait:`
+(which indicates that the contents of the owned trait need not fulfill any
+bounds), or by writing `~Trait:Send+Freeze`, which indicates that in addition
+to fulfilling `Send`, contents must also fulfill `Freeze`, and as a consequence,
+the trait itself fulfills `Freeze`.
+
+* `~Trait:Send` is equivalent to `~Trait`.
+* `@Trait:'static` is equivalent to `@Trait`.
+* `&Trait:` is equivalent to `&Trait`.
+
+Builtin kind bounds can also be specified on closure types in the same way (for
+example, by writing `fn:Freeze()`), and the default behaviours are the same as
+for traits of the same storage class.
+
 ## Trait inheritance
 
 We can write a trait declaration that _inherits_ from other traits, called _supertraits_.
@@ -1830,7 +1834,7 @@ trait Circle : Shape { fn radius(&self) -> float; }
 Now, we can implement `Circle` on a type only if we also implement `Shape`.
 
 ~~~~
-# use std::float::consts::pi;
+use std::float::consts::pi;
 # trait Shape { fn area(&self) -> float; }
 # trait Circle : Shape { fn radius(&self) -> float; }
 # struct Point { x: float, y: float }
@@ -1865,7 +1869,7 @@ fn radius_times_area<T: Circle>(c: T) -> float {
 Likewise, supertrait methods may also be called on trait objects.
 
 ~~~ {.xfail-test}
-# use std::float::consts::pi;
+use std::float::consts::pi;
 # trait Shape { fn area(&self) -> float; }
 # trait Circle : Shape { fn radius(&self) -> float; }
 # struct Point { x: float, y: float }
@@ -1874,7 +1878,7 @@ Likewise, supertrait methods may also be called on trait objects.
 # impl Shape for CircleStruct { fn area(&self) -> float { pi * square(self.radius) } }
 
 let concrete = @CircleStruct{center:Point{x:3f,y:4f},radius:5f};
-let mycircle: Circle = concrete as @Circle;
+let mycircle: @Circle = concrete as @Circle;
 let nonsense = mycircle.radius() * mycircle.area();
 ~~~
 
@@ -1899,239 +1903,704 @@ enum ABC { A, B, C }
 
 The full list of derivable traits is `Eq`, `TotalEq`, `Ord`,
 `TotalOrd`, `Encodable` `Decodable`, `Clone`, `DeepClone`,
-`IterBytes`, `Rand`, `Zero`, and `ToStr`.
+`IterBytes`, `Rand`, `Default`, `Zero`, and `ToStr`.
 
-# Modules and crates
+# Crates and the module system
 
-The Rust namespace is arranged in a hierarchy of modules. Each source
-(.rs) file represents a single module and may in turn contain
-additional modules.
+Rust's module system is very powerful, but because of that also somewhat complex.
+Nevertheless, this section will try to explain every important aspect of it.
+
+## Crates
+
+In order to speak about the module system, we first need to define the medium it exists in:
+
+Let's say you've written a program or a library, compiled it, and got the resulting binary.
+In Rust, the content of all source code that the compiler directly had to compile in order to end up with
+that binary is collectively called a 'crate'.
+
+For example, for a simple hello world program your crate only consists of this code:
 
 ~~~~
+// main.rs
+fn main() {
+    println("Hello world!");
+}
+~~~~
+
+A crate is also the unit of independent compilation in Rust: `rustc` always compiles a single crate at a time,
+from which it produces either a library or an executable.
+
+Note that merely using an already compiled library in your code does not make it part of your crate.
+
+## The module hierarchy
+
+For every crate, all the code in it is arranged in a hierarchy of modules starting with a single
+root module. That root module is called the 'crate root'.
+
+All modules in a crate below the crate root are declared with the `mod` keyword:
+
+~~~~
+// This is the crate root
+
 mod farm {
-    pub fn chicken() -> &str { "cluck cluck" }
-    pub fn cow() -> &str { "mooo" }
+    // This is the body of module 'farm' declared in the crate root.
+
+    fn chicken() { println("cluck cluck"); }
+    fn cow() { println("mooo"); }
+
+    mod barn {
+        // Body of module 'barn'
+
+        fn hay() { println("..."); }
+    }
 }
 
 fn main() {
-    println(farm::chicken());
+    println("Hello farm!");
 }
 ~~~~
 
-The contents of modules can be imported into the current scope
-with the `use` keyword, optionally giving it an alias. `use`
-may appear at the beginning of crates, `mod`s, `fn`s, and other
-blocks.
+As you can see, your module hierarchy is now three modules deep: There is the crate root, which contains your `main()`
+function, and the module `farm`. The module `farm` also contains two functions and a third module `barn`,
+which contains a function `hay`.
 
-~~~
-# mod farm { pub fn chicken() { } }
-# fn main() {
-// Bring `chicken` into scope
-use farm::chicken;
+(In case you already stumbled over `extern mod`: It isn't directly related to a bare `mod`, we'll get to it later. )
 
-fn chicken_farmer() {
-    // The same, but name it `my_chicken`
-    use my_chicken = farm::chicken;
-    ...
-# my_chicken();
+## Paths and visibility
+
+We've now defined a nice module hierarchy. But how do we access the items in it from our `main` function?
+One way to do it is to simply fully qualifying it:
+
+~~~~ {.xfail-test}
+mod farm {
+    fn chicken() { println("cluck cluck"); }
+    // ...
 }
-# chicken();
-# }
-~~~
 
-These farm animal functions have a new keyword, `pub`, attached to
-them. The `pub` keyword modifies an item's visibility, making it
-visible outside its containing module. An expression with `::`, like
-`farm::chicken`, can name an item outside of its containing
-module. Items, such as those declared with `fn`, `struct`, `enum`,
-`type`, or `static`, are module-private by default.
+fn main() {
+    println("Hello chicken!");
+
+    ::farm::chicken(); // Won't compile yet, see further down
+}
+~~~~
+
+The `::farm::chicken` construct is what we call a 'path'.
+
+Because it's starting with a `::`, it's also a 'global path',
+which qualifies an item by its full path in the module hierarchy
+relative to the crate root.
+
+If the path were to start with a regular identifier, like `farm::chicken`, it would be
+a 'local path' instead. We'll get to them later.
+
+Now, if you actually tried to compile this code example, you'll notice
+that you get a `unresolved name: 'farm::chicken'` error. That's because per default,
+items (`fn`, `struct`, `static`, `mod`, ...) are only visible inside the module
+they are defined in.
+
+To make them visible outside their containing modules, you need to mark them _public_ with `pub`:
+
+~~~~
+mod farm {
+    pub fn chicken() { println("cluck cluck"); }
+    pub fn cow() { println("mooo"); }
+    // ...
+}
+
+fn main() {
+    println("Hello chicken!");
+    ::farm::chicken(); // This compiles now
+}
+~~~~
 
 Visibility restrictions in Rust exist only at module boundaries. This
 is quite different from most object-oriented languages that also
 enforce restrictions on objects themselves. That's not to say that
 Rust doesn't support encapsulation: both struct fields and methods can
 be private. But this encapsulation is at the module level, not the
-struct level. Note that fields and methods are _public_ by default.
+struct level.
+
+For convenience, fields are _public_ by default, and can be made _private_ with the `priv` keyword:
 
 ~~~
-pub mod farm {
+mod farm {
 # pub type Chicken = int;
-# type Cow = int;
 # struct Human(int);
 # impl Human { fn rest(&self) { } }
-# pub fn make_me_a_farm() -> Farm { Farm { chickens: ~[], cows: ~[], farmer: Human(0) } }
+# pub fn make_me_a_farm() -> Farm { Farm { chickens: ~[], farmer: Human(0) } }
     pub struct Farm {
         priv chickens: ~[Chicken],
-        priv cows: ~[Cow],
         farmer: Human
     }
 
     impl Farm {
-        priv fn feed_chickens(&self) { ... }
-        priv fn feed_cows(&self) { ... }
+        fn feed_chickens(&self) { ... }
         pub fn add_chicken(&self, c: Chicken) { ... }
     }
 
     pub fn feed_animals(farm: &Farm) {
         farm.feed_chickens();
-        farm.feed_cows();
     }
 }
 
 fn main() {
-     let f = make_me_a_farm();
-     f.add_chicken(make_me_a_chicken());
-     farm::feed_animals(&f);
-     f.farmer.rest();
+    let f = make_me_a_farm();
+    f.add_chicken(make_me_a_chicken());
+    farm::feed_animals(&f);
+    f.farmer.rest();
+
+    // This wouldn't compile because both are private:
+    // f.feed_chickens();
+    // let chicken_counter = f.chickens.len();
 }
 # fn make_me_a_farm() -> farm::Farm { farm::make_me_a_farm() }
 # fn make_me_a_chicken() -> farm::Chicken { 0 }
 ~~~
 
-## Crates
+> ***Note:*** Visibility rules are currently buggy and not fully defined, you might have to add or remove `pub` along a path until it works.
 
-The unit of independent compilation in Rust is the crate: rustc
-compiles a single crate at a time, from which it produces either a
-library or an executable.
+## Files and modules
 
-When compiling a single `.rs` source file, the file acts as the whole crate.
-You can compile it with the `--lib` compiler switch to create a shared
-library, or without, provided that your file contains a `fn main`
-somewhere, to create an executable.
+One important aspect about Rusts module system is that source files are not important:
+You define a module hierarchy, populate it with all your definitions, define visibility,
+maybe put in a `fn main()`, and that's it: No need to think about source files.
 
-Larger crates typically span multiple files and are, by convention,
-compiled from a source file with the `.rc` extension, called a *crate file*.
-The crate file extension distinguishes source files that represent
-crates from those that do not, but otherwise source files and crate files are identical.
+The only file that's relevant is the one that contains the body of your crate root,
+and it's only relevant because you have to pass that file to `rustc` to compile your crate.
 
-A typical crate file declares attributes associated with the crate that
-may affect how the compiler processes the source.
-Crate attributes specify metadata used for locating and linking crates,
-the type of crate (library or executable),
-and control warning and error behavior,
-among other things.
-Crate files additionally declare the external crates they depend on
-as well as any modules loaded from other files.
+And in principle, that's all you need: You can write any Rust program as one giant source file that contains your
+crate root and everything below it in `mod ... { ... }` declarations.
 
-~~~~ { .xfail-test }
+However, in practice you usually want to split you code up into multiple source files to make it more manageable.
+In order to do that, Rust allows you to move the body of any module into it's own source file, which works like this:
+
+If you declare a module without its body, like `mod foo;`, the compiler will look for the
+files `foo.rs` and `foo/mod.rs` inside some directory (usually the same as of the source file containing
+the `mod foo;`). If it finds either, it uses the content of that file as the body of the module.
+If it finds both, that's a compile error.
+
+So, if we want to move the content of `mod farm` into it's own file, it would look like this:
+
+~~~~ {.ignore}
+// main.rs - contains body of the crate root
+mod farm; // Compiler will look for 'farm.rs' and 'farm/mod.rs'
+
+fn main() {
+    println("Hello farm!");
+    ::farm::cow();
+}
+~~~~
+
+~~~~
+// farm.rs - contains body of module 'farm' in the crate root
+pub fn chicken() { println("cluck cluck"); }
+pub fn cow() { println("mooo"); }
+
+pub mod barn {
+    pub fn hay() { println("..."); }
+}
+# fn main() { }
+~~~~
+
+In short, `mod foo;` is just syntactic sugar for `mod foo { /* content of <...>/foo.rs or <...>/foo/mod.rs */ }`.
+
+This also means that having two or more identical `mod foo;` somewhere
+in your crate hierarchy is generally a bad idea,
+just like copy-and-paste-ing a module into two or more places is one.
+Both will result in duplicate and mutually incompatible definitions.
+
+The directory the compiler looks in for those two files is determined by starting with
+the same directory as the source file that contains the `mod foo;` declaration, and concatenating to that a
+path equivalent to the relative path of all nested `mod { ... }` declarations the `mod foo;`
+is contained in, if any.
+
+For example, given a file with this module body:
+
+~~~ {.ignore}
+// src/main.rs
+mod plants;
+mod animals {
+    mod fish;
+    mod mammals {
+        mod humans;
+    }
+}
+~~~
+
+The compiler would then try all these files:
+
+~~~ {.notrust}
+src/plants.rs
+src/plants/mod.rs
+
+src/animals/fish.rs
+src/animals/fish/mod.rs
+
+src/animals/mammals/humans.rs
+src/animals/mammals/humans/mod.rs
+~~~
+
+Keep in mind that identical module hierachies can still lead to different path lookups
+depending on how and where you've moved a module body to its own file.
+For example, if we move the `animals` module above into its own file...
+
+~~~ {.ignore}
+// src/main.rs
+mod plants;
+mod animals;
+~~~
+~~~ {.ignore}
+// src/animals.rs or src/animals/mod.rs
+mod fish;
+mod mammals {
+    mod humans;
+}
+~~~
+...then the source files of `mod animals`'s submodules can
+either be placed right next to that of its parents, or in a subdirectory if `animals` source file is:
+
+~~~ {.notrust}
+src/plants.rs
+src/plants/mod.rs
+
+src/animals.rs - if file sits next to that of parent module's:
+    src/fish.rs
+    src/fish/mod.rs
+
+    src/mammals/humans.rs
+    src/mammals/humans/mod.rs
+
+src/animals/mod.rs - if file is in it's own subdirectory:
+    src/animals/fish.rs
+    src/animals/fish/mod.rs
+
+    src/animals/mammals/humans.rs
+    src/animals/mammals/humans/mod.rs
+
+~~~
+
+These rules allow you to have both small modules that only need
+to consist of one source file each and can be conveniently placed right next to each other,
+and big complicated modules that group the source files of submodules in subdirectories.
+
+If you need to circumvent the defaults, you can also overwrite the path a `mod foo;` would take:
+
+~~~ {.ignore}
+#[path="../../area51/alien.rs"]
+mod classified;
+~~~
+
+## Importing names into the local scope
+
+Always referring to definitions in other modules with their global
+path gets old really fast, so Rust has a way to import
+them into the local scope of your module: `use`-statements.
+
+They work like this: At the beginning of any module body, `fn` body, or any other block
+you can write a list of `use`-statements, consisting of the keyword `use` and a __global path__ to an item
+without the `::` prefix. For example, this imports `cow` into the local scope:
+
+~~~
+use farm::cow;
+# mod farm { pub fn cow() { println("I'm a hidden ninja cow!") } }
+# fn main() { cow() }
+~~~
+
+The path you give to `use` is per default global, meaning relative to the crate root,
+no matter how deep the module hierarchy is, or whether the module body it's written in
+is contained in its own file (remember: files are irrelevant).
+
+This is different to other languages, where you often only find a single import construct that combines the semantic
+of `mod foo;` and `use`-statements, and which tend to work relative to the source file or use an absolute file path
+- Rubys `require` or C/C++'s `#include` come to mind.
+
+However, it's also possible to import things relative to the module of the `use`-statement:
+Adding a `super::` in front of the path will start in the parent module,
+while adding a `self::` prefix will start in the current module:
+
+~~~
+# mod workaround {
+# pub fn some_parent_item(){ println("...") }
+# mod foo {
+use super::some_parent_item;
+use self::some_child_module::some_item;
+# pub fn bar() { some_parent_item(); some_item() }
+# pub mod some_child_module { pub fn some_item() {} }
+# }
+# }
+~~~
+
+Again - relative to the module, not to the file.
+
+Imports are also shadowed by local definitions:
+For each name you mention in a module/block, `rust`
+will first look at all items that are defined locally,
+and only if that results in no match look at items you brought in
+scope with corresponding `use` statements.
+
+~~~ {.ignore}
+# // XXX: Allow unused import in doc test
+use farm::cow;
+// ...
+# mod farm { pub fn cow() { println("Hidden ninja cow is hidden.") } }
+fn cow() { println("Mooo!") }
+
+fn main() {
+    cow() // resolves to the locally defined cow() function
+}
+~~~
+
+To make this behavior more obvious, the rule has been made that `use`-statement always need to be written
+before any declaration, like in the example above. This is a purely artificial rule introduced
+because people always assumed they shadowed each other based on order, despite the fact that all items in rust are
+mutually recursive, order independent definitions.
+
+One odd consequence of that rule is that `use` statements also go in front of any `mod` declaration,
+even if they refer to things inside them:
+
+~~~
+use farm::cow;
+mod farm {
+    pub fn cow() { println("Moooooo?") }
+}
+
+fn main() { cow() }
+~~~
+
+This is what our `farm` example looks like with `use` statements:
+
+~~~~
+use farm::chicken;
+use farm::cow;
+use farm::barn;
+
+mod farm {
+    pub fn chicken() { println("cluck cluck"); }
+    pub fn cow() { println("mooo"); }
+
+    pub mod barn {
+        pub fn hay() { println("..."); }
+    }
+}
+
+fn main() {
+    println("Hello farm!");
+
+    // Can now refer to those names directly:
+    chicken();
+    cow();
+    barn::hay();
+}
+~~~~
+
+And here an example with multiple files:
+~~~{.ignore}
+// a.rs - crate root
+use b::foo;
+mod b;
+fn main() { foo(); }
+~~~
+~~~{.ignore}
+// b.rs
+use b::c::bar;
+pub mod c;
+pub fn foo() { bar(); }
+~~~
+~~~
+// c.rs
+pub fn bar() { println("Baz!"); }
+~~~
+
+There also exist two short forms for importing multiple names at once:
+
+1. Explicit mention multiple names as the last element of an `use` path:
+~~~
+use farm::{chicken, cow};
+# mod farm {
+#     pub fn cow() { println("Did I already mention how hidden and ninja I am?") }
+#     pub fn chicken() { println("I'm Bat-chicken, guardian of the hidden tutorial code.") }
+# }
+# fn main() { cow(); chicken() }
+~~~
+
+2. Import everything in a module with a wildcard:
+~~~
+use farm::*;
+# mod farm {
+#     pub fn cow() { println("Bat-chicken? What a stupid name!") }
+#     pub fn chicken() { println("Says the 'hidden ninja' cow.") }
+# }
+# fn main() { cow(); chicken() }
+~~~
+
+However, that's not all. You can also rename an item while you're bringing it into scope:
+
+~~~
+use egg_layer = farm::chicken;
+# mod farm { pub fn chicken() { println("Laying eggs is fun!")  } }
+// ...
+
+fn main() {
+    egg_layer();
+}
+~~~
+
+In general, `use` creates an local alias:
+An alternate path and a possibly different name to access the same item,
+without touching the original, and with both being interchangeable.
+
+## Reexporting names
+
+It is also possible to reexport items to be accessible under your module.
+
+For that, you write `pub use`:
+
+~~~
+mod farm {
+    pub use self::barn::hay;
+
+    pub fn chicken() { println("cluck cluck"); }
+    pub fn cow() { println("mooo"); }
+
+    mod barn {
+        pub fn hay() { println("..."); }
+    }
+}
+
+fn main() {
+    farm::chicken();
+    farm::cow();
+    farm::hay();
+}
+~~~
+
+Just like in normal `use` statements, the exported names
+merely represent an alias to the same thing and can also be renamed.
+
+The above example also demonstrate what you can use `pub use` for:
+The nested `barn` module is private, but the `pub use` allows users
+of the module `farm` to access a function from `barn` without needing
+to know that `barn` exists.
+
+In other words, you can use them to decouple an public api from their internal implementation.
+
+## Using libraries
+
+So far we've only talked about how to define and structure your own crate.
+
+However, most code out there will want to use preexisting libraries,
+as there really is no reason to start from scratch each time you start a new project.
+
+In Rust terminology, we need a way to refer to other crates.
+
+For that, Rust offers you the `extern mod` declaration:
+
+~~~
+extern mod extra;
+// extra ships with Rust, you'll find more details further down.
+
+fn main() {
+    // The rational number '1/2':
+    let one_half = ::extra::rational::Ratio::new(1, 2);
+}
+~~~
+
+Despite its name, `extern mod` is a distinct construct from regular `mod` declarations:
+A statement of the form `extern mod foo;` will cause `rustc` to search for the crate `foo`,
+and if it finds a matching binary it lets you use it from inside your crate.
+
+The effect it has on your module hierarchy mirrors aspects of both `mod` and `use`:
+
+- Like `mod`, it causes `rustc` to actually emit code:
+  The linkage information the binary needs to use the library `foo`.
+
+- But like `use`, all `extern mod` statements that refer to the same library are interchangeable,
+  as each one really just presents an alias to an external module (the crate root of the library your linking against).
+
+Remember how `use`-statements have to go before local declarations because the latter shadows the former?
+Well, `extern mod` statements also have their own rules in that regard:
+Both `use` and local declarations can shadow them, so the rule is that `extern mod` has to go in front
+of both `use` and local declarations.
+
+Which can result in something like this:
+
+~~~
+extern mod extra;
+
+use farm::dog;
+use extra::rational::Ratio;
+
+mod farm {
+    pub fn dog() { println("woof"); }
+}
+
+fn main() {
+    farm::dog();
+    let a_third = Ratio::new(1, 3);
+}
+~~~
+
+It's a bit weird, but it's the result of shadowing rules that have been set that way because
+they model most closely what people expect to shadow.
+
+## Package ids
+
+If you use `extern mod`, per default `rustc` will look for libraries in the the library search path (which you can
+extend with the `-L` switch).
+
+However, Rust also ships with rustpkg, a package manager that is able to automatically download and build
+libraries if you use it for building your crate. How it works is explained [here][rustpkg],
+but for this tutorial it's only important to know that you can optionally annotate an
+`extern mod` statement with an package id that rustpkg can use to identify it:
+
+~~~ {.ignore}
+extern mod rust = "github.com/mozilla/rust"; // pretend Rust is an simple library
+~~~
+
+[rustpkg]: rustpkg.html
+
+## Crate metadata and settings
+
+For every crate you can define a number of metadata items, such as link name, version or author.
+You can also toggle settings that have crate-global consequences. Both mechanism
+work by providing attributes in the crate root.
+
+For example, Rust uniquely identifies crates by their link metadate, which includes
+the link name and the version. It also hashes the filename and the symbols in a binary
+based on the link metadata, allowing you to use two different versions of the same library in a crate
+without conflict.
+
+Therefor, if you plan to compile your crate as a library, you should annotate it with that information:
+
+~~~~
+// lib.rs
+
+# #[crate_type = "lib"];
 // Crate linkage metadata
-#[link(name = "farm", vers = "2.5", author = "mjh")];
+#[link(name = "farm", vers = "2.5")];
 
-// Make a library ("bin" is the default)
+// ...
+# pub fn farm() {}
+~~~~
+
+You can also in turn require in a `extern mod` statement that certain link metadata items match some criteria.
+For that, Rust currently parses a comma-separated list of name/value pairs that appear after
+it, and ensures that they match the attributes provided in the `link` attribute of a crate file.
+This enables you to, eg, pick a a crate based on it's version number, or to link an library under an
+different name. For example, this two mod statements would both accept and select the crate define above:
+
+~~~~ {.xfail-test}
+extern mod farm(vers = "2.5");
+extern mod my_farm(name = "farm", vers = "2.5");
+~~~~
+
+Other crate settings and metadata include things like enabling/disabling certain errors or warnings,
+or setting the crate type (library or executable) explicitly:
+
+~~~~
+// lib.rs
+// ...
+
+// This crate is a library ("bin" is the default)
 #[crate_type = "lib"];
 
 // Turn on a warning
 #[warn(non_camel_case_types)]
-
-// Link to the standard library
-extern mod std;
-
-// Load some modules from other files
-mod cow;
-mod chicken;
-mod horse;
-
-fn main() {
-    ...
-}
+# pub fn farm() {}
 ~~~~
 
-Compiling this file will cause `rustc` to look for files named
-`cow.rs`, `chicken.rs`, and `horse.rs` in the same directory as the
-`.rc` file, compile them all together, and, based on the presence of
-the `crate_type = "lib"` attribute, output a shared library or an
-executable. (If the line `#[crate_type = "lib"];` was omitted,
-`rustc` would create an executable.)
+If you're compiling your crate with `rustpkg`,
+link annotations will not be necessary, because they get
+inferred by `rustpkg` based on the Package id and naming conventions.
 
-The `#[link(...)]` attribute provides meta information about the
-module, which other crates can use to load the right module. More
-about that later.
 
-To have a nested directory structure for your source files, you can
-nest mods:
-
-~~~~ {.ignore}
-mod poultry {
-    mod chicken;
-    mod turkey;
-}
-~~~~
-
-The compiler will now look for `poultry/chicken.rs` and
-`poultry/turkey.rs`, and export their content in `poultry::chicken`
-and `poultry::turkey`. You can also provide a `poultry.rs` to add
-content to the `poultry` module itself.
-
-## Using other crates
-
-The `extern mod` directive lets you use a crate (once it's been
-compiled into a library) from inside another crate. `extern mod` can
-appear at the top of a crate file or at the top of modules. It will
-cause the compiler to look in the library search path (which you can
-extend with the `-L` switch) for a compiled Rust library with the
-right name, then add a module with that crate's name into the local
-scope.
-
-For example, `extern mod std` links the [standard library].
-
-[standard library]: std/index.html
-
-When a comma-separated list of name/value pairs appears after `extern
-mod`, the compiler front-end matches these pairs against the
-attributes provided in the `link` attribute of the crate file. The
-front-end will only select this crate for use if the actual pairs
-match the declared attributes. You can provide a `name` value to
-override the name used to search for the crate.
-
-Our example crate declared this set of `link` attributes:
-
-~~~~
-#[link(name = "farm", vers = "2.5", author = "mjh")];
-~~~~
-
-Which you can then link with any (or all) of the following:
-
-~~~~ {.xfail-test}
-extern mod farm;
-extern mod my_farm (name = "farm", vers = "2.5");
-extern mod my_auxiliary_farm (name = "farm", author = "mjh");
-~~~~
-
-If any of the requested metadata do not match, then the crate
-will not be compiled successfully.
+> ***Note:*** The rules regarding link metadata, both as attributes and on `extern mod`,
+              as well as their interaction with `rustpkg`
+              are currently not clearly defined and will likely change in the future.
 
 ## A minimal example
 
-Now for something that you can actually compile yourself, we have
-these two files:
+Now for something that you can actually compile yourself.
+
+We define two crates, and use one of them as a library in the other.
 
 ~~~~
 // world.rs
-#[link(name = "world", vers = "1.0")];
-pub fn explore() -> &str { "world" }
+#[link(name = "world", vers = "0.42")];
+pub fn explore() -> &'static str { "world" }
 ~~~~
 
 ~~~~ {.xfail-test}
 // main.rs
 extern mod world;
-fn main() { println(~"hello " + world::explore()); }
+fn main() { println("hello " + world::explore()); }
 ~~~~
 
 Now compile and run like this (adjust to your platform if necessary):
 
 ~~~~ {.notrust}
-> rustc --lib world.rs  # compiles libworld-94839cbfe144198-1.0.so
+> rustc --lib world.rs  # compiles libworld-<HASH>-0.42.so
 > rustc main.rs -L .    # compiles main
 > ./main
 "hello world"
 ~~~~
 
-Notice that the library produced contains the version in the filename
-as well as an inscrutable string of alphanumerics. These are both
-part of Rust's library versioning scheme. The alphanumerics are
-a hash representing the crate metadata.
+Notice that the library produced contains the version in the file name
+as well as an inscrutable string of alphanumerics. As explained in the previous paragraph,
+these are both part of Rust's library versioning scheme. The alphanumerics are
+a hash representing the crates link metadata.
 
-## The standard library
+## The standard library and the prelude
+
+While reading the examples in this tutorial, you might have asked yourself where all
+those magical predefined items like `println()` are coming from.
+
+The truth is, there's nothing magical about them: They are all defined normally
+in the `std` library, which is a crate that ships with Rust.
+
+The only magical thing that happens is that `rustc` automatically inserts this line into your crate root:
+
+~~~ {.ignore}
+extern mod std;
+~~~
+
+As well as this line into every module body:
+
+~~~ {.ignore}
+use std::prelude::*;
+~~~
+
+The role of the `prelude` module is to re-exports common definitions from `std`.
+
+This allows you to use common types and functions like `Option<T>` or `println`
+without needing to import them. And if you need something from `std` that's not in the prelude,
+you just have to import it with an `use` statement.
+
+For example, it re-exports `println` which is defined in `std::io::println`:
+
+~~~
+use puts = std::io::println;
+
+fn main() {
+    println("println is imported per default.");
+    puts("Doesn't hinder you from importing it under an different name yourself.");
+    ::std::io::println("Or from not using the automatic import.");
+}
+~~~
+
+Both auto-insertions can be disabled with an attribute if necessary:
+
+~~~
+// In the crate root:
+#[no_std];
+~~~
+
+~~~
+// In any module:
+#[no_implicit_prelude];
+~~~
+
+## The standard library in detail
 
 The Rust standard library provides runtime features required by the language,
 including the task scheduler and memory allocators, as well as library
@@ -2149,24 +2618,9 @@ I/O abstractions ([`io`]), [containers] like [`hashmap`],
 common traits ([`kinds`], [`ops`], [`cmp`], [`num`],
 [`to_str`], [`clone`]), and complete bindings to the C standard library ([`libc`]).
 
-### Standard Library injection and the Rust prelude
+The full documentation for `std` can be found here: [standard library].
 
-`std` is imported at the topmost level of every crate by default, as
-if the first line of each crate was
-
-    extern mod std;
-
-This means that the contents of std can be accessed from from any context
-with the `std::` path prefix, as in `use std::vec`, `use std::task::spawn`,
-etc.
-
-Additionally, `std` contains a `prelude` module that reexports many of the
-most common standard modules, types and traits. The contents of the prelude are
-imported into every *module* by default.  Implicitly, all modules behave as if
-they contained the following prologue:
-
-    use std::prelude::*;
-
+[standard library]: std/index.html
 [`std`]: std/index.html
 [`bool`]: std/bool.html
 [tuples]: std/tuple.html
@@ -2193,6 +2647,18 @@ they contained the following prologue:
 [`clone`]: std/clone.html
 [`libc`]: std/libc.html
 
+## The extra library
+
+Rust also ships with the [extra library], an accumulation of
+useful things, that are however not important enough
+to deserve a place in the standard library.
+You can use them by linking to `extra` with an `extern mod extra;`.
+
+[extra library]: extra/index.html
+
+Right now `extra` contains those definitions directly, but in the future it will likely just
+re-export a bunch of 'officially blessed' crates that get managed with `rustpkg`.
+
 # What next?
 
 Now that you know the essentials, check out any of the additional
@@ -2203,18 +2669,16 @@ tutorials on individual topics.
 * [Macros][macros]
 * [The foreign function interface][ffi]
 * [Containers and iterators](tutorial-container.html)
+* [Error-handling and Conditions](tutorial-conditions.html)
+* [Packaging up Rust code][rustpkg]
 
-There is further documentation on the [wiki].
+There is further documentation on the [wiki], however those tend to be even more out of date as this document.
 
 [borrow]: tutorial-borrowed-ptr.html
 [tasks]: tutorial-tasks.html
 [macros]: tutorial-macros.html
 [ffi]: tutorial-ffi.html
+[rustpkg]: tutorial-rustpkg.html
 
 [wiki]: https://github.com/mozilla/rust/wiki/Docs
-[unit testing]: https://github.com/mozilla/rust/wiki/Doc-unit-testing
-[rustdoc]: https://github.com/mozilla/rust/wiki/Doc-using-rustdoc
-[cargo]: https://github.com/mozilla/rust/wiki/Doc-using-cargo-to-manage-packages
-[attributes]: https://github.com/mozilla/rust/wiki/Doc-attributes
 
-[pound-rust]: http://chat.mibbit.com/?server=irc.mozilla.org&channel=%23rust
