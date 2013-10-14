@@ -54,10 +54,9 @@
 <li><a href="#dereferencing-pointers"><span class="toc-section-number">12</span> Dereferencing pointers</a></li>
 <li><a href="#vectors-and-strings"><span class="toc-section-number">13</span> Vectors and strings</a></li>
 <li><a href="#closures"><span class="toc-section-number">14</span> Closures</a><ul>
-<li><a href="#managed-closures"><span class="toc-section-number">14.1</span> Managed closures</a></li>
-<li><a href="#owned-closures"><span class="toc-section-number">14.2</span> Owned closures</a></li>
-<li><a href="#closure-compatibility"><span class="toc-section-number">14.3</span> Closure compatibility</a></li>
-<li><a href="#do-syntax"><span class="toc-section-number">14.4</span> Do syntax</a></li>
+<li><a href="#owned-closures"><span class="toc-section-number">14.1</span> Owned closures</a></li>
+<li><a href="#closure-compatibility"><span class="toc-section-number">14.2</span> Closure compatibility</a></li>
+<li><a href="#do-syntax"><span class="toc-section-number">14.3</span> Do syntax</a></li>
 </ul></li>
 <li><a href="#methods"><span class="toc-section-number">15</span> Methods</a></li>
 <li><a href="#generics"><span class="toc-section-number">16</span> Generics</a><ul>
@@ -68,13 +67,20 @@
 <li><a href="#trait-inheritance"><span class="toc-section-number">16.5</span> Trait inheritance</a></li>
 <li><a href="#deriving-implementations-for-traits"><span class="toc-section-number">16.6</span> Deriving implementations for traits</a></li>
 </ul></li>
-<li><a href="#modules-and-crates"><span class="toc-section-number">17</span> Modules and crates</a><ul>
+<li><a href="#crates-and-the-module-system"><span class="toc-section-number">17</span> Crates and the module system</a><ul>
 <li><a href="#crates"><span class="toc-section-number">17.1</span> Crates</a></li>
-<li><a href="#using-other-crates"><span class="toc-section-number">17.2</span> Using other crates</a></li>
-<li><a href="#a-minimal-example"><span class="toc-section-number">17.3</span> A minimal example</a></li>
-<li><a href="#the-standard-library"><span class="toc-section-number">17.4</span> The standard library</a><ul>
-<li><a href="#standard-library-injection-and-the-rust-prelude"><span class="toc-section-number">17.4.1</span> Standard Library injection and the Rust prelude</a></li>
-</ul></li>
+<li><a href="#the-module-hierarchy"><span class="toc-section-number">17.2</span> The module hierarchy</a></li>
+<li><a href="#paths-and-visibility"><span class="toc-section-number">17.3</span> Paths and visibility</a></li>
+<li><a href="#files-and-modules"><span class="toc-section-number">17.4</span> Files and modules</a></li>
+<li><a href="#importing-names-into-the-local-scope"><span class="toc-section-number">17.5</span> Importing names into the local scope</a></li>
+<li><a href="#reexporting-names"><span class="toc-section-number">17.6</span> Reexporting names</a></li>
+<li><a href="#using-libraries"><span class="toc-section-number">17.7</span> Using libraries</a></li>
+<li><a href="#package-ids"><span class="toc-section-number">17.8</span> Package ids</a></li>
+<li><a href="#crate-metadata-and-settings"><span class="toc-section-number">17.9</span> Crate metadata and settings</a></li>
+<li><a href="#a-minimal-example"><span class="toc-section-number">17.10</span> A minimal example</a></li>
+<li><a href="#the-standard-library-and-the-prelude"><span class="toc-section-number">17.11</span> The standard library and the prelude</a></li>
+<li><a href="#the-standard-library-in-detail"><span class="toc-section-number">17.12</span> The standard library in detail</a></li>
+<li><a href="#the-extra-library"><span class="toc-section-number">17.13</span> The extra library</a></li>
 </ul></li>
 <li><a href="#what-next"><span class="toc-section-number">18</span> What next?</a></li>
 </ul>
@@ -99,8 +105,8 @@
 <p><strong><em>경고:</em></strong> Rust 계속 개발중인 언어이다. 언어의 잠재적인 변화, 구현 부족, 그리고 정지에 대해 알고있어야한다.</p>
 </blockquote>
 <h1 id="시작하기"><a href="#시작하기"><span class="header-section-number">2</span> 시작하기</a></h1>
-<p>현재 Rust 컴파일러는 <a href="http://static.rust-lang.org/dist/rust-0.7.tar.gz">tarball</a>로 제작되고, Windows의 경우는 <a href="http://static.rust-lang.org/dist/rust-0.7-install.exe">installer</a> 사용을 추천한다.</p>
-<p>컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 &quot;snapshot&quot; 버전으로 만들어진다(개발 초기 단계에). 이처럼, 소스를 빌드하려면 스냅샷을 받아오기 위해 인터넷 연결과 유효한 스냅샷 바이너리를 실행할 수 있는 OS가 필요하다.</p>
+<p>현재 Rust 컴파일러는 <a href="http://static.rust-lang.org/dist/rust-0.8.tar.gz">tarball</a>로 제작되고, Windows의 경우는 <a href="http://static.rust-lang.org/dist/rust-0.8-install.exe">installer</a> 사용을 추천한다.</p>
+<p>컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 &quot;snapshot&quot; 버전으로 만들어진다(개발 초기 단계에). 소스는 인터넷에서 지원되는 플랫폼에 맞게 이 스냅샷을 가져와 자동적으로 빌드한다.</p>
 <p>현재 스냅샷 바이너리는 아래의 플랫폼들에서 제작되고 테스트된다:</p>
 <ul>
 <li>Windows (7, Server 2008 R2), x86 only</li>
@@ -120,9 +126,9 @@
 <li>curl</li>
 </ul>
 <p>만약 충분히 필요 조건을 만족한다면, 다음의 명령들을 수행하면 된다.</p>
-<pre class="notrust"><code>$ curl -O http://static.rust-lang.org/dist/rust-0.7.tar.gz
-$ tar -xzf rust-0.7.tar.gz
-$ cd rust-0.7
+<pre class="notrust"><code>$ curl -O http://static.rust-lang.org/dist/rust-0.8.tar.gz
+$ tar -xzf rust-0.8.tar.gz
+$ cd rust-0.8
 $ ./configure
 $ make &amp;&amp; make install</code></pre>
 <p>만약 목표 디렉토리를 수정할 권한을 가지고 있지 않다면 <code>sudo make install</code>을 사용해야 할 수도 있다. 설치 장소는 <code>configure</code> 명령의 인자로 <code>--prefix</code>를 전달하여 조정할 수 있다. 다양한 다른 옵션들도 지원되고 <code>--help</code> 인자를 통해 더 자세한 정보를 얻을 수 있습니다.</p>
@@ -208,7 +214,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 
 <p>두 코드의 일부분은 정확히 동일하다. 둘다 주어진 조건에 따라 값을 <code>price</code>에 할당한다. 두번째 코드 조각의 블록안에 세미콜론이 없다는 것을 명심해라. 이것은 중요하다. 중괄호 사이의 블록내의 마지막 문장 뒤에 세미콜론의 누락은 전체 블록에게 마지막 표현식의 값을 준다.</p>
 <p>다르게 말하면, Rust에서 세미콜론은 <em>표현식의 값을 무시한다</em>. 그래서 <code>if</code>의 분기가 <code>{ 4; }</code>처럼 되어있다면, 위의 예제는 단순히 <code>price</code>에 <code>()</code> (nil 또는 void)를 할당할 것이다. 그러나 세미콜론이 없으면, 각 분기는 서로 다른 값을 가지고, <code>price</code>는 분기에서 얻은 값을 가진다.</p>
-<p>즉, 선언(변수를 위한 <code>let</code>, 함수를 위한 <code>fn</code>, 그리고 <a href="#traits">traits</a>, <a href="#enums">enum types</a>, 그리고 <a href="#constants">constants</a>와 같은 최상위 요소)이 아닌 모든 것(함수 몸통 포함)은 표현식이다.</p>
+<p>즉, 선언(변수를 위한 <code>let</code>, 함수를 위한 <code>fn</code>, 그리고 <a href="#traits">traits</a>, <a href="#enums">enum types</a>, 그리고 정적 아이템)은 표현식이고, 함수 몸체에 포함된다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">is_four</span>(<span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">bool</span> {
    <span class="cm-comment">// No need for a return statement. The result of the expression</span>
    <span class="cm-comment">// is used as the return value.</span>
@@ -266,7 +272,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">signum</span>(<span class="cm-def">x</span>: <span class="cm-keyword">int</span>) -&gt; <span class="cm-keyword">int</span> {
     <span class="cm-keyword">if</span> <span class="cm-variable">x</span> &lt; <span class="cm-number">0</span> { -<span class="cm-number">1</span> }
     <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> <span class="cm-variable">x</span> &gt; <span class="cm-number">0</span> { <span class="cm-number">1</span> }
-    <span class="cm-keyword">else</span> { <span class="cm-keyword">return</span> <span class="cm-number">0</span> }
+    <span class="cm-keyword">else</span> { <span class="cm-number">0</span> }
 }
 </pre>
 
@@ -294,7 +300,9 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <blockquote>
 <p><strong><em>노트:</em></strong> 다음의 코드는 섹션 5.3에서 설명되는 튜플(<code>(float, float)</code>)을 사용한다. 이제 아이템의 목록으로서의 튜플을 떠올릴 수 있다.</p>
 </blockquote>
-<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">angle</span>(<span class="cm-def">vector</span>: (<span class="cm-keyword">float</span>, <span class="cm-keyword">float</span>)) -&gt; <span class="cm-keyword">float</span> {
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::</span><span class="cm-variable">float</span>;
+<span class="cm-keyword">use</span> <span class="cm-variable-2">std::num::</span><span class="cm-variable">atan</span>;
+<span class="cm-keyword">fn</span> <span class="cm-def">angle</span>(<span class="cm-def">vector</span>: (<span class="cm-keyword">float</span>, <span class="cm-keyword">float</span>)) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">let</span> <span class="cm-def">pi</span> = <span class="cm-variable-2">float::consts::</span><span class="cm-variable">pi</span>;
     <span class="cm-keyword">match</span> <span class="cm-variable">vector</span> {
       (<span class="cm-number">0</span><span class="cm-variable">f</span>, <span class="cm-def">y</span>) <span class="cm-keyword">if</span> <span class="cm-def">y</span> &lt; <span class="cm-number">0</span><span class="cm-def">f</span> =&gt; <span class="cm-number">1.5</span> * <span class="cm-def">pi</span>,
@@ -320,16 +328,15 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p><code>loop</code>는 무한 루프를 의미하고, <code>while true</code>라고 적는것보다 선호되는 방법이다.</p>
-<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-number">5</span>;
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-number">5</span><span class="cm-variable">u</span>;
 <span class="cm-keyword">loop</span> {
     <span class="cm-variable">x</span> += <span class="cm-variable">x</span> - <span class="cm-number">3</span>;
     <span class="cm-keyword">if</span> <span class="cm-variable">x</span> % <span class="cm-number">5</span> == <span class="cm-number">0</span> { <span class="cm-keyword">break</span>; }
-    <span class="cm-variable">println</span>(<span class="cm-variable-2">int::</span><span class="cm-variable">to_str</span>(<span class="cm-variable">x</span>));
+    <span class="cm-variable">println</span>(<span class="cm-variable">x</span>.<span class="cm-variable">to_str</span>());
 }
 </pre>
 
 <p>이 코드는 기묘한 수열을 출력하고 5로 나뉠 수 있는 수를 찾자마자 멈춘다.</p>
-<p>또한 Rust는 <code>for</code> construct를 가지고 있다. C의 <code>for</code>와는 다르고 컬렉션을 반복할 때 가장 좋다. <code>for</code>와 컬렉션의 요소를 세는 고차함수를 사용하는 방법을 알고 싶다면 <a href="#closures">closures</a> 섹션을 보아라.</p>
 <h1 id="자료-구조"><a href="#자료-구조"><span class="header-section-number">5</span> 자료 구조</a></h1>
 <h2 id="구조체"><a href="#구조체"><span class="header-section-number">5.1</span> 구조체</a></h2>
 <p>Rust의 구조체 타입은 <code>struct</code> 예약어를 사용한 뒤에 선언된다: <code>struct Name { field1: T1, field2: T2 [, ...] }</code>, 에서 <code>T1</code>, <code>T2</code>, ... 는 타입을 의미한다. 구조체를 만들기위해, 동일한 문법을 사용해야하나, <code>struct</code> 예약어를 제거해도 된다. 예를 들어 <code>Point { x: 1.0, y: 2.0 }</code>.</p>
@@ -393,7 +400,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <p>만약 열거형 값에 식별값이 명시되어 있지 않으면, 기본 값은 앞의 열거형 값에 1을 더한 값이 된다. 만약 첫번째 열거형 값에 식별 값이 없다면, 기본 값은 0이다. 예를 들어, <code>North</code>의 값은 0, <code>East</code>는 1, <code>South</code>는 2, 그리고 <code>West</code>는 3이다.</p>
 <p>C와 비슷한 열거형이면, <code>int</code>의 식별값으로 변환하기 위해 <code>as</code> 형변환 연산자를 적용할 수 있다.</p>
 <p>복수의 열거값을 가지는 열거형 타입에 대해, 구조파괴는 내용을 얻기위한 유일한 방법이다. <code>area</code>의 정의에서 모든 열거값 생성자는 패턴으로 사용될 수 있다.</p>
-<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">area</span>(<span class="cm-def">sh</span>: <span class="cm-variable-3">Shape</span>) -&gt; <span class="cm-keyword">float</span> {
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::</span><span class="cm-variable">float</span>;
+<span class="cm-keyword">fn</span> <span class="cm-def">area</span>(<span class="cm-def">sh</span>: <span class="cm-variable-3">Shape</span>) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">match</span> <span class="cm-variable">sh</span> {
         <span class="cm-def">Circle</span>(<span class="cm-def">_</span>, <span class="cm-def">size</span>) =&gt; <span class="cm-variable-2">float::consts::</span><span class="cm-def">pi</span> * <span class="cm-def">size</span> * <span class="cm-def">size</span>,
         <span class="cm-def">Rectangle</span>(<span class="cm-def">Point</span> { <span class="cm-variable">x</span>, <span class="cm-def">y</span> }, <span class="cm-def">Point</span> { <span class="cm-variable">x</span>: <span class="cm-variable">x2</span>, <span class="cm-def">y</span>: <span class="cm-variable">y2</span> }) =&gt; (<span class="cm-def">x2</span> - <span class="cm-variable">x</span>) * (<span class="cm-def">y2</span> - <span class="cm-variable">y</span>)
@@ -413,7 +421,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>열거값은 구조체가 될 수 있다. 다음을 살펴보자.</p>
-<pre class="cm-s-default"><span class="cm-keyword">enum</span> <span class="cm-def">Shape</span> {
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::</span><span class="cm-variable">float</span>;
+<span class="cm-keyword">enum</span> <span class="cm-def">Shape</span> {
     <span class="cm-def">Circle</span> { <span class="cm-def">center</span>: <span class="cm-def">Point</span>, <span class="cm-def">radius</span>: <span class="cm-def">float</span> },
     <span class="cm-variable">Rectangle</span> { <span class="cm-variable">top_left</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">bottom_right</span>: <span class="cm-variable">Point</span> }
 }
@@ -552,7 +561,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <h2 id="관리되는-박스"><a href="#관리되는-박스"><span class="header-section-number">9.2</span> 관리되는 박스</a></h2>
-<p>관리되는 박스(<code>@</code>)는 태스크 로컬 쓰레기 수집기에 의해 관리되는 생명주기를 포함한 힙 할당이다. 태스크가 끝나기 전에 박스로 남은 참조가 없으면 어떤 포인터는 소멸될 것이다. 관리되는 박스는 소유자가 없고, 그래서 새로운 소유권 트리를 시작하고 변경가능성을 상속하지 않는다. 관리되는 박스는 포함된 객체를 소유하고, 변경가능성은 공유되는 박스(<code>@</code> 또는 <code>@mut</code>)의 타입에 의해 정의된다. 관리되는 박스에 포함된 객체는 <code>Owned</code>가 아니고, 태스크 간에 전송될 수 없다.</p>
+<p>관리되는 박스(<code>@</code>)는 태스크 로컬 쓰레기 수집기에 의해 관리되는 생명주기를 포함한 힙 할당이다. 태스크가 끝나기 전에 박스로 남은 참조가 없으면 어떤 포인터는 소멸될 것이다. 관리되는 박스는 소유자가 없고, 그래서 새로운 소유권 트리를 시작하고 변경가능성을 상속하지 않는다. 관리되는 박스는 포함된 객체를 소유하고, 변경가능성은 관리되는 박스(<code>@</code> 또는 <code>@mut</code>)의 타입에 의해 정의된다. 관리되는 박스에 포함된 객체는 <code>Owned</code>가 아니고, 태스크 간에 전송될 수 없다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">a</span> = @<span class="cm-number">5</span>; <span class="cm-comment">// 변경 불가</span>
 
 <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">b</span> = @<span class="cm-number">5</span>; <span class="cm-comment">// 변경 가능한 변수, 변경 불가능한 박스</span>
@@ -610,7 +619,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">let</span> <span class="cm-def">owned_box</span>    : <span class="cm-variable-3">~Point</span> = <span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">7.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">9.0</span> };
 </pre>
 
-<p>어느 두 점 사이의 거리를 계산하는 절차를 작성하기를 원한다고 가정하면, 그것들이 저장되는 곳은 중요하지 않다. 예를 들어, <code>on_the_stack</code>과 <code>managed_box</code> 사이나, <code>managed_box</code>과 <code>owned_box</code> 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다. 즉, 점들을 값으로 취하는 것이다. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive or, worse, if there are mutable fields, they can change the semantics of your program. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
+<p>어느 두 점 사이의 거리를 계산하는 절차를 작성하기를 원한다고 가정하면, 그것들이 저장되는 곳은 중요하지 않다. 예를 들어, <code>on_the_stack</code>과 <code>managed_box</code> 사이나, <code>managed_box</code>과 <code>owned_box</code> 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다. 즉, 점들을 값으로 취하는 것이다. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">compute_distance</span>(<span class="cm-def">p1</span>: &amp;<span class="cm-variable-3">Point</span>, <span class="cm-def">p2</span>: &amp;<span class="cm-variable-3">Point</span>) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">let</span> <span class="cm-def">x_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">x</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">x</span>;
     <span class="cm-keyword">let</span> <span class="cm-def">y_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">y</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">y</span>;
@@ -727,7 +736,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>A vector can be destructured using pattern matching:</p>
-<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">numbers</span>: [<span class="cm-keyword">int</span>, ..<span class="cm-number">3</span>] = [<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>];
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">numbers</span>: &amp;[<span class="cm-keyword">int</span>] = &amp;[<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>];
 <span class="cm-keyword">let</span> <span class="cm-def">score</span> = <span class="cm-keyword">match</span> <span class="cm-variable">numbers</span> {
     [] =&gt; <span class="cm-number">0</span>,
     [<span class="cm-def">a</span>] =&gt; <span class="cm-def">a</span> * <span class="cm-number">10</span>,
@@ -767,7 +776,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">let</span> <span class="cm-def">exchange_crayons</span>: <span class="cm-variable-3">~str</span> = <span class="cm-variable">~</span><span class="cm-string">&quot;Black, BlizzardBlue, Blue&quot;</span>;
 </pre>
 
-<p>Both vectors and strings support a number of useful <a href="#functions-and-methods">methods</a>, defined in <a href="std/vec.html"><code>std::vec</code></a> and <a href="std/str.html"><code>std::str</code></a>. Here are some examples.</p>
+<p>Both vectors and strings support a number of useful <a href="#methods">methods</a>, defined in <a href="std/vec.html"><code>std::vec</code></a> and <a href="std/str.html"><code>std::str</code></a>. Here are some examples.</p>
 <pre class="cm-s-default">
 <span class="cm-keyword">let</span> <span class="cm-def">crayons</span> = [<span class="cm-variable">Almond</span>, <span class="cm-variable">AntiqueBrass</span>, <span class="cm-variable">Apricot</span>];
 
@@ -776,8 +785,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">assert</span>!(!<span class="cm-variable">crayons</span>.<span class="cm-variable">is_empty</span>());
 
 <span class="cm-comment">// Iterate over a vector, obtaining a pointer to each element</span>
-<span class="cm-comment">// (`for` is explained in the next section)</span>
-<span class="cm-keyword">for</span> <span class="cm-def">crayons</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">crayon</span>| {
+<span class="cm-comment">// (`for` is explained in the container/iterator tutorial)</span>
+<span class="cm-keyword">for</span> <span class="cm-def">crayon</span> <span class="cm-keyword">in</span> <span class="cm-variable">crayons</span>.<span class="cm-variable">iter</span>() {
     <span class="cm-keyword">let</span> <span class="cm-def">delicious_crayon_wax</span> = <span class="cm-variable">unwrap_crayon</span>(*<span class="cm-variable">crayon</span>);
     <span class="cm-variable">eat_crayon_wax</span>(<span class="cm-variable">delicious_crayon_wax</span>);
 }
@@ -815,7 +824,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 
 <p>Closures begin with the argument list between vertical bars and are followed by a single expression. Remember that a block, <code>{ &lt;expr1&gt;; &lt;expr2&gt;; ... }</code>, is considered a single expression: it evaluates to the result of the last expression it contains if that expression is not followed by a semicolon, otherwise the block evaluates to <code>()</code>.</p>
 <p>The types of the arguments are generally omitted, as is the return type, because the compiler can almost always infer them. In the rare case where the compiler needs assistance, though, the arguments and return types may be annotated.</p>
-<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">square</span> = |<span class="cm-variable">x</span>: <span class="cm-variable">int</span>| -&gt; <span class="cm-variable">uint</span> { <span class="cm-variable">x</span> * <span class="cm-variable">x</span> <span class="cm-keyword">as</span> <span class="cm-variable">uint</span> };
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">square</span> = |<span class="cm-variable">x</span>: <span class="cm-variable">int</span>| -&gt; <span class="cm-variable">uint</span> { (<span class="cm-variable">x</span> * <span class="cm-variable">x</span>) <span class="cm-keyword">as</span> <span class="cm-variable">uint</span> };
 </pre>
 
 <p>There are several forms of closure, each with its own role. The most common, called a <em>stack closure</em>, has type <code>&amp;fn</code> and can directly access local variables in the enclosing scope.</p>
@@ -824,24 +833,9 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>Stack closures are very efficient because their environment is allocated on the call stack and refers by pointer to captured locals. To ensure that stack closures never outlive the local variables to which they refer, stack closures are not first-class. That is, they can only be used in argument position; they cannot be stored in data structures or returned from functions. Despite these limitations, stack closures are used pervasively in Rust code.</p>
-<h2 id="managed-closures"><a href="#managed-closures"><span class="header-section-number">14.1</span> Managed closures</a></h2>
-<p>When you need to store a closure in a data structure, a stack closure will not do, since the compiler will refuse to let you store it. For this purpose, Rust provides a type of closure that has an arbitrary lifetime, written <code>@fn</code> (boxed closure, analogous to the <code>@</code> pointer type described earlier). This type of closure <em>is</em> first-class.</p>
-<p>A managed closure does not directly access its environment, but merely copies out the values that it closes over into a private data structure. This means that it can not assign to these variables, and cannot observe updates to them.</p>
-<p>This code creates a closure that adds a given string to its argument, returns it from a function, and then calls it:</p>
-<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">mk_appender</span>(<span class="cm-def">suffix</span>: <span class="cm-variable-3">~str</span>) -&gt; @<span class="cm-keyword">fn</span>(<span class="cm-variable-3">~str</span>) -&gt; <span class="cm-variable-3">~str</span> {
-    <span class="cm-comment">// The compiler knows that we intend this closure to be of type @fn</span>
-    <span class="cm-keyword">return</span> |<span class="cm-variable">s</span>| <span class="cm-variable">s</span> + <span class="cm-variable">suffix</span>;
-}
-
-<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
-    <span class="cm-keyword">let</span> <span class="cm-def">shout</span> = <span class="cm-variable">mk_appender</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;!&quot;</span>);
-    <span class="cm-variable">println</span>(<span class="cm-variable">shout</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hey ho, let's go&quot;</span>));
-}
-</pre>
-
-<h2 id="owned-closures"><a href="#owned-closures"><span class="header-section-number">14.2</span> Owned closures</a></h2>
+<h2 id="owned-closures"><a href="#owned-closures"><span class="header-section-number">14.1</span> Owned closures</a></h2>
 <p>Owned closures, written <code>~fn</code> in analogy to the <code>~</code> pointer type, hold on to things that can safely be sent between processes. They copy the values they close over, much like managed closures, but they also own them: that is, no other code can access them. Owned closures are used in concurrent code, particularly for spawning <a href="tutorial-tasks.html">tasks</a>.</p>
-<h2 id="closure-compatibility"><a href="#closure-compatibility"><span class="header-section-number">14.3</span> Closure compatibility</a></h2>
+<h2 id="closure-compatibility"><a href="#closure-compatibility"><span class="header-section-number">14.2</span> Closure compatibility</a></h2>
 <p>Rust closures have a convenient subtyping property: you can pass any kind of closure (as long as the arguments and return types match) to functions that expect a <code>&amp;fn()</code>. Thus, when writing a higher-order function that only calls its function argument, and does nothing else with it, you should almost always declare the type of that argument as <code>&amp;fn()</code>. That way, callers may pass any kind of closure.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">call_twice</span>(<span class="cm-def">f</span>: &amp;<span class="cm-keyword">fn</span>()) { <span class="cm-variable">f</span>(); <span class="cm-variable">f</span>(); }
 <span class="cm-keyword">let</span> <span class="cm-def">closure</span> = || { <span class="cm-string">&quot;I'm a closure, and it doesn't matter what type I am&quot;</span>; };
@@ -853,7 +847,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <blockquote>
 <p><strong><em>Note:</em></strong> Both the syntax and the semantics will be changing in small ways. At the moment they can be unsound in some scenarios, particularly with non-copyable types.</p>
 </blockquote>
-<h2 id="do-syntax"><a href="#do-syntax"><span class="header-section-number">14.4</span> Do syntax</a></h2>
+<h2 id="do-syntax"><a href="#do-syntax"><span class="header-section-number">14.3</span> Do syntax</a></h2>
 <p>The <code>do</code> expression provides a way to treat higher-order functions (functions that take closures as arguments) as control structures.</p>
 <p>Consider this function that iterates over a vector of integers, passing in a pointer to each integer in the vector:</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">each</span>(<span class="cm-def">v</span>: &amp;[<span class="cm-keyword">int</span>], <span class="cm-def">op</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-keyword">int</span>)) {
@@ -887,7 +881,9 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>Look at all those bars and parentheses -- that's two empty argument lists back to back. Since that is so unsightly, empty argument lists may be omitted from <code>do</code> expressions.</p>
-<pre class="cm-s-default"><span class="cm-keyword">do</span> <span class="cm-variable">spawn</span> {
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::task::</span><span class="cm-variable">spawn</span>;
+
+<span class="cm-keyword">do</span> <span class="cm-variable">spawn</span> {
    <span class="cm-variable">debug</span>!(<span class="cm-string">&quot;Kablam!&quot;</span>);
 }
 </pre>
@@ -962,7 +958,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>To call such a method, just prefix it with the type name and a double colon:</p>
-<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::float::consts::</span><span class="cm-variable">pi</span>;
+<span class="cm-keyword">struct</span> <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
 <span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> {
     <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Circle</span> { <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: (<span class="cm-variable">area</span> <span class="cm-variable">/</span> <span class="cm-variable">pi</span>).<span class="cm-variable">sqrt</span>() } }
 }
@@ -973,7 +970,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <p>Throughout this tutorial, we've been defining functions that act only on specific data types. With type parameters we can also define functions whose arguments have generic types, and which can be invoked with a variety of types. Consider a generic <code>map</code> function, which takes a function <code>function</code> and a vector <code>vector</code> and returns a new vector consisting of the result of applying <code>function</code> to each element of <code>vector</code>:</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">map</span>&lt;<span class="cm-variable-3">T</span>, <span class="cm-variable-3">U</span>&gt;(<span class="cm-def">vector</span>: &amp;[<span class="cm-variable-3">T</span>], <span class="cm-def">function</span>: &amp;<span class="cm-keyword">fn</span>(<span class="cm-variable-3">v</span>: &amp;<span class="cm-variable">T</span>) -&gt; <span class="cm-variable-3">U</span>) -&gt; <span class="cm-variable-3">~</span>[<span class="cm-def">U</span>] {
     <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">accumulator</span> = <span class="cm-variable">~</span>[];
-    <span class="cm-keyword">for</span> <span class="cm-def">vector</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">element</span>| {
+    <span class="cm-keyword">for</span> <span class="cm-def">element</span> <span class="cm-keyword">in</span> <span class="cm-variable">vector</span>.<span class="cm-variable">iter</span>() {
         <span class="cm-variable">accumulator</span>.<span class="cm-variable">push</span>(<span class="cm-variable">function</span>(<span class="cm-variable">element</span>));
     }
     <span class="cm-keyword">return</span> <span class="cm-variable">accumulator</span>;
@@ -983,7 +980,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <p>When defined with type parameters, as denoted by <code>&lt;T, U&gt;</code>, this function can be applied to any type of vector, as long as the type of <code>function</code>'s argument and the type of the vector's contents agree with each other.</p>
 <p>Inside a generic function, the names of the type parameters (capitalized by convention) stand for opaque types. All you can do with instances of these types is pass them around: you can't apply any operations to them or pattern-match on them. Note that instances of generic types are often passed by pointer. For example, the parameter <code>function()</code> is supplied with a pointer to a value of type <code>T</code> and not a value of type <code>T</code> itself. This ensures that the function works with the broadest set of types possible, since some types are expensive or illegal to copy and pass by value.</p>
 <p>Generic <code>type</code>, <code>struct</code>, and <code>enum</code> declarations follow the same pattern:</p>
-<pre class="cm-s-default"><span class="cm-keyword">type</span> <span class="cm-def">Set</span>&lt;<span class="cm-variable-3">T</span>&gt; = <span class="cm-variable-3">HashMap</span>&lt;<span class="cm-variable-3">T</span>, ()&gt;;
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::hashmap::</span><span class="cm-variable">HashMap</span>;
+<span class="cm-keyword">type</span> <span class="cm-def">Set</span>&lt;<span class="cm-variable-3">T</span>&gt; = <span class="cm-variable-3">HashMap</span>&lt;<span class="cm-variable-3">T</span>, ()&gt;;
 
 <span class="cm-keyword">struct</span> <span class="cm-variable">Stack</span>&lt;<span class="cm-variable">T</span>&gt; {
     <span class="cm-variable">elements</span>: <span class="cm-variable">~</span>[<span class="cm-variable">T</span>]
@@ -1008,7 +1006,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <p>The Rust compiler compiles generic functions very efficiently by <em>monomorphizing</em> them. <em>Monomorphization</em> is a fancy name for a simple idea: generate a separate copy of each generic function at each call site, a copy that is specialized to the argument types and can thus be optimized specifically for them. In this respect, Rust's generics have similar performance characteristics to C++ templates.</p>
 <h2 id="traits"><a href="#traits"><span class="header-section-number">16.1</span> Traits</a></h2>
 <p>Within a generic function the operations available on generic types are very limited. After all, since the function doesn't know what types it is operating on, it can't safely modify or query their values. This is where <em>traits</em> come into play. Traits are Rust's most powerful tool for writing polymorphic code. Java developers will see them as similar to Java interfaces, and Haskellers will notice their similarities to type classes. Rust's traits are a form of <em>bounded polymorphism</em>: a trait is a way of limiting the set of possible types that a type parameter could refer to.</p>
-<p>As motivation, let us consider copying in Rust. The <code>copy</code> operation is not defined for all Rust types. One reason is user-defined destructors: copying a type that has a destructor could result in the destructor running multiple times. Therefore, types with user-defined destructors cannot be copied, either implicitly or explicitly, and neither can types that own other types containing destructors.</p>
+<p>As motivation, let us consider copying in Rust. The <code>clone</code> method is not defined for all Rust types. One reason is user-defined destructors: copying a type that has a destructor could result in the destructor running multiple times. Therefore, types with destructors cannot be copied unless you explicitly implement <code>Clone</code> for them.</p>
 <p>This complicates handling of generic functions. If you have a type parameter <code>T</code>, can you copy values of that type? In Rust, you can't, and if you try to run the following code the compiler will complain.</p>
 <pre class="cm-s-default"><span class="cm-comment">// This does not compile</span>
 <span class="cm-keyword">fn</span> <span class="cm-def">head_bad</span>&lt;<span class="cm-variable-3">T</span>&gt;(<span class="cm-def">v</span>: &amp;[<span class="cm-variable-3">T</span>]) -&gt; <span class="cm-variable-3">T</span> {
@@ -1016,22 +1014,22 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>However, we can tell the compiler that the <code>head</code> function is only for copyable types: that is, those that have the <code>Copy</code> trait. In that case, we can explicitly create a second copy of the value we are returning using the <code>copy</code> keyword:</p>
+<p>However, we can tell the compiler that the <code>head</code> function is only for copyable types: that is, those that implement the <code>Clone</code> trait. In that case, we can explicitly create a second copy of the value we are returning using the <code>clone</code> keyword:</p>
 <pre class="cm-s-default"><span class="cm-comment">// This does</span>
-<span class="cm-keyword">fn</span> <span class="cm-def">head</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Copy</span>&gt;(<span class="cm-def">v</span>: &amp;[<span class="cm-variable-3">T</span>]) -&gt; <span class="cm-variable-3">T</span> {
-    <span class="cm-keyword">copy</span> <span class="cm-variable">v</span>[<span class="cm-number">0</span>]
+<span class="cm-keyword">fn</span> <span class="cm-def">head</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Clone</span>&gt;(<span class="cm-def">v</span>: &amp;[<span class="cm-variable-3">T</span>]) -&gt; <span class="cm-variable-3">T</span> {
+    <span class="cm-variable">v</span>[<span class="cm-number">0</span>].<span class="cm-variable">clone</span>()
 }
 </pre>
 
-<p>This says that we can call <code>head</code> on any type <code>T</code> as long as that type implements the <code>Copy</code> trait. When instantiating a generic function, you can only instantiate it with types that implement the correct trait, so you could not apply <code>head</code> to a type with a destructor. (<code>Copy</code> is a special trait that is built in to the compiler, making it possible for the compiler to enforce this restriction.)</p>
+<p>This says that we can call <code>head</code> on any type <code>T</code> as long as that type implements the <code>Clone</code> trait. When instantiating a generic function, you can only instantiate it with types that implement the correct trait, so you could not apply <code>head</code> to a type that does not implement <code>Clone</code>.</p>
 <p>While most traits can be defined and implemented by user code, three traits are automatically derived and implemented for all applicable types by the compiler, and may not be overridden:</p>
 <ul>
-<li><p><code>Copy</code> - Types that can be copied, either implicitly, or explicitly with the <code>copy</code> operator. All types are copyable unless they have destructors or contain types with destructors.</p></li>
-<li><p><code>Owned</code> - Owned types. Types are owned unless they contain managed boxes, managed closures, or borrowed pointers. Owned types may or may not be copyable.</p></li>
-<li><p><code>Const</code> - Constant (immutable) types. These are types that do not contain mutable fields.</p></li>
+<li><p><code>Send</code> - Sendable types. Types are sendable unless they contain managed boxes, managed closures, or borrowed pointers.</p></li>
+<li><p><code>Freeze</code> - Constant (immutable) types. These are types that do not contain anything intrinsically mutable. Intrinsically mutable values include <code>@mut</code> and <code>Cell</code> in the standard library.</p></li>
+<li><p><code>'static</code> - Non-borrowed types. These are types that do not contain any data whose lifetime is bound to a particular stack frame. These are types that do not contain any borrowed pointers, or types where the only contained borrowed pointers have the <code>'static</code> lifetime.</p></li>
 </ul>
 <blockquote>
-<p><strong><em>Note:</em></strong> These three traits were referred to as 'kinds' in earlier iterations of the language, and often still are.</p>
+<p><strong><em>Note:</em></strong> These two traits were referred to as 'kinds' in earlier iterations of the language, and often still are.</p>
 </blockquote>
 <p>Additionally, the <code>Drop</code> trait is used to define destructors. This trait defines one method called <code>drop</code>, which is automatically called when a value of the type that implements this trait is destroyed, either because the value went out of scope or because the garbage collector reclaimed it.</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">TimeBomb</span> {
@@ -1039,8 +1037,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 }
 
 <span class="cm-keyword">impl</span> <span class="cm-def">Drop</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">TimeBomb</span> {
-    <span class="cm-keyword">fn</span> <span class="cm-def">drop</span>(&amp;<span class="cm-keyword">self</span>) {
-        <span class="cm-keyword">for</span> <span class="cm-keyword">self</span>.<span class="cm-variable">explosivity</span>.<span class="cm-variable">times</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">drop</span>(&amp;<span class="cm-variable">mut</span> <span class="cm-keyword">self</span>) {
+        <span class="cm-keyword">for</span> <span class="cm-def">_</span> <span class="cm-keyword">in</span> <span class="cm-variable">range</span>(<span class="cm-number">0</span>, <span class="cm-keyword">self</span>.<span class="cm-variable">explosivity</span>) {
             <span class="cm-variable">println</span>(<span class="cm-string">&quot;blam!&quot;</span>);
         }
     }
@@ -1049,13 +1047,13 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 
 <p>It is illegal to call <code>drop</code> directly. Only code inserted by the compiler may call it.</p>
 <h2 id="declaring-and-implementing-traits"><a href="#declaring-and-implementing-traits"><span class="header-section-number">16.2</span> Declaring and implementing traits</a></h2>
-<p>A trait consists of a set of methods, without bodies, or may be empty, as is the case with <code>Copy</code>, <code>Owned</code>, and <code>Const</code>. For example, we could declare the trait <code>Printable</code> for things that can be printed to the console, with a single method:</p>
+<p>A trait consists of a set of methods without bodies, or may be empty, as is the case with <code>Send</code> and <code>Freeze</code>. For example, we could declare the trait <code>Printable</code> for things that can be printed to the console, with a single method:</p>
 <pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Printable</span> {
     <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>);
 }
 </pre>
 
-<p>Traits may be implemented for specific types with <a href="#functions-and-methods">impls</a>. An impl that implements a trait includes the name of the trait at the start of the definition, as in the following impls of <code>Printable</code> for <code>int</code> and <code>~str</code>.</p>
+<p>Traits may be implemented for specific types with <a href="#methods">impls</a>. An impl that implements a trait includes the name of the trait at the start of the definition, as in the following impls of <code>Printable</code> for <code>int</code> and <code>~str</code>.</p>
 <pre class="cm-s-default"><span class="cm-keyword">impl</span> <span class="cm-def">Printable</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">int</span> {
     <span class="cm-keyword">fn</span> <span class="cm-def">print</span>(&amp;<span class="cm-keyword">self</span>) { <span class="cm-variable">println</span>(<span class="cm-variable">fmt</span>!(<span class="cm-string">&quot;%d&quot;</span>, *<span class="cm-keyword">self</span>)) }
 }
@@ -1093,7 +1091,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 
 <p>Notice that in the trait definition, <code>equals</code> takes a second parameter of type <code>Self</code>. In contrast, in the <code>impl</code>, <code>equals</code> takes a second parameter of type <code>int</code>, only using <code>self</code> as the name of the receiver.</p>
 <p>Just as in type implementations, traits can define standalone (static) methods. These methods are called by prefixing the method name with the trait name and a double colon. The compiler uses type inference to decide which implementation to use.</p>
-<pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Shape</span> { <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Self</span>; }
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::float::consts::</span><span class="cm-variable">pi</span>;
+<span class="cm-keyword">trait</span> <span class="cm-def">Shape</span> { <span class="cm-keyword">fn</span> <span class="cm-def">new</span>(<span class="cm-def">area</span>: <span class="cm-keyword">float</span>) -&gt; <span class="cm-variable-3">Self</span>; }
 <span class="cm-keyword">struct</span> <span class="cm-variable">Circle</span> { <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
 <span class="cm-keyword">struct</span> <span class="cm-variable">Square</span> { <span class="cm-variable">length</span>: <span class="cm-variable">float</span> }
 
@@ -1112,18 +1111,18 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <h2 id="bounded-type-parameters-and-static-method-dispatch"><a href="#bounded-type-parameters-and-static-method-dispatch"><span class="header-section-number">16.3</span> Bounded type parameters and static method dispatch</a></h2>
 <p>Traits give us a language for defining predicates on types, or abstract properties that types can have. We can use this language to define <em>bounds</em> on type parameters, so that we can then operate on generic types.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">print_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Printable</span>&gt;(<span class="cm-def">printable_things</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
-    <span class="cm-keyword">for</span> <span class="cm-def">printable_things</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">thing</span>| {
+    <span class="cm-keyword">for</span> <span class="cm-def">thing</span> <span class="cm-keyword">in</span> <span class="cm-variable">printable_things</span>.<span class="cm-variable">iter</span>() {
         <span class="cm-variable">thing</span>.<span class="cm-variable">print</span>();
     }
 }
 </pre>
 
-<p>Declaring <code>T</code> as conforming to the <code>Printable</code> trait (as we earlier did with <code>Copy</code>) makes it possible to call methods from that trait on values of type <code>T</code> inside the function. It will also cause a compile-time error when anyone tries to call <code>print_all</code> on an array whose element type does not have a <code>Printable</code> implementation.</p>
+<p>Declaring <code>T</code> as conforming to the <code>Printable</code> trait (as we earlier did with <code>Clone</code>) makes it possible to call methods from that trait on values of type <code>T</code> inside the function. It will also cause a compile-time error when anyone tries to call <code>print_all</code> on an array whose element type does not have a <code>Printable</code> implementation.</p>
 <p>Type parameters can have multiple bounds by separating them with <code>+</code>, as in this version of <code>print_all</code> that copies elements.</p>
-<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">print_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Printable</span> + <span class="cm-variable-3">Copy</span>&gt;(<span class="cm-def">printable_things</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">print_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Printable</span> + <span class="cm-variable-3">Clone</span>&gt;(<span class="cm-def">printable_things</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
     <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">i</span> = <span class="cm-number">0</span>;
     <span class="cm-keyword">while</span> <span class="cm-variable">i</span> &lt; <span class="cm-variable">printable_things</span>.<span class="cm-variable">len</span>() {
-        <span class="cm-keyword">let</span> <span class="cm-def">copy_of_thing</span> = <span class="cm-keyword">copy</span> <span class="cm-variable">printable_things</span>[<span class="cm-variable">i</span>];
+        <span class="cm-keyword">let</span> <span class="cm-def">copy_of_thing</span> = <span class="cm-variable">printable_things</span>[<span class="cm-variable">i</span>].<span class="cm-variable">clone</span>();
         <span class="cm-variable">copy_of_thing</span>.<span class="cm-variable">print</span>();
         <span class="cm-variable">i</span> += <span class="cm-number">1</span>;
     }
@@ -1137,13 +1136,13 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Drawable</span> { <span class="cm-keyword">fn</span> <span class="cm-def">draw</span>(&amp;<span class="cm-keyword">self</span>); }
 
 <span class="cm-keyword">fn</span> <span class="cm-def">draw_all</span>&lt;<span class="cm-variable-3">T</span>: <span class="cm-variable-3">Drawable</span>&gt;(<span class="cm-def">shapes</span>: <span class="cm-variable-3">~</span>[<span class="cm-variable">T</span>]) {
-    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
+    <span class="cm-keyword">for</span> <span class="cm-def">shape</span> <span class="cm-keyword">in</span> <span class="cm-variable">shapes</span>.<span class="cm-variable">iter</span>() { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
 }
 </pre>
 
 <p>You can call that on an array of circles, or an array of rectangles (assuming those have suitable <code>Drawable</code> traits defined), but not on an array containing both circles and rectangles. When such behavior is needed, a trait name can alternately be used as a type, called an <em>object</em>.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">draw_all</span>(<span class="cm-def">shapes</span>: &amp;[@<span class="cm-variable-3">Drawable</span>]) {
-    <span class="cm-keyword">for</span> <span class="cm-def">shapes</span>.<span class="cm-variable">iter</span>().<span class="cm-variable">advance</span> |<span class="cm-variable">shape</span>| { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
+    <span class="cm-keyword">for</span> <span class="cm-def">shape</span> <span class="cm-keyword">in</span> <span class="cm-variable">shapes</span>.<span class="cm-variable">iter</span>() { <span class="cm-variable">shape</span>.<span class="cm-variable">draw</span>(); }
 }
 </pre>
 
@@ -1168,6 +1167,19 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 
 <p>Method calls to trait types are <em>dynamically dispatched</em>. Since the compiler doesn't know specifically which functions to call at compile time, it uses a lookup table (also known as a vtable or dictionary) to select the method to call at runtime.</p>
 <p>This usage of traits is similar to Java interfaces.</p>
+<p>By default, each of the three storage classes for traits enforce a particular set of built-in kinds that their contents must fulfill in order to be packaged up in a trait object of that storage class.</p>
+<ul>
+<li>The contents of owned traits (<code>~Trait</code>) must fulfill the <code>Send</code> bound.</li>
+<li>The contents of managed traits (<code>@Trait</code>) must fulfill the <code>'static</code> bound.</li>
+<li>The contents of borrowed traits (<code>&amp;Trait</code>) are not constrained by any bound.</li>
+</ul>
+<p>Consequently, the trait objects themselves automatically fulfill their respective kind bounds. However, this default behavior can be overridden by specifying a list of bounds on the trait type, for example, by writing <code>~Trait:</code> (which indicates that the contents of the owned trait need not fulfill any bounds), or by writing <code>~Trait:Send+Freeze</code>, which indicates that in addition to fulfilling <code>Send</code>, contents must also fulfill <code>Freeze</code>, and as a consequence, the trait itself fulfills <code>Freeze</code>.</p>
+<ul>
+<li><code>~Trait:Send</code> is equivalent to <code>~Trait</code>.</li>
+<li><code>@Trait:'static</code> is equivalent to <code>@Trait</code>.</li>
+<li><code>&amp;Trait:</code> is equivalent to <code>&amp;Trait</code>.</li>
+</ul>
+<p>Builtin kind bounds can also be specified on closure types in the same way (for example, by writing <code>fn:Freeze()</code>), and the default behaviours are the same as for traits of the same storage class.</p>
 <h2 id="trait-inheritance"><a href="#trait-inheritance"><span class="header-section-number">16.5</span> Trait inheritance</a></h2>
 <p>We can write a trait declaration that <em>inherits</em> from other traits, called <em>supertraits</em>. Types that implement a trait must also implement its supertraits. For example, we can define a <code>Circle</code> trait that inherits from <code>Shape</code>.</p>
 <pre class="cm-s-default"><span class="cm-keyword">trait</span> <span class="cm-def">Shape</span> { <span class="cm-keyword">fn</span> <span class="cm-def">area</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span>; }
@@ -1175,7 +1187,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>Now, we can implement <code>Circle</code> on a type only if we also implement <code>Shape</code>.</p>
-<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">CircleStruct</span> { <span class="cm-variable">center</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::float::consts::</span><span class="cm-variable">pi</span>;
+<span class="cm-keyword">struct</span> <span class="cm-variable">CircleStruct</span> { <span class="cm-variable">center</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">radius</span>: <span class="cm-variable">float</span> }
 <span class="cm-keyword">impl</span> <span class="cm-def">Circle</span> <span class="cm-keyword">for</span> <span class="cm-variable-3">CircleStruct</span> {
     <span class="cm-keyword">fn</span> <span class="cm-def">radius</span>(&amp;<span class="cm-keyword">self</span>) -&gt; <span class="cm-keyword">float</span> { (<span class="cm-keyword">self</span>.<span class="cm-variable">area</span>() <span class="cm-variable">/</span> <span class="cm-variable">pi</span>).<span class="cm-variable">sqrt</span>() }
 }
@@ -1193,9 +1206,10 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>Likewise, supertrait methods may also be called on trait objects.</p>
-<pre class="cm-s-default">
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::float::consts::</span><span class="cm-variable">pi</span>;
+
 <span class="cm-keyword">let</span> <span class="cm-def">concrete</span> = @<span class="cm-variable">CircleStruct</span>{<span class="cm-variable">center</span>:<span class="cm-variable">Point</span>{<span class="cm-variable">x</span>:<span class="cm-number">3</span><span class="cm-variable">f</span>,<span class="cm-variable">y</span>:<span class="cm-number">4</span><span class="cm-variable">f</span>},<span class="cm-def">radius</span>:<span class="cm-number">5</span><span class="cm-def">f</span>};
-<span class="cm-keyword">let</span> <span class="cm-def">mycircle</span>: <span class="cm-variable-3">Circle</span> = <span class="cm-variable">concrete</span> <span class="cm-keyword">as</span> @<span class="cm-variable">Circle</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">mycircle</span>: @<span class="cm-variable-3">Circle</span> = <span class="cm-variable">concrete</span> <span class="cm-keyword">as</span> @<span class="cm-variable">Circle</span>;
 <span class="cm-keyword">let</span> <span class="cm-def">nonsense</span> = <span class="cm-variable">mycircle</span>.<span class="cm-variable">radius</span>() * <span class="cm-variable">mycircle</span>.<span class="cm-variable">area</span>();
 </pre>
 
@@ -1211,138 +1225,445 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">enum</span> <span class="cm-def">ABC</span> { <span class="cm-def">A</span>, <span class="cm-def">B</span>, <span class="cm-def">C</span> }
 </pre>
 
-<p>The full list of derivable traits is <code>Eq</code>, <code>TotalEq</code>, <code>Ord</code>, <code>TotalOrd</code>, <code>Encodable</code> <code>Decodable</code>, <code>Clone</code>, <code>DeepClone</code>, <code>IterBytes</code>, <code>Rand</code>, <code>Zero</code>, and <code>ToStr</code>.</p>
-<h1 id="modules-and-crates"><a href="#modules-and-crates"><span class="header-section-number">17</span> Modules and crates</a></h1>
-<p>The Rust namespace is arranged in a hierarchy of modules. Each source (.rs) file represents a single module and may in turn contain additional modules.</p>
-<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
-    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() -&gt; &amp;<span class="cm-keyword">str</span> { <span class="cm-string">&quot;cluck cluck&quot;</span> }
-    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() -&gt; &amp;<span class="cm-keyword">str</span> { <span class="cm-string">&quot;mooo&quot;</span> }
+<p>The full list of derivable traits is <code>Eq</code>, <code>TotalEq</code>, <code>Ord</code>, <code>TotalOrd</code>, <code>Encodable</code> <code>Decodable</code>, <code>Clone</code>, <code>DeepClone</code>, <code>IterBytes</code>, <code>Rand</code>, <code>Default</code>, <code>Zero</code>, and <code>ToStr</code>.</p>
+<h1 id="crates-and-the-module-system"><a href="#crates-and-the-module-system"><span class="header-section-number">17</span> Crates and the module system</a></h1>
+<p>Rust's module system is very powerful, but because of that also somewhat complex. Nevertheless, this section will try to explain every important aspect of it.</p>
+<h2 id="crates"><a href="#crates"><span class="header-section-number">17.1</span> Crates</a></h2>
+<p>In order to speak about the module system, we first need to define the medium it exists in:</p>
+<p>Let's say you've written a program or a library, compiled it, and got the resulting binary. In Rust, the content of all source code that the compiler directly had to compile in order to end up with that binary is collectively called a 'crate'.</p>
+<p>For example, for a simple hello world program your crate only consists of this code:</p>
+<pre class="cm-s-default"><span class="cm-comment">// main.rs</span>
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;Hello world!&quot;</span>);
+}
+</pre>
+
+<p>A crate is also the unit of independent compilation in Rust: <code>rustc</code> always compiles a single crate at a time, from which it produces either a library or an executable.</p>
+<p>Note that merely using an already compiled library in your code does not make it part of your crate.</p>
+<h2 id="the-module-hierarchy"><a href="#the-module-hierarchy"><span class="header-section-number">17.2</span> The module hierarchy</a></h2>
+<p>For every crate, all the code in it is arranged in a hierarchy of modules starting with a single root module. That root module is called the 'crate root'.</p>
+<p>All modules in a crate below the crate root are declared with the <code>mod</code> keyword:</p>
+<pre class="cm-s-default"><span class="cm-comment">// This is the crate root</span>
+
+<span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-comment">// This is the body of module 'farm' declared in the crate root.</span>
+
+    <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;cluck cluck&quot;</span>); }
+    <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;mooo&quot;</span>); }
+
+    <span class="cm-keyword">mod</span> <span class="cm-def">barn</span> {
+        <span class="cm-comment">// Body of module 'barn'</span>
+
+        <span class="cm-keyword">fn</span> <span class="cm-def">hay</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;...&quot;</span>); }
+    }
 }
 
 <span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
-    <span class="cm-variable">println</span>(<span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>());
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;Hello farm!&quot;</span>);
 }
 </pre>
 
-<p>The contents of modules can be imported into the current scope with the <code>use</code> keyword, optionally giving it an alias. <code>use</code> may appear at the beginning of crates, <code>mod</code>s, <code>fn</code>s, and other blocks.</p>
-<pre class="cm-s-default"><span class="cm-comment">// Bring `chicken` into scope</span>
-<span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>;
+<p>As you can see, your module hierarchy is now three modules deep: There is the crate root, which contains your <code>main()</code> function, and the module <code>farm</code>. The module <code>farm</code> also contains two functions and a third module <code>barn</code>, which contains a function <code>hay</code>.</p>
+<p>(In case you already stumbled over <code>extern mod</code>: It isn't directly related to a bare <code>mod</code>, we'll get to it later. )</p>
+<h2 id="paths-and-visibility"><a href="#paths-and-visibility"><span class="header-section-number">17.3</span> Paths and visibility</a></h2>
+<p>We've now defined a nice module hierarchy. But how do we access the items in it from our <code>main</code> function? One way to do it is to simply fully qualifying it:</p>
+<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;cluck cluck&quot;</span>); }
+    <span class="cm-comment">// ...</span>
+}
 
-<span class="cm-keyword">fn</span> <span class="cm-def">chicken_farmer</span>() {
-    <span class="cm-comment">// The same, but name it `my_chicken`</span>
-    <span class="cm-keyword">use</span> <span class="cm-variable">my_chicken</span> = <span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>;
-    ...
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;Hello chicken!&quot;</span>);
+
+    ::<span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>(); <span class="cm-comment">// Won't compile yet, see further down</span>
 }
 </pre>
 
-<p>These farm animal functions have a new keyword, <code>pub</code>, attached to them. The <code>pub</code> keyword modifies an item's visibility, making it visible outside its containing module. An expression with <code>::</code>, like <code>farm::chicken</code>, can name an item outside of its containing module. Items, such as those declared with <code>fn</code>, <code>struct</code>, <code>enum</code>, <code>type</code>, or <code>static</code>, are module-private by default.</p>
-<p>Visibility restrictions in Rust exist only at module boundaries. This is quite different from most object-oriented languages that also enforce restrictions on objects themselves. That's not to say that Rust doesn't support encapsulation: both struct fields and methods can be private. But this encapsulation is at the module level, not the struct level. Note that fields and methods are <em>public</em> by default.</p>
-<pre class="cm-s-default"><span class="cm-keyword">pub</span> <span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+<p>The <code>::farm::chicken</code> construct is what we call a 'path'.</p>
+<p>Because it's starting with a <code>::</code>, it's also a 'global path', which qualifies an item by its full path in the module hierarchy relative to the crate root.</p>
+<p>If the path were to start with a regular identifier, like <code>farm::chicken</code>, it would be a 'local path' instead. We'll get to them later.</p>
+<p>Now, if you actually tried to compile this code example, you'll notice that you get a <code>unresolved name: 'farm::chicken'</code> error. That's because per default, items (<code>fn</code>, <code>struct</code>, <code>static</code>, <code>mod</code>, ...) are only visible inside the module they are defined in.</p>
+<p>To make them visible outside their containing modules, you need to mark them <em>public</em> with <code>pub</code>:</p>
+<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;cluck cluck&quot;</span>); }
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;mooo&quot;</span>); }
+    <span class="cm-comment">// ...</span>
+}
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;Hello chicken!&quot;</span>);
+    ::<span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>(); <span class="cm-comment">// This compiles now</span>
+}
+</pre>
+
+<p>Visibility restrictions in Rust exist only at module boundaries. This is quite different from most object-oriented languages that also enforce restrictions on objects themselves. That's not to say that Rust doesn't support encapsulation: both struct fields and methods can be private. But this encapsulation is at the module level, not the struct level.</p>
+<p>For convenience, fields are <em>public</em> by default, and can be made <em>private</em> with the <code>priv</code> keyword:</p>
+<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
     <span class="cm-keyword">pub</span> <span class="cm-keyword">struct</span> <span class="cm-variable">Farm</span> {
         <span class="cm-keyword">priv</span> <span class="cm-variable">chickens</span>: <span class="cm-variable">~</span>[<span class="cm-variable">Chicken</span>],
-        <span class="cm-keyword">priv</span> <span class="cm-variable">cows</span>: <span class="cm-variable">~</span>[<span class="cm-variable">Cow</span>],
         <span class="cm-variable">farmer</span>: <span class="cm-variable">Human</span>
     }
 
     <span class="cm-keyword">impl</span> <span class="cm-def">Farm</span> {
-        <span class="cm-keyword">priv</span> <span class="cm-keyword">fn</span> <span class="cm-def">feed_chickens</span>(&amp;<span class="cm-keyword">self</span>) { ... }
-        <span class="cm-keyword">priv</span> <span class="cm-keyword">fn</span> <span class="cm-def">feed_cows</span>(&amp;<span class="cm-keyword">self</span>) { ... }
+        <span class="cm-keyword">fn</span> <span class="cm-def">feed_chickens</span>(&amp;<span class="cm-keyword">self</span>) { ... }
         <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">add_chicken</span>(&amp;<span class="cm-keyword">self</span>, <span class="cm-def">c</span>: <span class="cm-variable-3">Chicken</span>) { ... }
     }
 
     <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">feed_animals</span>(<span class="cm-def">farm</span>: &amp;<span class="cm-variable-3">Farm</span>) {
         <span class="cm-variable">farm</span>.<span class="cm-variable">feed_chickens</span>();
-        <span class="cm-variable">farm</span>.<span class="cm-variable">feed_cows</span>();
     }
 }
 
 <span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
-     <span class="cm-keyword">let</span> <span class="cm-def">f</span> = <span class="cm-variable">make_me_a_farm</span>();
-     <span class="cm-variable">f</span>.<span class="cm-variable">add_chicken</span>(<span class="cm-variable">make_me_a_chicken</span>());
-     <span class="cm-variable-2">farm::</span><span class="cm-variable">feed_animals</span>(&amp;<span class="cm-variable">f</span>);
-     <span class="cm-variable">f</span>.<span class="cm-variable">farmer</span>.<span class="cm-variable">rest</span>();
+    <span class="cm-keyword">let</span> <span class="cm-def">f</span> = <span class="cm-variable">make_me_a_farm</span>();
+    <span class="cm-variable">f</span>.<span class="cm-variable">add_chicken</span>(<span class="cm-variable">make_me_a_chicken</span>());
+    <span class="cm-variable-2">farm::</span><span class="cm-variable">feed_animals</span>(&amp;<span class="cm-variable">f</span>);
+    <span class="cm-variable">f</span>.<span class="cm-variable">farmer</span>.<span class="cm-variable">rest</span>();
+
+    <span class="cm-comment">// This wouldn't compile because both are private:</span>
+    <span class="cm-comment">// f.feed_chickens();</span>
+    <span class="cm-comment">// let chicken_counter = f.chickens.len();</span>
 }
 </pre>
 
-<h2 id="crates"><a href="#crates"><span class="header-section-number">17.1</span> Crates</a></h2>
-<p>The unit of independent compilation in Rust is the crate: rustc compiles a single crate at a time, from which it produces either a library or an executable.</p>
-<p>When compiling a single <code>.rs</code> source file, the file acts as the whole crate. You can compile it with the <code>--lib</code> compiler switch to create a shared library, or without, provided that your file contains a <code>fn main</code> somewhere, to create an executable.</p>
-<p>Larger crates typically span multiple files and are, by convention, compiled from a source file with the <code>.rc</code> extension, called a <em>crate file</em>. The crate file extension distinguishes source files that represent crates from those that do not, but otherwise source files and crate files are identical.</p>
-<p>A typical crate file declares attributes associated with the crate that may affect how the compiler processes the source. Crate attributes specify metadata used for locating and linking crates, the type of crate (library or executable), and control warning and error behavior, among other things. Crate files additionally declare the external crates they depend on as well as any modules loaded from other files.</p>
-<pre class="cm-s-default"><span class="cm-comment">// Crate linkage metadata</span>
-#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>, <span class="cm-variable">author</span> = <span class="cm-string">&quot;mjh&quot;</span>)];
+<blockquote>
+<p><strong><em>Note:</em></strong> Visibility rules are currently buggy and not fully defined, you might have to add or remove <code>pub</code> along a path until it works.</p>
+</blockquote>
+<h2 id="files-and-modules"><a href="#files-and-modules"><span class="header-section-number">17.4</span> Files and modules</a></h2>
+<p>One important aspect about Rusts module system is that source files are not important: You define a module hierarchy, populate it with all your definitions, define visibility, maybe put in a <code>fn main()</code>, and that's it: No need to think about source files.</p>
+<p>The only file that's relevant is the one that contains the body of your crate root, and it's only relevant because you have to pass that file to <code>rustc</code> to compile your crate.</p>
+<p>And in principle, that's all you need: You can write any Rust program as one giant source file that contains your crate root and everything below it in <code>mod ... { ... }</code> declarations.</p>
+<p>However, in practice you usually want to split you code up into multiple source files to make it more manageable. In order to do that, Rust allows you to move the body of any module into it's own source file, which works like this:</p>
+<p>If you declare a module without its body, like <code>mod foo;</code>, the compiler will look for the files <code>foo.rs</code> and <code>foo/mod.rs</code> inside some directory (usually the same as of the source file containing the <code>mod foo;</code>). If it finds either, it uses the content of that file as the body of the module. If it finds both, that's a compile error.</p>
+<p>So, if we want to move the content of <code>mod farm</code> into it's own file, it would look like this:</p>
+<pre class="cm-s-default"><span class="cm-comment">// main.rs - contains body of the crate root</span>
+<span class="cm-keyword">mod</span> <span class="cm-def">farm</span>; <span class="cm-comment">// Compiler will look for 'farm.rs' and 'farm/mod.rs'</span>
 
-<span class="cm-comment">// Make a library (&quot;bin&quot; is the default)</span>
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;Hello farm!&quot;</span>);
+    ::<span class="cm-variable-2">farm::</span><span class="cm-variable">cow</span>();
+}
+</pre>
+
+<pre class="cm-s-default"><span class="cm-comment">// farm.rs - contains body of module 'farm' in the crate root</span>
+<span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;cluck cluck&quot;</span>); }
+<span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;mooo&quot;</span>); }
+
+<span class="cm-keyword">pub</span> <span class="cm-keyword">mod</span> <span class="cm-def">barn</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">hay</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;...&quot;</span>); }
+}
+</pre>
+
+<p>In short, <code>mod foo;</code> is just syntactic sugar for <code>mod foo { /* content of &lt;...&gt;/foo.rs or &lt;...&gt;/foo/mod.rs */ }</code>.</p>
+<p>This also means that having two or more identical <code>mod foo;</code> somewhere in your crate hierarchy is generally a bad idea, just like copy-and-paste-ing a module into two or more places is one. Both will result in duplicate and mutually incompatible definitions.</p>
+<p>The directory the compiler looks in for those two files is determined by starting with the same directory as the source file that contains the <code>mod foo;</code> declaration, and concatenating to that a path equivalent to the relative path of all nested <code>mod { ... }</code> declarations the <code>mod foo;</code> is contained in, if any.</p>
+<p>For example, given a file with this module body:</p>
+<pre class="cm-s-default"><span class="cm-comment">// src/main.rs</span>
+<span class="cm-keyword">mod</span> <span class="cm-def">plants</span>;
+<span class="cm-keyword">mod</span> <span class="cm-def">animals</span> {
+    <span class="cm-keyword">mod</span> <span class="cm-def">fish</span>;
+    <span class="cm-keyword">mod</span> <span class="cm-def">mammals</span> {
+        <span class="cm-keyword">mod</span> <span class="cm-def">humans</span>;
+    }
+}
+</pre>
+
+<p>The compiler would then try all these files:</p>
+<pre class="notrust"><code>src/plants.rs
+src/plants/mod.rs
+
+src/animals/fish.rs
+src/animals/fish/mod.rs
+
+src/animals/mammals/humans.rs
+src/animals/mammals/humans/mod.rs</code></pre>
+<p>Keep in mind that identical module hierachies can still lead to different path lookups depending on how and where you've moved a module body to its own file. For example, if we move the <code>animals</code> module above into its own file...</p>
+<pre class="cm-s-default"><span class="cm-comment">// src/main.rs</span>
+<span class="cm-keyword">mod</span> <span class="cm-def">plants</span>;
+<span class="cm-keyword">mod</span> <span class="cm-def">animals</span>;
+</pre>
+<pre class="cm-s-default"><span class="cm-comment">// src/animals.rs or src/animals/mod.rs</span>
+<span class="cm-keyword">mod</span> <span class="cm-def">fish</span>;
+<span class="cm-keyword">mod</span> <span class="cm-def">mammals</span> {
+    <span class="cm-keyword">mod</span> <span class="cm-def">humans</span>;
+}
+</pre>
+<p>...then the source files of <code>mod animals</code>'s submodules can either be placed right next to that of its parents, or in a subdirectory if <code>animals</code> source file is:</p>
+<pre class="notrust"><code>src/plants.rs
+src/plants/mod.rs
+
+src/animals.rs - if file sits next to that of parent module&#39;s:
+    src/fish.rs
+    src/fish/mod.rs
+
+    src/mammals/humans.rs
+    src/mammals/humans/mod.rs
+
+src/animals/mod.rs - if file is in it&#39;s own subdirectory:
+    src/animals/fish.rs
+    src/animals/fish/mod.rs
+
+    src/animals/mammals/humans.rs
+    src/animals/mammals/humans/mod.rs
+</code></pre>
+<p>These rules allow you to have both small modules that only need to consist of one source file each and can be conveniently placed right next to each other, and big complicated modules that group the source files of submodules in subdirectories.</p>
+<p>If you need to circumvent the defaults, you can also overwrite the path a <code>mod foo;</code> would take:</p>
+<pre class="cm-s-default">#[<span class="cm-variable">path</span>=<span class="cm-string">&quot;../../area51/alien.rs&quot;</span>]
+<span class="cm-keyword">mod</span> <span class="cm-def">classified</span>;
+</pre>
+
+<h2 id="importing-names-into-the-local-scope"><a href="#importing-names-into-the-local-scope"><span class="header-section-number">17.5</span> Importing names into the local scope</a></h2>
+<p>Always referring to definitions in other modules with their global path gets old really fast, so Rust has a way to import them into the local scope of your module: <code>use</code>-statements.</p>
+<p>They work like this: At the beginning of any module body, <code>fn</code> body, or any other block you can write a list of <code>use</code>-statements, consisting of the keyword <code>use</code> and a <strong>global path</strong> to an item without the <code>::</code> prefix. For example, this imports <code>cow</code> into the local scope:</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">cow</span>;
+</pre>
+
+<p>The path you give to <code>use</code> is per default global, meaning relative to the crate root, no matter how deep the module hierarchy is, or whether the module body it's written in is contained in its own file (remember: files are irrelevant).</p>
+<p>This is different to other languages, where you often only find a single import construct that combines the semantic of <code>mod foo;</code> and <code>use</code>-statements, and which tend to work relative to the source file or use an absolute file path - Rubys <code>require</code> or C/C++'s <code>#include</code> come to mind.</p>
+<p>However, it's also possible to import things relative to the module of the <code>use</code>-statement: Adding a <code>super::</code> in front of the path will start in the parent module, while adding a <code>self::</code> prefix will start in the current module:</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">super::</span><span class="cm-variable">some_parent_item</span>;
+<span class="cm-keyword">use</span> <span class="cm-variable-2">self::some_child_module::</span><span class="cm-variable">some_item</span>;
+</pre>
+
+<p>Again - relative to the module, not to the file.</p>
+<p>Imports are also shadowed by local definitions: For each name you mention in a module/block, <code>rust</code> will first look at all items that are defined locally, and only if that results in no match look at items you brought in scope with corresponding <code>use</code> statements.</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">cow</span>;
+<span class="cm-comment">// ...</span>
+<span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;Mooo!&quot;</span>) }
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">cow</span>() <span class="cm-comment">// resolves to the locally defined cow() function</span>
+}
+</pre>
+
+<p>To make this behavior more obvious, the rule has been made that <code>use</code>-statement always need to be written before any declaration, like in the example above. This is a purely artificial rule introduced because people always assumed they shadowed each other based on order, despite the fact that all items in rust are mutually recursive, order independent definitions.</p>
+<p>One odd consequence of that rule is that <code>use</code> statements also go in front of any <code>mod</code> declaration, even if they refer to things inside them:</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">cow</span>;
+<span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;Moooooo?&quot;</span>) }
+}
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() { <span class="cm-variable">cow</span>() }
+</pre>
+
+<p>This is what our <code>farm</code> example looks like with <code>use</code> statements:</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>;
+<span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">cow</span>;
+<span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">barn</span>;
+
+<span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;cluck cluck&quot;</span>); }
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;mooo&quot;</span>); }
+
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">mod</span> <span class="cm-def">barn</span> {
+        <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">hay</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;...&quot;</span>); }
+    }
+}
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;Hello farm!&quot;</span>);
+
+    <span class="cm-comment">// Can now refer to those names directly:</span>
+    <span class="cm-variable">chicken</span>();
+    <span class="cm-variable">cow</span>();
+    <span class="cm-variable-2">barn::</span><span class="cm-variable">hay</span>();
+}
+</pre>
+
+And here an example with multiple files:
+<pre class="cm-s-default"><span class="cm-comment">// a.rs - crate root</span>
+<span class="cm-keyword">use</span> <span class="cm-variable-2">b::</span><span class="cm-variable">foo</span>;
+<span class="cm-keyword">mod</span> <span class="cm-def">b</span>;
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() { <span class="cm-variable">foo</span>(); }
+</pre>
+<pre class="cm-s-default"><span class="cm-comment">// b.rs</span>
+<span class="cm-keyword">use</span> <span class="cm-variable-2">b::c::</span><span class="cm-variable">bar</span>;
+<span class="cm-keyword">pub</span> <span class="cm-keyword">mod</span> <span class="cm-def">c</span>;
+<span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">foo</span>() { <span class="cm-variable">bar</span>(); }
+</pre>
+<pre class="cm-s-default"><span class="cm-comment">// c.rs</span>
+<span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">bar</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;Baz!&quot;</span>); }
+</pre>
+
+<p>There also exist two short forms for importing multiple names at once:</p>
+<ol style="list-style-type: decimal">
+<li>Explicit mention multiple names as the last element of an <code>use</code> path:
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable">farm</span>::{<span class="cm-variable">chicken</span>, <span class="cm-variable">cow</span>};
+</pre>
+</li>
+<li>Import everything in a module with a wildcard:
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable">farm</span>::*;
+</pre>
+</li>
+</ol>
+<p>However, that's not all. You can also rename an item while you're bringing it into scope:</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable">egg_layer</span> = <span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>;
+<span class="cm-comment">// ...</span>
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">egg_layer</span>();
+}
+</pre>
+
+<p>In general, <code>use</code> creates an local alias: An alternate path and a possibly different name to access the same item, without touching the original, and with both being interchangeable.</p>
+<h2 id="reexporting-names"><a href="#reexporting-names"><span class="header-section-number">17.6</span> Reexporting names</a></h2>
+<p>It is also possible to reexport items to be accessible under your module.</p>
+<p>For that, you write <code>pub use</code>:</p>
+<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">use</span> <span class="cm-variable-2">self::barn::</span><span class="cm-variable">hay</span>;
+
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">chicken</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;cluck cluck&quot;</span>); }
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">cow</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;mooo&quot;</span>); }
+
+    <span class="cm-keyword">mod</span> <span class="cm-def">barn</span> {
+        <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">hay</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;...&quot;</span>); }
+    }
+}
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable-2">farm::</span><span class="cm-variable">chicken</span>();
+    <span class="cm-variable-2">farm::</span><span class="cm-variable">cow</span>();
+    <span class="cm-variable-2">farm::</span><span class="cm-variable">hay</span>();
+}
+</pre>
+
+<p>Just like in normal <code>use</code> statements, the exported names merely represent an alias to the same thing and can also be renamed.</p>
+<p>The above example also demonstrate what you can use <code>pub use</code> for: The nested <code>barn</code> module is private, but the <code>pub use</code> allows users of the module <code>farm</code> to access a function from <code>barn</code> without needing to know that <code>barn</code> exists.</p>
+<p>In other words, you can use them to decouple an public api from their internal implementation.</p>
+<h2 id="using-libraries"><a href="#using-libraries"><span class="header-section-number">17.7</span> Using libraries</a></h2>
+<p>So far we've only talked about how to define and structure your own crate.</p>
+<p>However, most code out there will want to use preexisting libraries, as there really is no reason to start from scratch each time you start a new project.</p>
+<p>In Rust terminology, we need a way to refer to other crates.</p>
+<p>For that, Rust offers you the <code>extern mod</code> declaration:</p>
+<pre class="cm-s-default"><span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">extra</span>;
+<span class="cm-comment">// extra ships with Rust, you'll find more details further down.</span>
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-comment">// The rational number '1/2':</span>
+    <span class="cm-keyword">let</span> <span class="cm-def">one_half</span> = ::<span class="cm-variable-2">extra::rational::Ratio::</span><span class="cm-variable">new</span>(<span class="cm-number">1</span>, <span class="cm-number">2</span>);
+}
+</pre>
+
+<p>Despite its name, <code>extern mod</code> is a distinct construct from regular <code>mod</code> declarations: A statement of the form <code>extern mod foo;</code> will cause <code>rustc</code> to search for the crate <code>foo</code>, and if it finds a matching binary it lets you use it from inside your crate.</p>
+<p>The effect it has on your module hierarchy mirrors aspects of both <code>mod</code> and <code>use</code>:</p>
+<ul>
+<li><p>Like <code>mod</code>, it causes <code>rustc</code> to actually emit code: The linkage information the binary needs to use the library <code>foo</code>.</p></li>
+<li><p>But like <code>use</code>, all <code>extern mod</code> statements that refer to the same library are interchangeable, as each one really just presents an alias to an external module (the crate root of the library your linking against).</p></li>
+</ul>
+<p>Remember how <code>use</code>-statements have to go before local declarations because the latter shadows the former? Well, <code>extern mod</code> statements also have their own rules in that regard: Both <code>use</code> and local declarations can shadow them, so the rule is that <code>extern mod</code> has to go in front of both <code>use</code> and local declarations.</p>
+<p>Which can result in something like this:</p>
+<pre class="cm-s-default"><span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">extra</span>;
+
+<span class="cm-keyword">use</span> <span class="cm-variable-2">farm::</span><span class="cm-variable">dog</span>;
+<span class="cm-keyword">use</span> <span class="cm-variable-2">extra::rational::</span><span class="cm-variable">Ratio</span>;
+
+<span class="cm-keyword">mod</span> <span class="cm-def">farm</span> {
+    <span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">dog</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;woof&quot;</span>); }
+}
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable-2">farm::</span><span class="cm-variable">dog</span>();
+    <span class="cm-keyword">let</span> <span class="cm-def">a_third</span> = <span class="cm-variable-2">Ratio::</span><span class="cm-variable">new</span>(<span class="cm-number">1</span>, <span class="cm-number">3</span>);
+}
+</pre>
+
+<p>It's a bit weird, but it's the result of shadowing rules that have been set that way because they model most closely what people expect to shadow.</p>
+<h2 id="package-ids"><a href="#package-ids"><span class="header-section-number">17.8</span> Package ids</a></h2>
+<p>If you use <code>extern mod</code>, per default <code>rustc</code> will look for libraries in the the library search path (which you can extend with the <code>-L</code> switch).</p>
+<p>However, Rust also ships with rustpkg, a package manager that is able to automatically download and build libraries if you use it for building your crate. How it works is explained <a href="tutorial-rustpkg.html">here</a>, but for this tutorial it's only important to know that you can optionally annotate an <code>extern mod</code> statement with an package id that rustpkg can use to identify it:</p>
+<pre class="cm-s-default"><span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">rust</span> = <span class="cm-string">&quot;github.com/mozilla/rust&quot;</span>; <span class="cm-comment">// pretend Rust is an simple library</span>
+</pre>
+
+<h2 id="crate-metadata-and-settings"><a href="#crate-metadata-and-settings"><span class="header-section-number">17.9</span> Crate metadata and settings</a></h2>
+<p>For every crate you can define a number of metadata items, such as link name, version or author. You can also toggle settings that have crate-global consequences. Both mechanism work by providing attributes in the crate root.</p>
+<p>For example, Rust uniquely identifies crates by their link metadate, which includes the link name and the version. It also hashes the filename and the symbols in a binary based on the link metadata, allowing you to use two different versions of the same library in a crate without conflict.</p>
+<p>Therefor, if you plan to compile your crate as a library, you should annotate it with that information:</p>
+<pre class="cm-s-default"><span class="cm-comment">// lib.rs</span>
+
+<span class="cm-comment">// Crate linkage metadata</span>
+#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>)];
+
+<span class="cm-comment">// ...</span>
+</pre>
+
+<p>You can also in turn require in a <code>extern mod</code> statement that certain link metadata items match some criteria. For that, Rust currently parses a comma-separated list of name/value pairs that appear after it, and ensures that they match the attributes provided in the <code>link</code> attribute of a crate file. This enables you to, eg, pick a a crate based on it's version number, or to link an library under an different name. For example, this two mod statements would both accept and select the crate define above:</p>
+<pre class="cm-s-default"><span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">farm</span>(<span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>);
+<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">my_farm</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>);
+</pre>
+
+<p>Other crate settings and metadata include things like enabling/disabling certain errors or warnings, or setting the crate type (library or executable) explicitly:</p>
+<pre class="cm-s-default"><span class="cm-comment">// lib.rs</span>
+<span class="cm-comment">// ...</span>
+
+<span class="cm-comment">// This crate is a library (&quot;bin&quot; is the default)</span>
 #[<span class="cm-variable">crate_type</span> = <span class="cm-string">&quot;lib&quot;</span>];
 
 <span class="cm-comment">// Turn on a warning</span>
 #[<span class="cm-variable">warn</span>(<span class="cm-variable">non_camel_case_types</span>)]
-
-<span class="cm-comment">// Link to the standard library</span>
-<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">std</span>;
-
-<span class="cm-comment">// Load some modules from other files</span>
-<span class="cm-keyword">mod</span> <span class="cm-def">cow</span>;
-<span class="cm-keyword">mod</span> <span class="cm-def">chicken</span>;
-<span class="cm-keyword">mod</span> <span class="cm-def">horse</span>;
-
-<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
-    ...
-}
 </pre>
 
-<p>Compiling this file will cause <code>rustc</code> to look for files named <code>cow.rs</code>, <code>chicken.rs</code>, and <code>horse.rs</code> in the same directory as the <code>.rc</code> file, compile them all together, and, based on the presence of the <code>crate_type = &quot;lib&quot;</code> attribute, output a shared library or an executable. (If the line <code>#[crate_type = &quot;lib&quot;];</code> was omitted, <code>rustc</code> would create an executable.)</p>
-<p>The <code>#[link(...)]</code> attribute provides meta information about the module, which other crates can use to load the right module. More about that later.</p>
-<p>To have a nested directory structure for your source files, you can nest mods:</p>
-<pre class="cm-s-default"><span class="cm-keyword">mod</span> <span class="cm-def">poultry</span> {
-    <span class="cm-keyword">mod</span> <span class="cm-def">chicken</span>;
-    <span class="cm-keyword">mod</span> <span class="cm-def">turkey</span>;
-}
-</pre>
-
-<p>The compiler will now look for <code>poultry/chicken.rs</code> and <code>poultry/turkey.rs</code>, and export their content in <code>poultry::chicken</code> and <code>poultry::turkey</code>. You can also provide a <code>poultry.rs</code> to add content to the <code>poultry</code> module itself.</p>
-<h2 id="using-other-crates"><a href="#using-other-crates"><span class="header-section-number">17.2</span> Using other crates</a></h2>
-<p>The <code>extern mod</code> directive lets you use a crate (once it's been compiled into a library) from inside another crate. <code>extern mod</code> can appear at the top of a crate file or at the top of modules. It will cause the compiler to look in the library search path (which you can extend with the <code>-L</code> switch) for a compiled Rust library with the right name, then add a module with that crate's name into the local scope.</p>
-<p>For example, <code>extern mod std</code> links the <a href="std/index.html">standard library</a>.</p>
-<p>When a comma-separated list of name/value pairs appears after <code>extern mod</code>, the compiler front-end matches these pairs against the attributes provided in the <code>link</code> attribute of the crate file. The front-end will only select this crate for use if the actual pairs match the declared attributes. You can provide a <code>name</code> value to override the name used to search for the crate.</p>
-<p>Our example crate declared this set of <code>link</code> attributes:</p>
-<pre class="cm-s-default">#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>, <span class="cm-variable">author</span> = <span class="cm-string">&quot;mjh&quot;</span>)];
-</pre>
-
-<p>Which you can then link with any (or all) of the following:</p>
-<pre class="cm-s-default"><span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">farm</span>;
-<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">my_farm</span> (<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;2.5&quot;</span>);
-<span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">my_auxiliary_farm</span> (<span class="cm-variable">name</span> = <span class="cm-string">&quot;farm&quot;</span>, <span class="cm-variable">author</span> = <span class="cm-string">&quot;mjh&quot;</span>);
-</pre>
-
-<p>If any of the requested metadata do not match, then the crate will not be compiled successfully.</p>
-<h2 id="a-minimal-example"><a href="#a-minimal-example"><span class="header-section-number">17.3</span> A minimal example</a></h2>
-<p>Now for something that you can actually compile yourself, we have these two files:</p>
+<p>If you're compiling your crate with <code>rustpkg</code>, link annotations will not be necessary, because they get inferred by <code>rustpkg</code> based on the Package id and naming conventions.</p>
+<blockquote>
+<p><strong><em>Note:</em></strong> The rules regarding link metadata, both as attributes and on <code>extern mod</code>, as well as their interaction with <code>rustpkg</code> are currently not clearly defined and will likely change in the future.</p>
+</blockquote>
+<h2 id="a-minimal-example"><a href="#a-minimal-example"><span class="header-section-number">17.10</span> A minimal example</a></h2>
+<p>Now for something that you can actually compile yourself.</p>
+<p>We define two crates, and use one of them as a library in the other.</p>
 <pre class="cm-s-default"><span class="cm-comment">// world.rs</span>
-#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;world&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;1.0&quot;</span>)];
-<span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">explore</span>() -&gt; &amp;<span class="cm-keyword">str</span> { <span class="cm-string">&quot;world&quot;</span> }
+#[<span class="cm-variable">link</span>(<span class="cm-variable">name</span> = <span class="cm-string">&quot;world&quot;</span>, <span class="cm-variable">vers</span> = <span class="cm-string">&quot;0.42&quot;</span>)];
+<span class="cm-keyword">pub</span> <span class="cm-keyword">fn</span> <span class="cm-def">explore</span>() -&gt; &amp;<span class="cm-error">'s</span><span class="cm-def">tatic</span> <span class="cm-def">str</span> { <span class="cm-string">&quot;world&quot;</span> }
 </pre>
 
 <pre class="cm-s-default"><span class="cm-comment">// main.rs</span>
 <span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">world</span>;
-<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() { <span class="cm-variable">println</span>(<span class="cm-variable">~</span><span class="cm-string">&quot;hello &quot;</span> + <span class="cm-variable-2">world::</span><span class="cm-variable">explore</span>()); }
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() { <span class="cm-variable">println</span>(<span class="cm-string">&quot;hello &quot;</span> + <span class="cm-variable-2">world::</span><span class="cm-variable">explore</span>()); }
 </pre>
 
 <p>Now compile and run like this (adjust to your platform if necessary):</p>
-<pre class="notrust"><code>&gt; rustc --lib world.rs  # compiles libworld-94839cbfe144198-1.0.so
+<pre class="notrust"><code>&gt; rustc --lib world.rs  # compiles libworld-&lt;HASH&gt;-0.42.so
 &gt; rustc main.rs -L .    # compiles main
 &gt; ./main
 &quot;hello world&quot;</code></pre>
-<p>Notice that the library produced contains the version in the filename as well as an inscrutable string of alphanumerics. These are both part of Rust's library versioning scheme. The alphanumerics are a hash representing the crate metadata.</p>
-<h2 id="the-standard-library"><a href="#the-standard-library"><span class="header-section-number">17.4</span> The standard library</a></h2>
+<p>Notice that the library produced contains the version in the file name as well as an inscrutable string of alphanumerics. As explained in the previous paragraph, these are both part of Rust's library versioning scheme. The alphanumerics are a hash representing the crates link metadata.</p>
+<h2 id="the-standard-library-and-the-prelude"><a href="#the-standard-library-and-the-prelude"><span class="header-section-number">17.11</span> The standard library and the prelude</a></h2>
+<p>While reading the examples in this tutorial, you might have asked yourself where all those magical predefined items like <code>println()</code> are coming from.</p>
+<p>The truth is, there's nothing magical about them: They are all defined normally in the <code>std</code> library, which is a crate that ships with Rust.</p>
+<p>The only magical thing that happens is that <code>rustc</code> automatically inserts this line into your crate root:</p>
+<pre class="cm-s-default"><span class="cm-keyword">extern</span> <span class="cm-keyword">mod</span> <span class="cm-def">std</span>;
+</pre>
+
+<p>As well as this line into every module body:</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable-2">std::</span><span class="cm-variable">prelude</span>::*;
+</pre>
+
+<p>The role of the <code>prelude</code> module is to re-exports common definitions from <code>std</code>.</p>
+<p>This allows you to use common types and functions like <code>Option&lt;T&gt;</code> or <code>println</code> without needing to import them. And if you need something from <code>std</code> that's not in the prelude, you just have to import it with an <code>use</code> statement.</p>
+<p>For example, it re-exports <code>println</code> which is defined in <code>std::io::println</code>:</p>
+<pre class="cm-s-default"><span class="cm-keyword">use</span> <span class="cm-variable">puts</span> = <span class="cm-variable-2">std::io::</span><span class="cm-variable">println</span>;
+
+<span class="cm-keyword">fn</span> <span class="cm-def">main</span>() {
+    <span class="cm-variable">println</span>(<span class="cm-string">&quot;println is imported per default.&quot;</span>);
+    <span class="cm-variable">puts</span>(<span class="cm-string">&quot;Doesn't hinder you from importing it under an different name yourself.&quot;</span>);
+    ::<span class="cm-variable-2">std::io::</span><span class="cm-variable">println</span>(<span class="cm-string">&quot;Or from not using the automatic import.&quot;</span>);
+}
+</pre>
+
+<p>Both auto-insertions can be disabled with an attribute if necessary:</p>
+<pre class="cm-s-default"><span class="cm-comment">// In the crate root:</span>
+#[<span class="cm-variable">no_std</span>];
+</pre>
+
+<pre class="cm-s-default"><span class="cm-comment">// In any module:</span>
+#[<span class="cm-variable">no_implicit_prelude</span>];
+</pre>
+
+<h2 id="the-standard-library-in-detail"><a href="#the-standard-library-in-detail"><span class="header-section-number">17.12</span> The standard library in detail</a></h2>
 <p>The Rust standard library provides runtime features required by the language, including the task scheduler and memory allocators, as well as library support for Rust built-in types, platform abstractions, and other commonly used features.</p>
 <p><a href="std/index.html"><code>std</code></a> includes modules corresponding to each of the integer types, each of the floating point types, the <a href="std/bool.html"><code>bool</code></a> type, <a href="std/tuple.html">tuples</a>, <a href="std/char.html">characters</a>, <a href="std/str.html">strings</a>, <a href="std/vec.html">vectors</a>, <a href="std/managed.html">managed boxes</a>, <a href="std/owned.html">owned boxes</a>, and unsafe and borrowed <a href="std/ptr.html">pointers</a>. Additionally, <code>std</code> provides some pervasive types (<a href="std/option.html"><code>option</code></a> and <a href="std/result.html"><code>result</code></a>), <a href="std/task.html">task</a> creation and <a href="std/comm.html">communication</a> primitives, platform abstractions (<a href="std/os.html"><code>os</code></a> and <a href="std/path.html"><code>path</code></a>), basic I/O abstractions (<a href="std/io.html"><code>io</code></a>), <a href="std/container.html">containers</a> like <a href="std/hashmap.html"><code>hashmap</code></a>, common traits (<a href="std/kinds.html"><code>kinds</code></a>, <a href="std/ops.html"><code>ops</code></a>, <a href="std/cmp.html"><code>cmp</code></a>, <a href="std/num.html"><code>num</code></a>, <a href="std/to_str.html"><code>to_str</code></a>, <a href="std/clone.html"><code>clone</code></a>), and complete bindings to the C standard library (<a href="std/libc.html"><code>libc</code></a>).</p>
-<h3 id="standard-library-injection-and-the-rust-prelude"><a href="#standard-library-injection-and-the-rust-prelude"><span class="header-section-number">17.4.1</span> Standard Library injection and the Rust prelude</a></h3>
-<p><code>std</code> is imported at the topmost level of every crate by default, as if the first line of each crate was</p>
-<pre><code>extern mod std;</code></pre>
-<p>This means that the contents of std can be accessed from from any context with the <code>std::</code> path prefix, as in <code>use std::vec</code>, <code>use std::task::spawn</code>, etc.</p>
-<p>Additionally, <code>std</code> contains a <code>prelude</code> module that reexports many of the most common standard modules, types and traits. The contents of the prelude are imported into every <em>module</em> by default. Implicitly, all modules behave as if they contained the following prologue:</p>
-<pre><code>use std::prelude::*;</code></pre>
+<p>The full documentation for <code>std</code> can be found here: <a href="std/index.html">standard library</a>.</p>
+<h2 id="the-extra-library"><a href="#the-extra-library"><span class="header-section-number">17.13</span> The extra library</a></h2>
+<p>Rust also ships with the <a href="extra/index.html">extra library</a>, an accumulation of useful things, that are however not important enough to deserve a place in the standard library. You can use them by linking to <code>extra</code> with an <code>extern mod extra;</code>.</p>
+<p>Right now <code>extra</code> contains those definitions directly, but in the future it will likely just re-export a bunch of 'officially blessed' crates that get managed with <code>rustpkg</code>.</p>
 <h1 id="what-next"><a href="#what-next"><span class="header-section-number">18</span> What next?</a></h1>
 <p>Now that you know the essentials, check out any of the additional tutorials on individual topics.</p>
 <ul>
@@ -1351,7 +1672,9 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <li><a href="tutorial-macros.html">Macros</a></li>
 <li><a href="tutorial-ffi.html">The foreign function interface</a></li>
 <li><a href="tutorial-container.html">Containers and iterators</a></li>
+<li><a href="tutorial-conditions.html">Error-handling and Conditions</a></li>
+<li><a href="tutorial-rustpkg.html">Packaging up Rust code</a></li>
 </ul>
-<p>There is further documentation on the <a href="https://github.com/mozilla/rust/wiki/Docs">wiki</a>.</p>
+<p>There is further documentation on the <a href="https://github.com/mozilla/rust/wiki/Docs">wiki</a>, however those tend to be even more out of date as this document.</p>
 </body>
 </html>
