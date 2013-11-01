@@ -1256,17 +1256,14 @@ do spawn {
 If you want to see the output of `debug!` statements, you will need to turn on `debug!` logging.
 To enable `debug!` logging, set the RUST_LOG environment variable to the name of your crate, which, for a file named `foo.rs`, will be `foo` (e.g., with bash, `export RUST_LOG=foo`).
 
-# Methods
+# 메소드
 
-Methods are like functions except that they always begin with a special argument,
-called `self`,
-which has the type of the method's receiver. The
-`self` argument is like `this` in C++ and many other languages.
-Methods are called with dot notation, as in `my_vec.len()`.
+메소드는 항상 메소드의 수신자의 타입을 가지는 `self`라고 불리는 특별한 인자로 시작한다는 점만 제외하면 함수와 비슷하다.
+`self` 인자는 C++과 많은 다른 언어들에서의 `this`와 비슷하다.
+메소드는 `my_vec.len()`에서 처럼 점 표기를 이용해 불려진다.
 
-_Implementations_, written with the `impl` keyword, can define
-methods on most Rust types, including structs and enums.
-As an example, let's define a `draw` method on our `Shape` enum.
+`impl` 키워드로 적혀지는 _Implementations_는 구조체와 열거형을 포함한 대부분의 Rust 타입의 메소드를 정의한다.
+예를들어, 우리가 만든 `Shape` 열거형의 `draw` 메소드를 정의해보자.
 
 ~~~
 # fn draw_circle(p: Point, f: float) { }
@@ -1294,14 +1291,12 @@ let s = Circle(Point { x: 1f, y: 2f }, 3f);
 s.draw();
 ~~~
 
-This defines an _implementation_ for `Shape` containing a single
-method, `draw`. In most respects the `draw` method is defined
-like any other function, except for the name `self`.
+이 코드는 `Shape`에 하나의 `draw` 메소드를 포함하기 위한 _implementation_을 정의한다.
+In most respects the `draw` 메소드는 여타 다른 함수처럼 정의된다, `self`라는 이름을 제외하고.
 
-The type of `self` is the type on which the method is implemented,
-or a pointer thereof. As an argument it is written either `self`,
-`&self`, `@self`, or `~self`.
-A caller must in turn have a compatible pointer type to call the method.
+`self`의 타입은 메소드가 구현되어있는 타입이나 이에 관련된 포인터이다.
+인자로서 `self`, `&self`, `@self`, 또는 `~self`으로 적는다.
+호출자는 메소드를 호출하기 위해 호환할 수 있는 포인터 타입을 차례로 가져야한다.
 
 ~~~
 # fn draw_circle(p: Point, f: float) { }
