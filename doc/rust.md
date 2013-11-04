@@ -145,7 +145,7 @@ Some productions are defined by exclusion of particular Unicode characters:
   - `non_single_quote` is `non_null` restricted to exclude `U+0027`  (`'`)
   - `non_double_quote` is `non_null` restricted to exclude `U+0022` (`"`)
 
-## Comments
+## 주석
 
 ~~~~~~~~ {.ebnf .gram}
 comment : block_comment | line_comment ;
@@ -164,7 +164,7 @@ Rust 코드에서의 주석은 줄 단위 주석과 블록 주석 구분기호�
 
 주석이 없으면 빈 양식으로 해석된다.
 
-## Whitespace
+## 공백
 
 ~~~~~~~~ {.ebnf .gram}
 whitespace_char : '\x20' | '\x09' | '\x0a' | '\x0d' ;
@@ -175,13 +175,13 @@ The `whitespace_char` production is any nonempty Unicode string consisting of an
 of the following Unicode characters: `U+0020` (space, `' '`), `U+0009` (tab,
 `'\t'`), `U+000A` (LF, `'\n'`), `U+000D` (CR, `'\r'`).
 
-Rust is a "free-form" language, meaning that all forms of whitespace serve
-only to separate _tokens_ in the grammar, and have no semantic significance.
+Rust는 "free-form" 언어이고, 이는 문법에서 모든 공백 형식은 오직 _tokens_으로 나누기 위해 제공되는 것을 의미하고,
+의미론적인 의미가 없다.
 
 A Rust program has identical meaning if each whitespace element is replaced
 with any other legal whitespace element, such as a single space character.
 
-## Tokens
+## 토큰
 
 ~~~~~~~~ {.ebnf .gram}
 simple_token : keyword | unop | binop ;
@@ -193,7 +193,7 @@ Tokens are primitive productions in the grammar defined by regular
 production](#string-table-productions) form, and occur in the rest of the
 grammar as double-quoted strings. Other tokens have exact rules given.
 
-### Keywords
+### 키워드
 
 The keywords are the following strings:
 
@@ -283,7 +283,7 @@ the following forms:
   * The _backslash escape_ is the character U+005C (`\`) which must be
     escaped in order to denote *itself*.
 
-#### Number literals
+#### 숫자 리터럴
 
 ~~~~~~~~ {.ebnf .gram}
 
@@ -304,8 +304,7 @@ exponent : ['E' | 'e'] ['-' | '+' ] ? dec_lit ;
 dec_lit : [ dec_digit | '_' ] + ;
 ~~~~~~~~
 
-A _number literal_ is either an _integer literal_ or a _floating-point
-literal_. The grammar for recognizing the two kinds of literals is mixed,
+A _number literal_ is either an _integer literal_ 부동소수점 리터럴이나 . The grammar for recognizing the two kinds of literals is mixed,
 as they are differentiated by suffixes.
 
 ##### Integer literals
