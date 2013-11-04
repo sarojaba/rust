@@ -763,10 +763,9 @@ let owned_box    : ~Point = ~Point { x: 7.0, y: 9.0 };
 
 어느 두 점 사이의 거리를 계산하는 절차를 작성하기를 원한다고 가정하면, 그것들이 저장되는 곳은 중요하지 않다.
 예를 들어, `on_the_stack`과 `managed_box` 사이나, `managed_box`과 `owned_box` 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다.
-즉, 점들을 값으로 취하는 것이다. But this will cause the points to be
-copied when we call the function. For points, this is probably not so
-bad, but often copies are expensive. So we’d like to define a function
-that takes the points by pointer. We can use borrowed pointers to do this:
+즉, 점들을 값으로 취하는 것이다. 그러나 이것은 함수를 호출할 때 점들이 복사될 것이다.
+점들의 입장에서는, 이것은 아마도 그리 나쁘진 않지만, 자주 복사하는 것은 비싸다.
+그러므로 점들을 포인터로 취하는 함수를 정의할 것이다. 이를 위해 빌린 포인터를 사용할 수 있다.
 
 ~~~
 # struct Point { x: float, y: float }
@@ -778,7 +777,7 @@ fn compute_distance(p1: &Point, p2: &Point) -> float {
 }
 ~~~
 
-Now we can call `compute_distance()` in various ways:
+이제 다양한 방식으로 `compute_distance()`를 호출할 수 있다.
 
 ~~~
 # struct Point{ x: float, y: float };
@@ -790,12 +789,10 @@ compute_distance(&on_the_stack, managed_box);
 compute_distance(managed_box, owned_box);
 ~~~
 
-Here the `&` operator is used to take the address of the variable
-`on_the_stack`; this is because `on_the_stack` has the type `Point`
-(that is, a struct value) and we have to take its address to get a
-value. We also call this _borrowing_ the local variable
-`on_the_stack`, because we are creating an alias: that is, another
-route to the same data.
+여기 `&` 연산자는 `on_the_stack` 변수의 주소를 취하는데 사용된다.
+이는 왜냐하면 `on_the_stack`는 `Point` 타입을 가지고있고 (즉, 구조체 값), 값을 얻기위해 그 주소를 취해야한다.
+또한 별명으로 만들었기 때문에, 이 _borrowing_ 지역 변수 `on_the_stack`을 호출한다.
+즉, 동일한 데이터를 얻는 다른 경로이다.
 
 In the case of the boxes `managed_box` and `owned_box`, however, no
 explicit action is necessary. The compiler will automatically convert
