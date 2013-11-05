@@ -1,20 +1,15 @@
-% Rust Borrowed Pointers Tutorial
+% Rust 빌린 포인터 튜토리얼
 
-# Introduction
+# 소개
 
-Borrowed pointers are one of the more flexible and powerful tools available in
-Rust. A borrowed pointer can point anywhere: into the managed or exchange
-heap, into the stack, and even into the interior of another data structure. A
-borrowed pointer is as flexible as a C pointer or C++ reference. However,
-unlike C and C++ compilers, the Rust compiler includes special static checks
-that ensure that programs use borrowed pointers safely. Another advantage of
-borrowed pointers is that they are invisible to the garbage collector, so
-working with borrowed pointers helps reduce the overhead of automatic memory
-management.
+빌린 포인터는 Rust에서 사용할 수 있는 더 유연하고 강력한 도구 중에 하나이다.
+빌린 포인터는 어느 곳이든 가리킬 수 있다. (관리되거나 exchange 힙으로, 스택으로, 그리고 그 외의 자료구조의 내부 조차도).
+빌린 포인터는 C 포인터나 C++ 레퍼런스만큼 유연하다.
+그러나, C 와 C++ 컴파일러와는 다르게, Rust 컴파일러는 프로그램이 빌린 포인터를 안전하게 사용할 수 있도록 보장하는 특별한 정적 검사를 가지고 있다.
+빌린 포인터의 또다른 장점은 가비지 컬렉팅이 보이지 않는다는 것이다.
+그래서 빌린 포인터로 작업하는 것은 자동 메모리 관리의 오버헤드를 감소시키는데 도움을 준다.
 
-Despite their complete safety, a borrowed pointer's representation at runtime
-is the same as that of an ordinary pointer in a C program. They introduce zero
-overhead. The compiler does all safety checks at compile time.
+빌린 포인터가 완전히 안전함에도 불구하고, 런타임 중에 빌린 포인터는 C 프로그램에서의 평범한 포인터와 같다. 이것은 전혀 오버헤드가 없다. 컴파일러는 모든 안전성 검사를 컴파일 시간에 한다.
 
 Although borrowed pointers have rather elaborate theoretical
 underpinnings (region pointers), the core concepts will be familiar to
