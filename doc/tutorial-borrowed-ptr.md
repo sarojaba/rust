@@ -11,28 +11,23 @@
 
 빌린 포인터가 완전히 안전함에도 불구하고, 런타임 중에 빌린 포인터는 C 프로그램에서의 평범한 포인터와 같다. 이것은 전혀 오버헤드가 없다. 컴파일러는 모든 안전성 검사를 컴파일 시간에 한다.
 
-Although borrowed pointers have rather elaborate theoretical
-underpinnings (region pointers), the core concepts will be familiar to
-anyone who has worked with C or C++. Therefore, the best way to explain
-how they are used—and their limitations—is probably just to work
-through several examples.
+비록 빌린 포인터가 정교한 이론상의 기반(지역 포인터)은 없지만, 핵심 컨셉은 C나 C++로 일하는 누구나에게 친숙할 것이다. Therefore, the best way to explain
+어떻게 사용되고—그것의 한계—is probably just to work 몇개의 예제를 통해.
 
-# By example
+# 예제를 통해 알아보기
 
-Borrowed pointers are called *borrowed* because they are only valid for
-a limited duration. Borrowed pointers never claim any kind of ownership
-over the data that they point to: instead, they are used for cases
-where you would like to use data for a short time.
+빌린 포인터는 *borrowed*라고 불린다. 왜냐하면 제한된 지속기간에만 유효하기 때문이다.
+빌린 포인터는 가리키는 데이터로 어떤 종류의 소유권도 절대 요구하지 않는다.
+대신, 짧은 시간동안 데이터를 사용하는 상황에 사용될 것이다.
 
-As an example, consider a simple struct type `Point`:
+예를 들면, 단순한 구조체 타입 `Point`를 살펴보자.
 
 ~~~
 struct Point {x: float, y: float}
 ~~~
 
-We can use this simple definition to allocate points in many different ways. For
-example, in this code, each of these three local variables contains a
-point, but allocated in a different place:
+우리는 다양한 방식으로 점을 할당하기 위해 이 단순한 정의를 사용할 수 있다.
+예를 들어, 이 코드에서, 각각의 세개의 지역 변수는 점을 포함하지만, 서로 다른 장소에 할당되어 있다.
 
 ~~~
 # struct Point {x: float, y: float}
@@ -41,17 +36,14 @@ let managed_box  : @Point = @Point {x: 5.0, y: 1.0};
 let owned_box    : ~Point = ~Point {x: 7.0, y: 9.0};
 ~~~
 
-Suppose we wanted to write a procedure that computed the distance between any
-two points, no matter where they were stored. For example, we might like to
-compute the distance between `on_the_stack` and `managed_box`, or between
-`managed_box` and `owned_box`. One option is to define a function that takes
-two arguments of type `Point`—that is, it takes the points by value. But if we
-define it this way, calling the function will cause the points to be
-copied. For points, this is probably not so bad, but often copies are
-expensive. Worse, if the data type contains mutable fields, copying can change
-the semantics of your program in unexpected ways. So we'd like to define a
-function that takes the points by pointer. We can use borrowed pointers to do
-this:
+두 점 사이의 거리를 계산하는 절차를 기술하는 것을 원했다고 가정하면, 그것들이 저장되는 장소는 중요하지 않다.
+예를 들어, `on_the_stack`과 `managed_box` 사이나 `managed_box`과 `owned_box` 사이의 거리를 계산해보자.
+한가지 방법은 `Point` 타입의 두개의 인자를 취하는 함수를 정의하는 것이다. 즉, 값으로 점들을 취한다.
+그러나 이 방법으로 정의한다면, 함수를 호출하는 것은 점들이 복사되는 것을 야기할 것이다.
+점들의 입장에서는, 이것은 아마도 그닥 나쁘지는 않지만, 잦은 복사는 비용이 많이 든다.
+더 안좋은건, 데이터 타입이 변할 수 있는 필드를 가지고 있으면, 복사하는 것은 당신의 프로그램의 의미를 의도하지 않는 방식으로 바꿀 수도 있다.
+그래서 포인터로 점들을 취하는 함수를 정의하려 한다.
+빌린 포인터를 사용해 이렇게 할 수 있다.
 
 ~~~
 # struct Point {x: float, y: float}
@@ -63,7 +55,7 @@ fn compute_distance(p1: &Point, p2: &Point) -> float {
 }
 ~~~
 
-Now we can call `compute_distance()` in various ways:
+이제 우리는 `compute_distance()`를 다양한 방식으로 호출할 수 있다.
 
 ~~~
 # struct Point {x: float, y: float}
