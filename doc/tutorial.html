@@ -58,7 +58,7 @@
 <li><a href="#closure-compatibility"><span class="toc-section-number">14.2</span> Closure compatibility</a></li>
 <li><a href="#do-syntax"><span class="toc-section-number">14.3</span> Do syntax</a></li>
 </ul></li>
-<li><a href="#methods"><span class="toc-section-number">15</span> Methods</a></li>
+<li><a href="#메소드"><span class="toc-section-number">15</span> 메소드</a></li>
 <li><a href="#generics"><span class="toc-section-number">16</span> Generics</a><ul>
 <li><a href="#traits"><span class="toc-section-number">16.1</span> Traits</a></li>
 <li><a href="#declaring-and-implementing-traits"><span class="toc-section-number">16.2</span> Declaring and implementing traits</a></li>
@@ -619,7 +619,7 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-keyword">let</span> <span class="cm-def">owned_box</span>    : <span class="cm-variable-3">~Point</span> = <span class="cm-variable">~Point</span> { <span class="cm-variable">x</span>: <span class="cm-number">7.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">9.0</span> };
 </pre>
 
-<p>어느 두 점 사이의 거리를 계산하는 절차를 작성하기를 원한다고 가정하면, 그것들이 저장되는 곳은 중요하지 않다. 예를 들어, <code>on_the_stack</code>과 <code>managed_box</code> 사이나, <code>managed_box</code>과 <code>owned_box</code> 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다. 즉, 점들을 값으로 취하는 것이다. But this will cause the points to be copied when we call the function. For points, this is probably not so bad, but often copies are expensive. So we’d like to define a function that takes the points by pointer. We can use borrowed pointers to do this:</p>
+<p>어느 두 점 사이의 거리를 계산하는 절차를 작성하기를 원한다고 가정하면, 그것들이 저장되는 곳은 중요하지 않다. 예를 들어, <code>on_the_stack</code>과 <code>managed_box</code> 사이나, <code>managed_box</code>과 <code>owned_box</code> 사이의 거리를 계산하는 것을 좋아할 것이다. 한가지 옵션은 점 타입의 두 인자를 취하는 함수를 정의하는 것이다. 즉, 점들을 값으로 취하는 것이다. 그러나 이것은 함수를 호출할 때 점들이 복사될 것이다. 점들의 입장에서는, 이것은 아마도 그리 나쁘진 않지만, 자주 복사하는 것은 비싸다. 그러므로 점들을 포인터로 취하는 함수를 정의할 것이다. 이를 위해 빌린 포인터를 사용할 수 있다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">compute_distance</span>(<span class="cm-def">p1</span>: &amp;<span class="cm-variable-3">Point</span>, <span class="cm-def">p2</span>: &amp;<span class="cm-variable-3">Point</span>) -&gt; <span class="cm-keyword">float</span> {
     <span class="cm-keyword">let</span> <span class="cm-def">x_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">x</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">x</span>;
     <span class="cm-keyword">let</span> <span class="cm-def">y_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">y</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">y</span>;
@@ -627,12 +627,12 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 }
 </pre>
 
-<p>Now we can call <code>compute_distance()</code> in various ways:</p>
+<p>이제 다양한 방식으로 <code>compute_distance()</code>를 호출할 수 있다.</p>
 <pre class="cm-s-default"><span class="cm-variable">compute_distance</span>(&amp;<span class="cm-variable">on_the_stack</span>, <span class="cm-variable">managed_box</span>);
 <span class="cm-variable">compute_distance</span>(<span class="cm-variable">managed_box</span>, <span class="cm-variable">owned_box</span>);
 </pre>
 
-<p>Here the <code>&amp;</code> operator is used to take the address of the variable <code>on_the_stack</code>; this is because <code>on_the_stack</code> has the type <code>Point</code> (that is, a struct value) and we have to take its address to get a value. We also call this <em>borrowing</em> the local variable <code>on_the_stack</code>, because we are creating an alias: that is, another route to the same data.</p>
+<p>여기 <code>&amp;</code> 연산자는 <code>on_the_stack</code> 변수의 주소를 취하는데 사용된다. 이는 왜냐하면 <code>on_the_stack</code>는 <code>Point</code> 타입을 가지고있고 (즉, 구조체 값), 값을 얻기위해 그 주소를 취해야한다. 또한 별명으로 만들었기 때문에, 이 <em>borrowing</em> 지역 변수 <code>on_the_stack</code>을 호출한다. 즉, 동일한 데이터를 얻는 다른 경로이다.</p>
 <p>In the case of the boxes <code>managed_box</code> and <code>owned_box</code>, however, no explicit action is necessary. The compiler will automatically convert a box like <code>@point</code> or <code>~point</code> to a borrowed pointer like <code>&amp;point</code>. This is another form of borrowing; in this case, the contents of the managed/owned box are being lent out.</p>
 <p>Whenever a value is borrowed, there are some limitations on what you can do with the original. For example, if the contents of a variable have been lent out, you cannot send that variable to another task, nor will you be permitted to take actions that might cause the borrowed value to be freed or to change its type. This rule should make intuitive sense: you must wait for a borrowed value to be returned (that is, for the borrowed pointer to go out of scope) before you can make full use of it again.</p>
 <p>For a more in-depth explanation of borrowed pointers, read the <a href="tutorial-borrowed-ptr.html">borrowed pointer tutorial</a>.</p>
@@ -889,9 +889,9 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 </pre>
 
 <p>If you want to see the output of <code>debug!</code> statements, you will need to turn on <code>debug!</code> logging. To enable <code>debug!</code> logging, set the RUST_LOG environment variable to the name of your crate, which, for a file named <code>foo.rs</code>, will be <code>foo</code> (e.g., with bash, <code>export RUST_LOG=foo</code>).</p>
-<h1 id="methods"><a href="#methods"><span class="header-section-number">15</span> Methods</a></h1>
-<p>Methods are like functions except that they always begin with a special argument, called <code>self</code>, which has the type of the method's receiver. The <code>self</code> argument is like <code>this</code> in C++ and many other languages. Methods are called with dot notation, as in <code>my_vec.len()</code>.</p>
-<p><em>Implementations</em>, written with the <code>impl</code> keyword, can define methods on most Rust types, including structs and enums. As an example, let's define a <code>draw</code> method on our <code>Shape</code> enum.</p>
+<h1 id="메소드"><a href="#메소드"><span class="header-section-number">15</span> 메소드</a></h1>
+<p>메소드는 항상 메소드의 수신자의 타입을 가지는 <code>self</code>라고 불리는 특별한 인자로 시작한다는 점만 제외하면 함수와 비슷하다. <code>self</code> 인자는 C++과 많은 다른 언어들에서의 <code>this</code>와 비슷하다. 메소드는 <code>my_vec.len()</code>에서 처럼 점 표기를 이용해 불려진다.</p>
+<p><code>impl</code> 키워드로 적혀지는 <em>Implementations</em>는 구조체와 열거형을 포함한 대부분의 Rust 타입의 메소드를 정의한다. 예를들어, 우리가 만든 <code>Shape</code> 열거형의 <code>draw</code> 메소드를 정의해보자.</p>
 <pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {
     <span class="cm-variable">x</span>: <span class="cm-variable">float</span>,
     <span class="cm-variable">y</span>: <span class="cm-variable">float</span>
@@ -915,8 +915,8 @@ hello.rs:2     print_with_unicorns(&quot;hello?&quot;);
 <span class="cm-variable">s</span>.<span class="cm-variable">draw</span>();
 </pre>
 
-<p>This defines an <em>implementation</em> for <code>Shape</code> containing a single method, <code>draw</code>. In most respects the <code>draw</code> method is defined like any other function, except for the name <code>self</code>.</p>
-<p>The type of <code>self</code> is the type on which the method is implemented, or a pointer thereof. As an argument it is written either <code>self</code>, <code>&amp;self</code>, <code>@self</code>, or <code>~self</code>. A caller must in turn have a compatible pointer type to call the method.</p>
+<p>이 코드는 <code>Shape</code>에 하나의 <code>draw</code> 메소드를 포함하기 위한 <em>implementation</em>을 정의한다. In most respects the <code>draw</code> 메소드는 여타 다른 함수처럼 정의된다, <code>self</code>라는 이름을 제외하고.</p>
+<p><code>self</code>의 타입은 메소드가 구현되어있는 타입이나 이에 관련된 포인터이다. 인자로서 <code>self</code>, <code>&amp;self</code>, <code>@self</code>, 또는 <code>~self</code>으로 적는다. 호출자는 메소드를 호출하기 위해 호환할 수 있는 포인터 타입을 차례로 가져야한다.</p>
 <pre class="cm-s-default"><span class="cm-keyword">impl</span> <span class="cm-def">Shape</span> {
     <span class="cm-keyword">fn</span> <span class="cm-def">draw_borrowed</span>(&amp;<span class="cm-keyword">self</span>) { ... }
     <span class="cm-keyword">fn</span> <span class="cm-def">draw_managed</span>(@<span class="cm-keyword">self</span>) { ... }

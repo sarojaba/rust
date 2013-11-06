@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title>Rust 빌린 포인터 튜토리얼</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="rust.css" type="text/css" />
+</head>
+<body>
+<div id="header">
+<h1 class="title">Rust 빌린 포인터 튜토리얼</h1>
+</div>
+<div id="TOC">
+<ul>
+<li><a href="#소개"><span class="toc-section-number">1</span> 소개</a></li>
+<li><a href="#예제를-통해-알아보기"><span class="toc-section-number">2</span> 예제를 통해 알아보기</a></li>
+<li><a href="#other-uses-for-the-operator"><span class="toc-section-number">3</span> Other uses for the &amp; operator</a></li>
+<li><a href="#taking-the-address-of-fields"><span class="toc-section-number">4</span> Taking the address of fields</a></li>
+<li><a href="#borrowing-managed-boxes-and-rooting"><span class="toc-section-number">5</span> Borrowing managed boxes and rooting</a></li>
+<li><a href="#borrowing-owned-boxes"><span class="toc-section-number">6</span> Borrowing owned boxes</a></li>
+<li><a href="#borrowing-and-enums"><span class="toc-section-number">7</span> Borrowing and enums</a></li>
+<li><a href="#returning-borrowed-pointers"><span class="toc-section-number">8</span> Returning borrowed pointers</a></li>
+<li><a href="#named-lifetimes"><span class="toc-section-number">9</span> Named lifetimes</a></li>
+<li><a href="#conclusion"><span class="toc-section-number">10</span> Conclusion</a></li>
+</ul>
+</div>
+<h1 id="소개"><a href="#소개"><span class="header-section-number">1</span> 소개</a></h1>
+<p>빌린 포인터는 Rust에서 사용할 수 있는 더 유연하고 강력한 도구 중에 하나이다. 빌린 포인터는 어느 곳이든 가리킬 수 있다. (관리되거나 exchange 힙으로, 스택으로, 그리고 그 외의 자료구조의 내부 조차도). 빌린 포인터는 C 포인터나 C++ 레퍼런스만큼 유연하다. 그러나, C 와 C++ 컴파일러와는 다르게, Rust 컴파일러는 프로그램이 빌린 포인터를 안전하게 사용할 수 있도록 보장하는 특별한 정적 검사를 가지고 있다. 빌린 포인터의 또다른 장점은 가비지 컬렉팅이 보이지 않는다는 것이다. 그래서 빌린 포인터로 작업하는 것은 자동 메모리 관리의 오버헤드를 감소시키는데 도움을 준다.</p>
+<p>빌린 포인터가 완전히 안전함에도 불구하고, 런타임 중에 빌린 포인터는 C 프로그램에서의 평범한 포인터와 같다. 이것은 전혀 오버헤드가 없다. 컴파일러는 모든 안전성 검사를 컴파일 시간에 한다.</p>
+<p>비록 빌린 포인터가 정교한 이론상의 기반(지역 포인터)은 없지만, 핵심 컨셉은 C나 C++로 일하는 누구나에게 친숙할 것이다. Therefore, the best way to explain 어떻게 사용되고—그것의 한계—is probably just to work 몇개의 예제를 통해.</p>
+<h1 id="예제를-통해-알아보기"><a href="#예제를-통해-알아보기"><span class="header-section-number">2</span> 예제를 통해 알아보기</a></h1>
+<p>빌린 포인터는 <em>borrowed</em>라고 불린다. 왜냐하면 제한된 지속기간에만 유효하기 때문이다. 빌린 포인터는 가리키는 데이터로 어떤 종류의 소유권도 절대 요구하지 않는다. 대신, 짧은 시간동안 데이터를 사용하는 상황에 사용될 것이다.</p>
+<p>예를 들면, 단순한 구조체 타입 <code>Point</code>를 살펴보자.</p>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-variable">float</span>, <span class="cm-variable">y</span>: <span class="cm-variable">float</span>}
+</pre>
+
+<p>우리는 다양한 방식으로 점을 할당하기 위해 이 단순한 정의를 사용할 수 있다. 예를 들어, 이 코드에서, 각각의 세개의 지역 변수는 점을 포함하지만, 서로 다른 장소에 할당되어 있다.</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">on_the_stack</span> :  <span class="cm-variable-3">Point</span> =  <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">3.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">4.0</span>};
+<span class="cm-keyword">let</span> <span class="cm-def">managed_box</span>  : @<span class="cm-variable-3">Point</span> = @<span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">5.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">1.0</span>};
+<span class="cm-keyword">let</span> <span class="cm-def">owned_box</span>    : <span class="cm-variable-3">~Point</span> = <span class="cm-variable">~Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">7.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">9.0</span>};
+</pre>
+
+<p>두 점 사이의 거리를 계산하는 절차를 기술하는 것을 원했다고 가정하면, 그것들이 저장되는 장소는 중요하지 않다. 예를 들어, <code>on_the_stack</code>과 <code>managed_box</code> 사이나 <code>managed_box</code>과 <code>owned_box</code> 사이의 거리를 계산해보자. 한가지 방법은 <code>Point</code> 타입의 두개의 인자를 취하는 함수를 정의하는 것이다. 즉, 값으로 점들을 취한다. 그러나 이 방법으로 정의한다면, 함수를 호출하는 것은 점들이 복사되는 것을 야기할 것이다. 점들의 입장에서는, 이것은 아마도 그닥 나쁘지는 않지만, 잦은 복사는 비용이 많이 든다. 더 안좋은건, 데이터 타입이 변할 수 있는 필드를 가지고 있으면, 복사하는 것은 당신의 프로그램의 의미를 의도하지 않는 방식으로 바꿀 수도 있다. 그래서 포인터로 점들을 취하는 함수를 정의하려 한다. 빌린 포인터를 사용해 이렇게 할 수 있다.</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">compute_distance</span>(<span class="cm-def">p1</span>: &amp;<span class="cm-variable-3">Point</span>, <span class="cm-def">p2</span>: &amp;<span class="cm-variable-3">Point</span>) -&gt; <span class="cm-keyword">float</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">x_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">x</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">x</span>;
+    <span class="cm-keyword">let</span> <span class="cm-def">y_d</span> = <span class="cm-variable">p1</span>.<span class="cm-variable">y</span> - <span class="cm-variable">p2</span>.<span class="cm-variable">y</span>;
+    <span class="cm-variable">sqrt</span>(<span class="cm-variable">x_d</span> * <span class="cm-variable">x_d</span> + <span class="cm-variable">y_d</span> * <span class="cm-variable">y_d</span>)
+}
+</pre>
+
+<p>이제 우리는 <code>compute_distance()</code>를 다양한 방식으로 호출할 수 있다.</p>
+<pre class="cm-s-default"><span class="cm-variable">compute_distance</span>(&amp;<span class="cm-variable">on_the_stack</span>, <span class="cm-variable">managed_box</span>);
+<span class="cm-variable">compute_distance</span>(<span class="cm-variable">managed_box</span>, <span class="cm-variable">owned_box</span>);
+</pre>
+
+<p>Here, the <code>&amp;</code> operator takes the address of the variable <code>on_the_stack</code>; this is because <code>on_the_stack</code> has the type <code>Point</code> (that is, a struct value) and we have to take its address to get a value. We also call this <em>borrowing</em> the local variable <code>on_the_stack</code>, because we have created an alias: that is, another name for the same data.</p>
+<p>In contrast, we can pass the boxes <code>managed_box</code> and <code>owned_box</code> to <code>compute_distance</code> directly. The compiler automatically converts a box like <code>@Point</code> or <code>~Point</code> to a borrowed pointer like <code>&amp;Point</code>. This is another form of borrowing: in this case, the caller lends the contents of the managed or owned box to the callee.</p>
+<p>Whenever a caller lends data to a callee, there are some limitations on what the caller can do with the original. For example, if the contents of a variable have been lent out, you cannot send that variable to another task. In addition, the compiler will reject any code that might cause the borrowed value to be freed or overwrite its component fields with values of different types (I'll get into what kinds of actions those are shortly). This rule should make intuitive sense: you must wait for a borrower to return the value that you lent it (that is, wait for the borrowed pointer to go out of scope) before you can make full use of it again.</p>
+<h1 id="other-uses-for-the-operator"><a href="#other-uses-for-the-operator"><span class="header-section-number">3</span> Other uses for the &amp; operator</a></h1>
+<p>In the previous example, the value <code>on_the_stack</code> was defined like so:</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">on_the_stack</span>: <span class="cm-variable-3">Point</span> = <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">3.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">4.0</span>};
+</pre>
+
+<p>This declaration means that code can only pass <code>Point</code> by value to other functions. As a consequence, we had to explicitly take the address of <code>on_the_stack</code> to get a borrowed pointer. Sometimes however it is more convenient to move the &amp; operator into the definition of <code>on_the_stack</code>:</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">on_the_stack2</span>: &amp;<span class="cm-variable-3">Point</span> = &amp;<span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">3.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">4.0</span>};
+</pre>
+
+<p>Applying <code>&amp;</code> to an rvalue (non-assignable location) is just a convenient shorthand for creating a temporary and taking its address. A more verbose way to write the same code is:</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">tmp</span> = <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">3.0</span>, <span class="cm-variable">y</span>: <span class="cm-number">4.0</span>};
+<span class="cm-keyword">let</span> <span class="cm-def">on_the_stack2</span> : &amp;<span class="cm-variable-3">Point</span> = &amp;<span class="cm-variable">tmp</span>;
+</pre>
+
+<h1 id="taking-the-address-of-fields"><a href="#taking-the-address-of-fields"><span class="header-section-number">4</span> Taking the address of fields</a></h1>
+<p>As in C, the <code>&amp;</code> operator is not limited to taking the address of local variables. It can also take the address of fields or individual array elements. For example, consider this type definition for <code>rectangle</code>:</p>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-variable">float</span>, <span class="cm-variable">y</span>: <span class="cm-variable">float</span>} <span class="cm-comment">// as before</span>
+<span class="cm-keyword">struct</span> <span class="cm-variable">Size</span> {<span class="cm-variable">w</span>: <span class="cm-variable">float</span>, <span class="cm-variable">h</span>: <span class="cm-variable">float</span>} <span class="cm-comment">// as before</span>
+<span class="cm-keyword">struct</span> <span class="cm-variable">Rectangle</span> {<span class="cm-variable">origin</span>: <span class="cm-variable">Point</span>, <span class="cm-variable">size</span>: <span class="cm-variable">Size</span>}
+</pre>
+
+<p>Now, as before, we can define rectangles in a few different ways:</p>
+<pre class="cm-s-default"><span class="cm-keyword">let</span> <span class="cm-def">rect_stack</span>   = &amp;<span class="cm-variable">Rectangle</span> {<span class="cm-variable">origin</span>: <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">1</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">2</span><span class="cm-variable">f</span>},
+                               <span class="cm-def">size</span>: <span class="cm-variable-3">Size</span> {<span class="cm-def">w</span>: <span class="cm-number">3</span><span class="cm-variable">f</span>, <span class="cm-def">h</span>: <span class="cm-number">4</span><span class="cm-variable">f</span>}};
+<span class="cm-keyword">let</span> <span class="cm-def">rect_managed</span> = @<span class="cm-variable">Rectangle</span> {<span class="cm-variable">origin</span>: <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">3</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">4</span><span class="cm-variable">f</span>},
+                               <span class="cm-def">size</span>: <span class="cm-variable-3">Size</span> {<span class="cm-def">w</span>: <span class="cm-number">3</span><span class="cm-variable">f</span>, <span class="cm-def">h</span>: <span class="cm-number">4</span><span class="cm-variable">f</span>}};
+<span class="cm-keyword">let</span> <span class="cm-def">rect_owned</span>   = <span class="cm-variable">~Rectangle</span> {<span class="cm-variable">origin</span>: <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">5</span><span class="cm-variable">f</span>, <span class="cm-variable">y</span>: <span class="cm-number">6</span><span class="cm-variable">f</span>},
+                               <span class="cm-def">size</span>: <span class="cm-variable-3">Size</span> {<span class="cm-def">w</span>: <span class="cm-number">3</span><span class="cm-variable">f</span>, <span class="cm-def">h</span>: <span class="cm-number">4</span><span class="cm-variable">f</span>}};
+</pre>
+
+<p>In each case, we can extract out individual subcomponents with the <code>&amp;</code> operator. For example, I could write:</p>
+<pre class="cm-s-default"><span class="cm-variable">compute_distance</span>(&amp;<span class="cm-variable">rect_stack</span>.<span class="cm-variable">origin</span>, &amp;<span class="cm-variable">rect_managed</span>.<span class="cm-variable">origin</span>);
+</pre>
+
+<p>which would borrow the field <code>origin</code> from the rectangle on the stack as well as from the managed box, and then compute the distance between them.</p>
+<h1 id="borrowing-managed-boxes-and-rooting"><a href="#borrowing-managed-boxes-and-rooting"><span class="header-section-number">5</span> Borrowing managed boxes and rooting</a></h1>
+<p>We’ve seen a few examples so far of borrowing heap boxes, both managed and owned. Up till this point, we’ve glossed over issues of safety. As stated in the introduction, at runtime a borrowed pointer is simply a pointer, nothing more. Therefore, avoiding C's problems with dangling pointers requires a compile-time safety check.</p>
+<p>The basis for the check is the notion of <em>lifetimes</em>. A lifetime is a static approximation of the span of execution during which the pointer is valid: it always corresponds to some expression or block within the program. Code inside that expression can use the pointer without restrictions. But if the pointer escapes from that expression (for example, if the expression contains an assignment expression that assigns the pointer to a mutable field of a data structure with a broader scope than the pointer itself), the compiler reports an error. We'll be discussing lifetimes more in the examples to come, and a more thorough introduction is also available.</p>
+<p>When the <code>&amp;</code> operator creates a borrowed pointer, the compiler must ensure that the pointer remains valid for its entire lifetime. Sometimes this is relatively easy, such as when taking the address of a local variable or a field that is stored on the stack:</p>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">X</span> { <span class="cm-variable">f</span>: <span class="cm-variable">int</span> }
+<span class="cm-keyword">fn</span> <span class="cm-def">example1</span>() {
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-variable">X</span> { <span class="cm-variable">f</span>: <span class="cm-number">3</span> };
+    <span class="cm-keyword">let</span> <span class="cm-def">y</span> = &amp;<span class="cm-variable">mut</span> <span class="cm-variable">x</span>.<span class="cm-variable">f</span>;  <span class="cm-comment">// -+ L</span>
+    ...                <span class="cm-comment">//  |</span>
+}                      <span class="cm-comment">// -+</span>
+</pre>
+
+<p>Here, the lifetime of the borrowed pointer <code>y</code> is simply L, the remainder of the function body. The compiler need not do any other work to prove that code will not free <code>x.f</code>. This is true even if the code mutates <code>x</code>.</p>
+<p>The situation gets more complex when borrowing data inside heap boxes:</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">example2</span>() {
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = @<span class="cm-variable">X</span> { <span class="cm-variable">f</span>: <span class="cm-number">3</span> };
+    <span class="cm-keyword">let</span> <span class="cm-def">y</span> = &amp;<span class="cm-variable">x</span>.<span class="cm-variable">f</span>;      <span class="cm-comment">// -+ L</span>
+    ...                <span class="cm-comment">//  |</span>
+}                      <span class="cm-comment">// -+</span>
+</pre>
+
+<p>In this example, the value <code>x</code> is a heap box, and <code>y</code> is therefore a pointer into that heap box. Again the lifetime of <code>y</code> is L, the remainder of the function body. But there is a crucial difference: suppose <code>x</code> were to be reassigned during the lifetime L? If the compiler isn't careful, the managed box could become <em>unrooted</em>, and would therefore be subject to garbage collection. A heap box that is unrooted is one such that no pointer values in the heap point to it. It would violate memory safety for the box that was originally assigned to <code>x</code> to be garbage-collected, since a non-heap pointer <em><code>y</code></em> still points into it.</p>
+<blockquote>
+<p><strong><em>Note:</em></strong> Our current implementation implements the garbage collector using reference counting and cycle detection.</p>
+</blockquote>
+<p>For this reason, whenever an <code>&amp;</code> expression borrows the interior of a managed box stored in a mutable location, the compiler inserts a temporary that ensures that the managed box remains live for the entire lifetime. So, the above example would be compiled as if it were written</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">example2</span>() {
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = @<span class="cm-variable">X</span> {<span class="cm-variable">f</span>: <span class="cm-number">3</span>};
+    <span class="cm-keyword">let</span> <span class="cm-def">x1</span> = <span class="cm-variable">x</span>;
+    <span class="cm-keyword">let</span> <span class="cm-def">y</span> = &amp;<span class="cm-variable">x1</span>.<span class="cm-variable">f</span>;     <span class="cm-comment">// -+ L</span>
+    ...                <span class="cm-comment">//  |</span>
+}                      <span class="cm-comment">// -+</span>
+</pre>
+
+<p>Now if <code>x</code> is reassigned, the pointer <code>y</code> will still remain valid. This process is called <em>rooting</em>.</p>
+<h1 id="borrowing-owned-boxes"><a href="#borrowing-owned-boxes"><span class="header-section-number">6</span> Borrowing owned boxes</a></h1>
+<p>The previous example demonstrated <em>rooting</em>, the process by which the compiler ensures that managed boxes remain live for the duration of a borrow. Unfortunately, rooting does not work for borrows of owned boxes, because it is not possible to have two references to a owned box.</p>
+<p>For owned boxes, therefore, the compiler will only allow a borrow <em>if the compiler can guarantee that the owned box will not be reassigned or moved for the lifetime of the pointer</em>. This does not necessarily mean that the owned box is stored in immutable memory. For example, the following function is legal:</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">example3</span>() -&gt; <span class="cm-keyword">int</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-variable">~Foo</span> {<span class="cm-variable">f</span>: <span class="cm-number">3</span>};
+    <span class="cm-keyword">if</span> <span class="cm-variable">some_condition</span>() {
+        <span class="cm-keyword">let</span> <span class="cm-def">y</span> = &amp;<span class="cm-variable">x</span>.<span class="cm-variable">f</span>;      <span class="cm-comment">// -+ L</span>
+        <span class="cm-keyword">return</span> *<span class="cm-variable">y</span>;         <span class="cm-comment">//  |</span>
+    }                      <span class="cm-comment">// -+</span>
+    <span class="cm-variable">x</span> = <span class="cm-variable">~Foo</span> {<span class="cm-variable">f</span>: <span class="cm-number">4</span>};
+    ...
+}
+</pre>
+
+<p>Here, as before, the interior of the variable <code>x</code> is being borrowed and <code>x</code> is declared as mutable. However, the compiler can prove that <code>x</code> is not assigned anywhere in the lifetime L of the variable <code>y</code>. Therefore, it accepts the function, even though <code>x</code> is mutable and in fact is mutated later in the function.</p>
+<p>It may not be clear why we are so concerned about mutating a borrowed variable. The reason is that the runtime system frees any owned box <em>as soon as its owning reference changes or goes out of scope</em>. Therefore, a program like this is illegal (and would be rejected by the compiler):</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">example3</span>() -&gt; <span class="cm-keyword">int</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-variable">~X</span> {<span class="cm-variable">f</span>: <span class="cm-number">3</span>};
+    <span class="cm-keyword">let</span> <span class="cm-def">y</span> = &amp;<span class="cm-variable">x</span>.<span class="cm-variable">f</span>;
+    <span class="cm-variable">x</span> = <span class="cm-variable">~X</span> {<span class="cm-variable">f</span>: <span class="cm-number">4</span>};  <span class="cm-comment">// Error reported here.</span>
+    *<span class="cm-variable">y</span>
+}
+</pre>
+
+<p>To make this clearer, consider this diagram showing the state of memory immediately before the re-assignment of <code>x</code>:</p>
+<pre class="notrust"><code>    Stack               Exchange Heap
+
+  x +----------+
+    | ~{f:int} | ----+
+  y +----------+     |
+    | &amp;int     | ----+
+    +----------+     |    +---------+
+                     +--&gt; |  f: 3   |
+                          +---------+</code></pre>
+<p>Once the reassignment occurs, the memory will look like this:</p>
+<pre class="notrust"><code>    Stack               Exchange Heap
+
+  x +----------+          +---------+
+    | ~{f:int} | -------&gt; |  f: 4   |
+  y +----------+          +---------+
+    | &amp;int     | ----+
+    +----------+     |    +---------+
+                     +--&gt; | (freed) |
+                          +---------+</code></pre>
+<p>Here you can see that the variable <code>y</code> still points at the old box, which has been freed.</p>
+<p>In fact, the compiler can apply the same kind of reasoning to any memory that is <em>(uniquely) owned by the stack frame</em>. So we could modify the previous example to introduce additional owned pointers and structs, and the compiler will still be able to detect possible mutations:</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">example3</span>() -&gt; <span class="cm-keyword">int</span> {
+    <span class="cm-keyword">struct</span> <span class="cm-variable">R</span> { <span class="cm-variable">g</span>: <span class="cm-variable">int</span> }
+    <span class="cm-keyword">struct</span> <span class="cm-variable">S</span> { <span class="cm-variable">f</span>: <span class="cm-variable">~R</span> }
+
+    <span class="cm-keyword">let</span> <span class="cm-def">mut</span> <span class="cm-def">x</span> = <span class="cm-variable">~S</span> {<span class="cm-variable">f</span>: <span class="cm-variable">~R</span> {<span class="cm-variable">g</span>: <span class="cm-number">3</span>}};
+    <span class="cm-keyword">let</span> <span class="cm-def">y</span> = &amp;<span class="cm-variable">x</span>.<span class="cm-variable">f</span>.<span class="cm-variable">g</span>;
+    <span class="cm-variable">x</span> = <span class="cm-variable">~S</span> {<span class="cm-variable">f</span>: <span class="cm-variable">~R</span> {<span class="cm-variable">g</span>: <span class="cm-number">4</span>}};  <span class="cm-comment">// Error reported here.</span>
+    <span class="cm-variable">x</span>.<span class="cm-variable">f</span> = <span class="cm-variable">~R</span> {<span class="cm-variable">g</span>: <span class="cm-number">5</span>};        <span class="cm-comment">// Error reported here.</span>
+    *<span class="cm-variable">y</span>
+}
+</pre>
+
+<p>In this case, two errors are reported, one when the variable <code>x</code> is modified and another when <code>x.f</code> is modified. Either modification would invalidate the pointer <code>y</code>.</p>
+<h1 id="borrowing-and-enums"><a href="#borrowing-and-enums"><span class="header-section-number">7</span> Borrowing and enums</a></h1>
+<p>The previous example showed that the type system forbids any borrowing of owned boxes found in aliasable, mutable memory. This restriction prevents pointers from pointing into freed memory. There is one other case where the compiler must be very careful to ensure that pointers remain valid: pointers into the interior of an <code>enum</code>.</p>
+<p>As an example, let’s look at the following <code>shape</code> type that can represent both rectangles and circles:</p>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-variable">float</span>, <span class="cm-variable">y</span>: <span class="cm-variable">float</span>}; <span class="cm-comment">// as before</span>
+<span class="cm-keyword">struct</span> <span class="cm-variable">Size</span> {<span class="cm-variable">w</span>: <span class="cm-variable">float</span>, <span class="cm-variable">h</span>: <span class="cm-variable">float</span>}; <span class="cm-comment">// as before</span>
+<span class="cm-keyword">enum</span> <span class="cm-def">Shape</span> {
+    <span class="cm-def">Circle</span>(<span class="cm-variable-3">Point</span>, <span class="cm-keyword">float</span>),   <span class="cm-comment">// origin, radius</span>
+    <span class="cm-def">Rectangle</span>(<span class="cm-variable-3">Point</span>, <span class="cm-variable-3">Size</span>)  <span class="cm-comment">// upper-left, dimensions</span>
+}
+</pre>
+
+<p>Now we might write a function to compute the area of a shape. This function takes a borrowed pointer to a shape, to avoid the need for copying.</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">compute_area</span>(<span class="cm-def">shape</span>: &amp;<span class="cm-variable-3">Shape</span>) -&gt; <span class="cm-keyword">float</span> {
+    <span class="cm-keyword">match</span> *<span class="cm-variable">shape</span> {
+        <span class="cm-def">Circle</span>(<span class="cm-def">_</span>, <span class="cm-def">radius</span>) =&gt; <span class="cm-number">0.5</span> * <span class="cm-def">tau</span> * <span class="cm-def">radius</span> * <span class="cm-def">radius</span>,
+        <span class="cm-def">Rectangle</span>(<span class="cm-def">_</span>, <span class="cm-def">ref</span> <span class="cm-variable">size</span>) =&gt; <span class="cm-def">size</span>.<span class="cm-def">w</span> * <span class="cm-def">size</span>.<span class="cm-def">h</span>
+    }
+}
+</pre>
+
+<p>The first case matches against circles. Here, the pattern extracts the radius from the shape variant and the action uses it to compute the area of the circle. (Like any up-to-date engineer, we use the <a href="http://www.math.utah.edu/~palais/pi.html">tau circle constant</a> and not that dreadfully outdated notion of pi).</p>
+<p>The second match is more interesting. Here we match against a rectangle and extract its size: but rather than copy the <code>size</code> struct, we use a by-reference binding to create a pointer to it. In other words, a pattern binding like <code>ref size</code> binds the name <code>size</code> to a pointer of type <code>&amp;size</code> into the <em>interior of the enum</em>.</p>
+<p>To make this more clear, let's look at a diagram of memory layout in the case where <code>shape</code> points at a rectangle:</p>
+<pre class="notrust"><code>Stack             Memory
+
++-------+         +---------------+
+| shape | ------&gt; | rectangle(    |
++-------+         |   {x: float,  |
+| size  | -+      |    y: float}, |
++-------+  +----&gt; |   {w: float,  |
+                  |    h: float}) |
+                  +---------------+</code></pre>
+<p>Here you can see that rectangular shapes are composed of five words of memory. The first is a tag indicating which variant this enum is (<code>rectangle</code>, in this case). The next two words are the <code>x</code> and <code>y</code> fields for the point and the remaining two are the <code>w</code> and <code>h</code> fields for the size. The binding <code>size</code> is then a pointer into the inside of the shape.</p>
+<p>Perhaps you can see where the danger lies: if the shape were somehow to be reassigned, perhaps to a circle, then although the memory used to store that shape value would still be valid, <em>it would have a different type</em>! The following diagram shows what memory would look like if code overwrote <code>shape</code> with a circle:</p>
+<pre class="notrust"><code>Stack             Memory
+
++-------+         +---------------+
+| shape | ------&gt; | circle(       |
++-------+         |   {x: float,  |
+| size  | -+      |    y: float}, |
++-------+  +----&gt; |   float)      |
+                  |               |
+                  +---------------+</code></pre>
+<p>As you can see, the <code>size</code> pointer would be pointing at a <code>float</code> instead of a struct. This is not good: dereferencing the second field of a <code>float</code> as if it were a struct with two fields would be a memory safety violation.</p>
+<p>So, in fact, for every <code>ref</code> binding, the compiler will impose the same rules as the ones we saw for borrowing the interior of a owned box: it must be able to guarantee that the <code>enum</code> will not be overwritten for the duration of the borrow. In fact, the compiler would accept the example we gave earlier. The example is safe because the shape pointer has type <code>&amp;Shape</code>, which means &quot;borrowed pointer to immutable memory containing a <code>shape</code>&quot;. If, however, the type of that pointer were <code>&amp;mut Shape</code>, then the ref binding would be ill-typed. Just as with owned boxes, the compiler will permit <code>ref</code> bindings into data owned by the stack frame even if the data are mutable, but otherwise it requires that the data reside in immutable memory.</p>
+<h1 id="returning-borrowed-pointers"><a href="#returning-borrowed-pointers"><span class="header-section-number">8</span> Returning borrowed pointers</a></h1>
+<p>So far, all of the examples we have looked at, use borrowed pointers in a “downward” direction. That is, a method or code block creates a borrowed pointer, then uses it within the same scope. It is also possible to return borrowed pointers as the result of a function, but as we'll see, doing so requires some explicit annotation.</p>
+<p>For example, we could write a subroutine like this:</p>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-variable">float</span>, <span class="cm-variable">y</span>: <span class="cm-variable">float</span>}
+<span class="cm-keyword">fn</span> <span class="cm-def">get_x</span>&lt;<span class="cm-error">'r</span>&gt;(<span class="cm-def">p</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">Point</span>) -&gt; &amp;<span class="cm-error">'r</span> <span class="cm-keyword">float</span> { &amp;<span class="cm-variable">p</span>.<span class="cm-variable">x</span> }
+</pre>
+
+<p>Here, the function <code>get_x()</code> returns a pointer into the structure it was given. The type of the parameter (<code>&amp;'r Point</code>) and return type (<code>&amp;'r float</code>) both use a new syntactic form that we have not seen so far. Here the identifier <code>r</code> names the lifetime of the pointer explicitly. So in effect, this function declares that it takes a pointer with lifetime <code>r</code> and returns a pointer with that same lifetime.</p>
+<p>In general, it is only possible to return borrowed pointers if they are derived from a parameter to the procedure. In that case, the pointer result will always have the same lifetime as one of the parameters; named lifetimes indicate which parameter that is.</p>
+<p>In the previous examples, function parameter types did not include a lifetime name. In those examples, the compiler simply creates a fresh name for the lifetime automatically: that is, the lifetime name is guaranteed to refer to a distinct lifetime from the lifetimes of all other parameters.</p>
+<p>Named lifetimes that appear in function signatures are conceptually the same as the other lifetimes we have seen before, but they are a bit abstract: they don’t refer to a specific expression within <code>get_x()</code>, but rather to some expression within the <em>caller of <code>get_x()</code></em>. The lifetime <code>r</code> is actually a kind of <em>lifetime parameter</em>: it is defined by the caller to <code>get_x()</code>, just as the value for the parameter <code>p</code> is defined by that caller.</p>
+<p>In any case, whatever the lifetime of <code>r</code> is, the pointer produced by <code>&amp;p.x</code> always has the same lifetime as <code>p</code> itself: a pointer to a field of a struct is valid as long as the struct is valid. Therefore, the compiler accepts the function <code>get_x()</code>.</p>
+<p>To emphasize this point, let’s look at a variation on the example, this time one that does not compile:</p>
+<pre class="cm-s-default"><span class="cm-keyword">struct</span> <span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-variable">float</span>, <span class="cm-variable">y</span>: <span class="cm-variable">float</span>}
+<span class="cm-keyword">fn</span> <span class="cm-def">get_x_sh</span>(<span class="cm-def">p</span>: @<span class="cm-variable-3">Point</span>) -&gt; &amp;<span class="cm-keyword">float</span> {
+    &amp;<span class="cm-variable">p</span>.<span class="cm-variable">x</span> <span class="cm-comment">// Error reported here</span>
+}
+</pre>
+
+<p>Here, the function <code>get_x_sh()</code> takes a managed box as input and returns a borrowed pointer. As before, the lifetime of the borrowed pointer that will be returned is a parameter (specified by the caller). That means that <code>get_x_sh()</code> promises to return a borrowed pointer that is valid for as long as the caller would like: this is subtly different from the first example, which promised to return a pointer that was valid for as long as its pointer argument was valid.</p>
+<p>Within <code>get_x_sh()</code>, we see the expression <code>&amp;p.x</code> which takes the address of a field of a managed box. The presence of this expression implies that the compiler must guarantee that, so long as the resulting pointer is valid, the managed box will not be reclaimed by the garbage collector. But recall that <code>get_x_sh()</code> also promised to return a pointer that was valid for as long as the caller wanted it to be. Clearly, <code>get_x_sh()</code> is not in a position to make both of these guarantees; in fact, it cannot guarantee that the pointer will remain valid at all once it returns, as the parameter <code>p</code> may or may not be live in the caller. Therefore, the compiler will report an error here.</p>
+<p>In general, if you borrow a managed (or owned) box to create a borrowed pointer, the pointer will only be valid within the function and cannot be returned. This is why the typical way to return borrowed pointers is to take borrowed pointers as input (the only other case in which it can be legal to return a borrowed pointer is if the pointer points at a static constant).</p>
+<h1 id="named-lifetimes"><a href="#named-lifetimes"><span class="header-section-number">9</span> Named lifetimes</a></h1>
+<p>Let's look at named lifetimes in more detail. Named lifetimes allow for grouping of parameters by lifetime. For example, consider this function:</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">select</span>&lt;<span class="cm-error">'r</span>, <span class="cm-variable-3">T</span>&gt;(<span class="cm-def">shape</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">Shape</span>, <span class="cm-def">threshold</span>: <span class="cm-keyword">float</span>,
+                 <span class="cm-def">a</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>, <span class="cm-def">b</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>) -&gt; &amp;<span class="cm-error">'r</span> <span class="cm-def">T</span> {
+    <span class="cm-keyword">if</span> <span class="cm-variable">compute_area</span>(<span class="cm-variable">shape</span>) &gt; <span class="cm-variable">threshold</span> {<span class="cm-variable">a</span>} <span class="cm-keyword">else</span> {<span class="cm-variable">b</span>}
+}
+</pre>
+
+<p>This function takes three borrowed pointers and assigns each the same lifetime <code>r</code>. In practice, this means that, in the caller, the lifetime <code>r</code> will be the <em>intersection of the lifetime of the three region parameters</em>. This may be overly conservative, as in this example:</p>
+<pre class="cm-s-default">                                                     <span class="cm-comment">// -+ r</span>
+<span class="cm-keyword">fn</span> <span class="cm-def">select_based_on_unit_circle</span>&lt;<span class="cm-error">'r</span>, <span class="cm-variable-3">T</span>&gt;(               <span class="cm-comment">//  |-+ B</span>
+    <span class="cm-def">threshold</span>: <span class="cm-keyword">float</span>, <span class="cm-def">a</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>, <span class="cm-def">b</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>) -&gt; &amp;<span class="cm-error">'r</span> <span class="cm-def">T</span> { <span class="cm-comment">//  | |</span>
+                                                     <span class="cm-comment">//  | |</span>
+    <span class="cm-keyword">let</span> <span class="cm-def">shape</span> = <span class="cm-variable">Circle</span>(<span class="cm-variable">Point</span> {<span class="cm-variable">x</span>: <span class="cm-number">0.</span>, <span class="cm-variable">y</span>: <span class="cm-number">0.</span>}, <span class="cm-number">1.</span>);    <span class="cm-comment">//  | |</span>
+    <span class="cm-variable">select</span>(&amp;<span class="cm-variable">shape</span>, <span class="cm-variable">threshold</span>, <span class="cm-variable">a</span>, <span class="cm-variable">b</span>)                  <span class="cm-comment">//  | |</span>
+}                                                    <span class="cm-comment">//  |-+</span>
+                                                     <span class="cm-comment">// -+</span>
+</pre>
+
+<p>In this call to <code>select()</code>, the lifetime of the first parameter shape is B, the function body. Both of the second two parameters <code>a</code> and <code>b</code> share the same lifetime, <code>r</code>, which is a lifetime parameter of <code>select_based_on_unit_circle()</code>. The caller will infer the intersection of these two lifetimes as the lifetime of the returned value, and hence the return value of <code>select()</code> will be assigned a lifetime of B. This will in turn lead to a compilation error, because <code>select_based_on_unit_circle()</code> is supposed to return a value with the lifetime <code>r</code>.</p>
+<p>To address this, we can modify the definition of <code>select()</code> to distinguish the lifetime of the first parameter from the lifetime of the latter two. After all, the first parameter is not being returned. Here is how the new <code>select()</code> might look:</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">select</span>&lt;<span class="cm-error">'r</span>, <span class="cm-error">'t</span><span class="cm-variable-3">mp</span>, <span class="cm-variable-3">T</span>&gt;(<span class="cm-def">shape</span>: &amp;<span class="cm-error">'t</span><span class="cm-variable">mp</span> <span class="cm-variable">Shape</span>, <span class="cm-def">threshold</span>: <span class="cm-keyword">float</span>,
+                       <span class="cm-def">a</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>, <span class="cm-def">b</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>) -&gt; &amp;<span class="cm-error">'r</span> <span class="cm-def">T</span> {
+    <span class="cm-keyword">if</span> <span class="cm-variable">compute_area</span>(<span class="cm-variable">shape</span>) &gt; <span class="cm-variable">threshold</span> {<span class="cm-variable">a</span>} <span class="cm-keyword">else</span> {<span class="cm-variable">b</span>}
+}
+</pre>
+
+<p>Here you can see that <code>shape</code>'s lifetime is now named <code>tmp</code>. The parameters <code>a</code>, <code>b</code>, and the return value all have the lifetime <code>r</code>. However, since the lifetime <code>tmp</code> is not returned, it would be more concise to just omit the named lifetime for <code>shape</code> altogether:</p>
+<pre class="cm-s-default"><span class="cm-keyword">fn</span> <span class="cm-def">select</span>&lt;<span class="cm-error">'r</span>, <span class="cm-variable-3">T</span>&gt;(<span class="cm-def">shape</span>: &amp;<span class="cm-variable-3">Shape</span>, <span class="cm-def">threshold</span>: <span class="cm-keyword">float</span>,
+                 <span class="cm-def">a</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>, <span class="cm-def">b</span>: &amp;<span class="cm-error">'r</span> <span class="cm-variable">T</span>) -&gt; &amp;<span class="cm-error">'r</span> <span class="cm-def">T</span> {
+    <span class="cm-keyword">if</span> <span class="cm-variable">compute_area</span>(<span class="cm-variable">shape</span>) &gt; <span class="cm-variable">threshold</span> {<span class="cm-variable">a</span>} <span class="cm-keyword">else</span> {<span class="cm-variable">b</span>}
+}
+</pre>
+
+<p>This is equivalent to the previous definition.</p>
+<h1 id="conclusion"><a href="#conclusion"><span class="header-section-number">10</span> Conclusion</a></h1>
+<p>So there you have it: a (relatively) brief tour of the borrowed pointer system. For more details, we refer to the (yet to be written) reference document on borrowed pointers, which will explain the full notation and give more examples.</p>
+</body>
+</html>
