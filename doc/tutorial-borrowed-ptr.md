@@ -67,18 +67,15 @@ compute_distance(&on_the_stack, managed_box);
 compute_distance(managed_box, owned_box);
 ~~~
 
-Here, the `&` operator takes the address of the variable
-`on_the_stack`; this is because `on_the_stack` has the type `Point`
-(that is, a struct value) and we have to take its address to get a
-value. We also call this _borrowing_ the local variable
-`on_the_stack`, because we have created an alias: that is, another
-name for the same data.
+여기, `&` 연산자는 `on_the_stack` 변수의 주소를 취한다.
+이는 `on_the_stack`는 `Point` 타입(즉, 구조체 값)을 가지고 값을 얻기 위해 그것의 주소를 취해야하기 때문이다.
+We also call this _borrowing_ the local variable `on_the_stack`, because we have created an alias:
+즉, 동일한 데이터에 대한 서로 다른 이름이다.
 
-In contrast, we can pass the boxes `managed_box` and `owned_box` to
-`compute_distance` directly. The compiler automatically converts a box like
-`@Point` or `~Point` to a borrowed pointer like `&Point`. This is another form
-of borrowing: in this case, the caller lends the contents of the managed or
-owned box to the callee.
+반대로, `managed_box`와 `owned_box`를 `compute_distance`에 직접 넘길 수 있다.
+컴파일러는 자동적으로 `@Point` 또는 `~Point`와 같은 박스를 `&Point`와 같은 빌린 포인터로 변환한다.
+이것은 빌림의 또 다른 형식이다.
+이 경우, 호출자는 관리되거나 소유되는 박스의 내용을 피호출자에게 빌려준다.
 
 Whenever a caller lends data to a callee, there are some limitations on what
 the caller can do with the original. For example, if the contents of a
