@@ -87,19 +87,18 @@ should make intuitive sense: you must wait for a borrower to return the value
 that you lent it (that is, wait for the borrowed pointer to go out of scope)
 before you can make full use of it again.
 
-# Other uses for the & operator
+# & 연산자의 또 다른 사용법
 
-In the previous example, the value `on_the_stack` was defined like so:
+이전 예제에서, `on_the_stack` 값은 다음과 같이 정의되었다.
 
 ~~~
 # struct Point {x: float, y: float}
 let on_the_stack: Point = Point {x: 3.0, y: 4.0};
 ~~~
 
-This declaration means that code can only pass `Point` by value to other
-functions. As a consequence, we had to explicitly take the address of
-`on_the_stack` to get a borrowed pointer. Sometimes however it is more
-convenient to move the & operator into the definition of `on_the_stack`:
+이 선언은 코드가 `Point`를 다른 함수로 단지 값으로만 넘길 수 있다는 것을 뜻한다.
+결과적으로, 빌린 포인터를 얻기위해 `on_the_stack`의 주소를 명시적으로 취해야 한다.
+때때로 그러나 더욱 편리한 방법은 & 연산자를 `on_the_stack`의 선언으로 옮기는 것이다.
 
 ~~~
 # struct Point {x: float, y: float}
