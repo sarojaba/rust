@@ -105,9 +105,8 @@ let on_the_stack: Point = Point {x: 3.0, y: 4.0};
 let on_the_stack2: &Point = &Point {x: 3.0, y: 4.0};
 ~~~
 
-Applying `&` to an rvalue (non-assignable location) is just a convenient
-shorthand for creating a temporary and taking its address. A more verbose
-way to write the same code is:
+rvalue(할당할 수 없는 위치)에 `&`를 적용하는 것은 단지 임시변수를 만들어 그것의 주소를 취하는 것에 대한 편리한 축약일 뿐이다.
+다음은 위와 같은 코드를 작성하는 더 번잡한 방법이다.
 
 ~~~
 # struct Point {x: float, y: float}
@@ -115,12 +114,11 @@ let tmp = Point {x: 3.0, y: 4.0};
 let on_the_stack2 : &Point = &tmp;
 ~~~
 
-# Taking the address of fields
+# 필드의 주소를 취하기
 
-As in C, the `&` operator is not limited to taking the address of
-local variables. It can also take the address of fields or
-individual array elements. For example, consider this type definition
-for `rectangle`:
+C에서, `&` 연산자는 지역 변수의 주소를 취하는 것에 제한이 없었다.
+또한 필드의 주소나 각각의 배열 요소들도 취할 수 있다.
+예를 들어, `rectangle` 타입의 정의를 고려해라.
 
 ~~~
 struct Point {x: float, y: float} // as before
