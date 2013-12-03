@@ -911,12 +911,11 @@ println(fmt!("%f", point.x));
 
 The indexing operator (`[]`) also auto-dereferences.
 
-# Vectors and strings
+# 벡터와 문자열
 
-A vector is a contiguous section of memory containing zero or more
-values of the same type. Like other types in Rust, vectors can be
-stored on the stack, the local heap, or the exchange heap. Borrowed
-pointers to vectors are also called 'slices'.
+벡터는 같은 타입의 어떤 값들을 포함하는 메모리상의 인접한 영역이다.
+Rust의 다른 타입들처럼, 벡터는 스택, 로컬힙 또는 교환힙에 저장될 수 있다.
+벡터를 가리키는 빌린 포인터는 '슬라이스'라고 불린다.
 
 ~~~
 # enum Crayon {
@@ -925,20 +924,20 @@ pointers to vectors are also called 'slices'.
 #     BananaMania, Beaver, Bittersweet,
 #     Black, BlizzardBlue, Blue
 # }
-// A fixed-size stack vector
+// 고정 크기의 스택 벡터
 let stack_crayons: [Crayon, ..3] = [Almond, AntiqueBrass, Apricot];
 
-// A borrowed pointer to stack-allocated vector
+// 스택에 할당된 벡터를 가리키는 빌린 포인터
 let stack_crayons: &[Crayon] = &[Aquamarine, Asparagus, AtomicTangerine];
 
-// A local heap (managed) vector of crayons
+// 로컬 힙(관리된) 크레용들의 벡터
 let local_crayons: @[Crayon] = @[BananaMania, Beaver, Bittersweet];
 
-// An exchange heap (owned) vector of crayons
+// 교환 힙(소유된) 크레용들의 벡터
 let exchange_crayons: ~[Crayon] = ~[Black, BlizzardBlue, Blue];
 ~~~
 
-The `+` operator means concatenation when applied to vector types.
+`+` 연산자는 벡터 타입에 적용할 때 접합을 의미한다.
 
 ~~~~
 # enum Crayon { Almond, AntiqueBrass, Apricot,
@@ -953,10 +952,10 @@ The `+` operator means concatenation when applied to vector types.
 let my_crayons = ~[Almond, AntiqueBrass, Apricot];
 let your_crayons = ~[BananaMania, Beaver, Bittersweet];
 
-// Add two vectors to create a new one
+// 두 벡터를 합쳐 새로운 하나를 만든다.
 let our_crayons = my_crayons + your_crayons;
 
-// .push_all() will append to a vector, provided it lives in a mutable slot
+// .push_all()는 벡터가 변경가능한 슬롯을 가지고 있다면 뒤에 추가할 것이다.
 let mut my_crayons = my_crayons;
 my_crayons.push_all(your_crayons);
 ~~~~
