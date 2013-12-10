@@ -965,7 +965,7 @@ my_crayons.push_all(your_crayons);
 > not yet well-supported. Owned vectors are often the most
 > usable.
 
-Square brackets denote indexing into a vector:
+사각 괄호는 벡터의 인덱스를 나타낸다.
 
 ~~~~
 # enum Crayon { Almond, AntiqueBrass, Apricot,
@@ -979,7 +979,7 @@ match crayons[0] {
 }
 ~~~~
 
-A vector can be destructured using pattern matching:
+벡터는 패턴 매칭을 사용해 구조를 파괴할 수 있다.
 
 ~~~~
 let numbers: &[int] = &[1, 2, 3];
@@ -992,8 +992,7 @@ let score = match numbers {
 ~~~~
 
 The elements of a vector _inherit the mutability of the vector_,
-and as such, individual elements may not be reassigned when the
-vector lives in an immutable slot.
+and as such, 개별 요소는 벡터가 변할 수 없는 슬롯에 살아있을 때 재할당될 수 없을 것이다.
 
 ~~~ {.xfail-test}
 # enum Crayon { Almond, AntiqueBrass, Apricot,
