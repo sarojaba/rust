@@ -30,7 +30,9 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 
 # 시작하기
 
-현재 Rust 컴파일러는 [tarball]로 제작되고, Windows의 경우는 [installer][win-exe] 사용을 추천한다.
+> **알림**: tarball과 installer는 마스터가 아닌 가장 최신 릴리즈에 링크되어있다.
+
+현재 Rust 컴파일러는 현재 [tarball]이나 [git]으로 제작되고, Windows의 경우는 [installer][win-exe] 사용을 추천한다. 야간 빌드와 패키지 [on the wiki][wiki-packages]를 유지하는 커뮤니티들이 있다.
 
 컴파일러는 Rust로 작성되었기에, 스스로 미리 컴파일된 "snapshot" 버전으로 만들어진다(개발 초기 단계에). 소스는 인터넷에서 지원되는 플랫폼에 맞게 이 스냅샷을 가져와 자동적으로 빌드한다.
 
@@ -42,10 +44,11 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 
 다른 플랫폼에서 작동하는 것을 찾을 수도 있지만, 선호되는 빌드 환경을 지원하는 것이 우선의 목표이다.
 
-> ***Note:*** 윈도우즈 사용자들은 위키에서 세부적인 [getting started][wiki-start] 내용을 읽어야한다. 바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다. 자세한 내용은 여기서 논의하지 않는다. 마지막으로, `rustc`는 [referred to as `rustc.exe`][bug-3319]를 알고 있어야한다. 기대에 어긋나는 것이라는 것은 알고있다.
+> ***알림:*** 윈도우즈 사용자들은 위키에서 세부적인 [getting started][wiki-start] 내용을 읽어야한다. 바이너리 인스톨러를 사용하더라도 윈도우즈에서 빌드하려면 MinGW 설치가 필요하다. 자세한 내용은 여기서 논의하지 않는다. 마지막으로, `rustc`는 [referred to as `rustc.exe`][bug-3319]를 알고 있어야한다. 기대에 어긋나는 것이라는 것은 알고있다.
 
 [bug-3319]: https://github.com/mozilla/rust/issues/3319
 [wiki-start]: https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
+[git]: https://github.com/mozilla/rust.git
 
 소스로부터 빌드하려면 사전에 필요한 패키지는 다음과 같다:
 
@@ -58,19 +61,19 @@ tutorials](#what-next)은 언어에 특화된 기능을 더 깊이 다룬다.
 만약 충분히 필요 조건을 만족한다면, 다음의 명령들을 수행하면 된다.
 
 ~~~~ {.notrust}
-$ curl -O http://static.rust-lang.org/dist/rust-0.8.tar.gz
-$ tar -xzf rust-0.8.tar.gz
-$ cd rust-0.8
+$ curl -O http://static.rust-lang.org/dist/rust-0.9.tar.gz
+$ tar -xzf rust-0.9.tar.gz
+$ cd rust-0.9
 $ ./configure
 $ make && make install
 ~~~~
 
 만약 목표 디렉토리를 수정할 권한을 가지고 있지 않다면 `sudo make install`을 사용해야 할 수도 있다. 설치 장소는 `configure` 명령의 인자로 `--prefix`를 전달하여 조정할 수 있다. 다양한 다른 옵션들도 지원되고 `--help` 인자를 통해 더 자세한 정보를 얻을 수 있습니다.
 
-`make install`이 성공적으로 완료되면 `/usr/local/bin` 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. `rustc`는 the Rust 컴파일러, `rustdoc`는 API-문서 도구, 그리고 `rustpkg`는 Rust 패키지 관리자 및 빌드 시스템, `rusti`는 Rust REPL, 그리고 `rust`는, 위 명령들의 통합된 인터페이스, 몇개의 공통의 명령행 시나리오로 동작하는 도구이다.
+`make install`이 성공적으로 완료되면 `/usr/local/bin` 디렉토리 내의 몇가지 프로그램을 볼 수 있을 것이다. `rustc`는 the Rust 컴파일러, `rustdoc`는 API-문서 도구, 그리고 `rustpkg`는 Rust 패키지 관리자이다.
 
-[tarball]: http://static.rust-lang.org/dist/rust-0.8.tar.gz
-[win-exe]: http://static.rust-lang.org/dist/rust-0.8-install.exe
+[tarball]: http://static.rust-lang.org/dist/rust-0.9.tar.gz
+[win-exe]: http://static.rust-lang.org/dist/rust-0.9-install.exe
 
 ## 자신의 첫 프로그램 컴파일하기
 
@@ -89,19 +92,10 @@ The Rust 컴파일러는 에러가 발생한 경우 유용한 정보를 제공�
 ~~~~ {.notrust}
 hello.rs:2:4: 2:16 error: unresolved name: print_with_unicorns
 hello.rs:2     print_with_unicorns("hello?");
-               ^~~~~~~~~~~~~~~~~~~~~~~
+       ^~~~~~~~~~~~~~~~~~~~~~~
 ~~~~
 
-최대한 단순화하면, Rust 프로그램은 몇 개의 타입과 함수를 가지고 있는 `.rs` 파일이다. 만약 `main` 함수를 가지고 있으면, 실행되도록 컴파일 될 수 있다. Rust는 파일의 최상위 레벨에서 선언된 코드를 허용하지 않는다. 모든 구문은 함수 안에 존재해야 한다. Rust 프로그램은 다른 프로그램에 포함되는 라이브러리로서 컴파일 될 수 있다.
-
-## rust 도구 사용하기
-
-실행되는 것을 생성하기 위해 `rustc`를 직접적으로 사용하고, 수동으로 실행하는 것은 당신의 코드를 테스트하는 완전하고 유효한 방법이지만, 작은 프로젝트이거나 프로토타입이거나 당신이 초보자라면 `rust` 도구를 사용하는 것이 더 편리할 것이다.
-
-`rust` 도구는 나머지 rust 도구들로의 중앙집중적 접근 뿐만아니라 소스 파일을 바로 실행하기 위해 간편한 단축 명령을 제공한다.
-예를 들어, 현재 디렉토리에 `foo.rs` 파일이 있다면, `rust run foo.rs` 명령은 컴파일을 시도할 것이고, 성공하면 결과로 생성된 바이너리를 바로 실행한다.
-
-모든 가능한 명령의 목록을 얻으려면, 어떤 인자도 없이 단순히 `rust`만 호출하면 된다.
+최대한 단순화하면, Rust 프로그램은 몇 개의 타입과 함수를 가지고 있는 `.rs` 파일이다. 만약 `main` 함수를 가지고 있으면, 실행되도록 컴파일 될 수 있다. Rust는 파일의 최상위 레벨에서 선언된 코드를 허용하지 않는다. 모든 구문은 함수 안에 존재해야 한다. Rust 프로그램은 다른 프로그램에 포함되는 라이브러리로서 컴파일 되고, 심지어 Rust로 작성된 것이 아니라도 다른 프로그램에 포함될 수 있다.
 
 ## Rust 코드 수정하기
 
