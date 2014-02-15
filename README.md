@@ -1,11 +1,10 @@
-# The Rust Programming Language
+# Rust 프로그래밍 언어
 
-This is a compiler for Rust, including standard libraries, tools and
-documentation.
+이것은 표준 라이브러리, 도구 그리고 문서등이 포함된 Rust 컴파일러입니다.
 
-## Quick Start
+## 빨리 시작하기
 
-### Windows
+### 윈도우즈
 
 1. 다운로드 받고 [installer and MinGW][win-wiki]를 이용합니다.
 2. [튜토리얼]을 읽습니다.
@@ -18,7 +17,7 @@ documentation.
 [wiki-start]: https://github.com/mozilla/rust/wiki/Note-getting-started-developing-Rust
 [win-wiki]: https://github.com/mozilla/rust/wiki/Using-Rust-on-Windows
 
-### Linux / OS X
+### 리눅스 / OS X
 
 1. 사전에 필요한 패키지를 설치합니다.
     * `g++` 4.4 or `clang++` 3.x
@@ -61,7 +60,7 @@ documentation.
 
 [repo]: https://github.com/mozilla/rust
 [tarball]: http://static.rust-lang.org/dist/rust-0.9.tar.gz
-[tutorial]: http://static.rust-lang.org/doc/0.9/tutorial.html
+[튜토리얼]: http://sarojaba.github.io/rust-doc-korean/doc/tutorial.html
 
 ## 노트
 
